@@ -1,0 +1,13 @@
+node_modules
+dist
+.env
+.DS_Store
+*.local
+database.xlsx
+database_test.xlsx
+check_lock.js
+verify_db.js
+add_performance_sheet.js
+add_documents_sheet.js
+init_lookups.js
+migrate_assets.js
