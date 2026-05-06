@@ -19,6 +19,7 @@ export interface ApiService {
   getAssets: () => Promise<any>;
   getAssetHistory: (assetId: string) => Promise<any>;
   assignAsset: (assetId: string, employeeId: string) => Promise<any>;
+  updateAsset: (id: string, data: any) => Promise<any>;
   getAttendance: (employeeId?: string) => Promise<any>;
   clockIn: (employeeId: string) => Promise<any>;
   getPerformance: (employeeId?: string) => Promise<any>;
