@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTableRows } from './_onedrive';
+import { getTableRows } from './_onedrive.js';
 
 const TABLE_NAME = 'DocumentsTable';
 

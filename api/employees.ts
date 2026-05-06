@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { getTableRows, addTableRow, updateTableRow, deleteTableRow } from './_onedrive';
+import { getTableRows, addTableRow, updateTableRow, deleteTableRow } from './_onedrive.js';
 
 const TABLE_NAME = 'EmployeesTable';
 
