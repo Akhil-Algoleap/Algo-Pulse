@@ -1,0 +1,59 @@
+const http = require('http');
+const axios = require('axios');
+const { exec } = require('child_process');
+
+const TENANT_ID = process.env.AZURE_TENANT_ID;
+const CLIENT_ID = process.env.AZURE_CLIENT_ID;
+const CLIENT_SECRET = process.env.AZURE_CLIENT_SECRET;
+const REDIRECT_URI = "http://localhost:3000";
+
+const server = http.createServer(async (req, res) => {
+  const url = new URL(req.url, REDIRECT_URI);
+  const code = url.searchParams.get('code');
+
+  if (code) {
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end('<h1>Success!</h1><p>You can close this window now. Check your terminal for the token.</p>');
+    
+    console.log('\n[System] Code received. Swapping for refresh token...');
+    
+    try {
+      const params = new URLSearchParams();
+      params.append('client_id', CLIENT_ID);
+      params.append('client_secret', CLIENT_SECRET);
+      params.append('code', code);
+      params.append('grant_type', 'authorization_code');
+      params.append('redirect_uri', REDIRECT_URI);
+      params.append('scope', 'https://graph.microsoft.com/Files.ReadWrite offline_access');
+
+      const response = await axios.post(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`, params);
+      
+      console.log('\n--- YOUR REFRESH TOKEN ---');
+      console.log(response.data.refresh_token);
+      console.log('---------------------------\n');
+      console.log('1. Copy the token above.');
+      console.log('2. Put it in Vercel ONEDRIVE_REFRESH_TOKEN.');
+      console.log('3. REDEPLOY in Vercel.');
+      
+      process.exit(0);
+    } catch (err) {
+      console.error('Error swapping token:', err.response?.data || err.message);
+      process.exit(1);
+    }
+  } else {
+    res.writeHead(400);
+    res.end('No code found');
+  }
+});
+
+server.listen(3000, () => {
+  const authUrl = `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent('https://graph.microsoft.com/Files.ReadWrite offline_access')}`;
+  
+  console.log('\n[System] Web server started on port 3000.');
+  console.log('[System] Opening your browser automatically...');
+  
+  exec(`start "" "${authUrl}"`);
+  
+  console.log('\nIf the browser does not open, please copy this URL manually:');
+  console.log(authUrl);
+});
