@@ -2,13 +2,13 @@ import { Client } from '@microsoft/microsoft-graph-client';
 import 'isomorphic-fetch';
 
 // Credentials from Vercel Environment Variables
-const TENANT_ID = process.env.AZURE_TENANT_ID;
-const CLIENT_ID = process.env.AZURE_CLIENT_ID;
-const CLIENT_SECRET = process.env.AZURE_CLIENT_SECRET;
-const DRIVE_ID = process.env.ONEDRIVE_DRIVE_ID;
-const ITEM_ID = process.env.ONEDRIVE_ITEM_ID; // The ID of database.xlsx
+const TENANT_ID = process.env.AZURE_TENANT_ID?.trim();
+const CLIENT_ID = process.env.AZURE_CLIENT_ID?.trim();
+const CLIENT_SECRET = process.env.AZURE_CLIENT_SECRET?.trim();
+const DRIVE_ID = process.env.ONEDRIVE_DRIVE_ID?.trim();
+const ITEM_ID = process.env.ONEDRIVE_ITEM_ID?.trim(); // The ID of database.xlsx
 
-const REFRESH_TOKEN = process.env.ONEDRIVE_REFRESH_TOKEN;
+const REFRESH_TOKEN = process.env.ONEDRIVE_REFRESH_TOKEN?.trim();
 
 if (!TENANT_ID || !CLIENT_ID || !CLIENT_SECRET || !DRIVE_ID || !ITEM_ID || !REFRESH_TOKEN) {
   console.error('[OneDrive] CRITICAL: Missing one or more environment variables!');
