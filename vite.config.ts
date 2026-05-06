@@ -176,6 +176,9 @@ const excelBackendPlugin = () => ({
               return;
             }
           }
+
+          // --- PERFORMANCE ---
+          if (resource === 'performance') {
             if (method === 'GET') {
               res.end(JSON.stringify({ data: db.Performance || [] }));
               return;
