@@ -4,6 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Employee, EmployeeFormData, Lookups } from '../types';
 import { Button, Input, Select } from './UI';
+import { 
+  HARDCODED_DEPARTMENTS, 
+  HARDCODED_DESIGNATIONS, 
+  HARDCODED_CLIENTS, 
+  HARDCODED_WORKPLACES 
+} from '../constants/lookups';
 
 const employeeSchema = z.object({
   employee_id: z.string().min(1, 'Employee ID is required'),
@@ -18,8 +24,6 @@ const employeeSchema = z.object({
   status: z.enum(['Active', 'Inactive', 'Resigned']),
   experience_years: z.coerce.number().min(0, 'Experience must be 0 or more'),
   reporting_manager_id: z.string().optional(),
-  laptop_serial: z.string().optional(),
-  charger_serial: z.string().optional(),
 });
 
 interface EmployeeFormProps {
@@ -94,7 +98,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           <label className="block text-sm font-medium text-slate-700 mb-1">Department*</label>
           <Select {...register('department_id')}>
             <option value="">Select Department</option>
-            {lookups.departments.map(d => (
+            {HARDCODED_DEPARTMENTS.map(d => (
               <option key={d.id} value={d.id}>{d.department_name}</option>
             ))}
           </Select>
@@ -105,7 +109,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           <label className="block text-sm font-medium text-slate-700 mb-1">Designation*</label>
           <Select {...register('designation_id')}>
             <option value="">Select Designation</option>
-            {lookups.designations.map(d => (
+            {HARDCODED_DESIGNATIONS.map(d => (
               <option key={d.id} value={d.id}>{d.designation_name}</option>
             ))}
           </Select>
@@ -116,7 +120,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           <label className="block text-sm font-medium text-slate-700 mb-1">Client*</label>
           <Select {...register('client_id')}>
             <option value="">Select Client</option>
-            {lookups.clients.map(c => (
+            {HARDCODED_CLIENTS.map(c => (
               <option key={c.id} value={c.id}>{c.client_name}</option>
             ))}
           </Select>
@@ -127,7 +131,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           <label className="block text-sm font-medium text-slate-700 mb-1">Workplace*</label>
           <Select {...register('workplace_id')}>
             <option value="">Select Workplace</option>
-            {lookups.workplaces.map(w => (
+            {HARDCODED_WORKPLACES.map(w => (
               <option key={w.id} value={w.id}>{w.workplace_name}</option>
             ))}
           </Select>
@@ -150,19 +154,6 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           </Select>
         </div>
 
-        <div className="md:col-span-2 mt-4">
-          <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2 mb-4">Asset Details</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Laptop Serial Number</label>
-              <Input {...register('laptop_serial')} placeholder="e.g. SN12345" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Charger Serial Number</label>
-              <Input {...register('charger_serial')} placeholder="e.g. CH9876" />
-            </div>
-          </div>
-        </div>
       </div>
 
       <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">

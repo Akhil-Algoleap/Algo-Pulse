@@ -16,6 +16,12 @@ import { Modal } from '../components/Modal';
 import { EmployeeForm } from '../components/EmployeeForm';
 import { apiService } from '../services/api';
 import { Employee, Lookups, EmployeeFormData } from '../types';
+import { 
+  HARDCODED_DEPARTMENTS, 
+  HARDCODED_DESIGNATIONS, 
+  HARDCODED_CLIENTS, 
+  HARDCODED_WORKPLACES 
+} from '../constants/lookups';
 
 export const EmployeeList: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -302,18 +308,18 @@ export const EmployeeList: React.FC = () => {
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-sm font-bold text-slate-700">
-                        {lookups.departments.find(d => d.id === emp.department_id)?.department_name || 'N/A'}
+                        {HARDCODED_DEPARTMENTS.find(d => d.id === emp.department_id)?.department_name || 'N/A'}
                       </p>
                       <p className="text-[10px] text-slate-400 font-bold uppercase">
-                        {lookups.designations.find(d => d.id === emp.designation_id)?.designation_name || 'N/A'}
+                        {HARDCODED_DESIGNATIONS.find(d => d.id === emp.designation_id)?.designation_name || 'N/A'}
                       </p>
                     </td>
                     <td className="px-6 py-4">
                        <p className="text-sm font-medium text-slate-600">
-                        {lookups.clients.find(c => c.id === emp.client_id)?.client_name || 'Direct'}
+                        {HARDCODED_CLIENTS.find(c => c.id === emp.client_id)?.client_name || 'Direct'}
                        </p>
                        <p className="text-[10px] text-slate-400">
-                        {lookups.workplaces.find(w => w.id === emp.workplace_id)?.workplace_name || 'On-site'}
+                        {HARDCODED_WORKPLACES.find(w => w.id === emp.workplace_id)?.workplace_name || 'On-site'}
                        </p>
                     </td>
                     <td className="px-6 py-4 text-right">

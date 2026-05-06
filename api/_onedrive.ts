@@ -11,6 +11,12 @@ const ITEM_ID = process.env.ONEDRIVE_ITEM_ID; // The ID of database.xlsx
 
 const REFRESH_TOKEN = process.env.ONEDRIVE_REFRESH_TOKEN;
 
+// Validation
+if (!TENANT_ID || !CLIENT_ID || !CLIENT_SECRET || !DRIVE_ID || !ITEM_ID || !REFRESH_TOKEN) {
+  console.error('[OneDrive] CRITICAL: Missing one or more environment variables!');
+  console.log('Available keys:', Object.keys(process.env).filter(k => k.startsWith('AZURE') || k.startsWith('ONEDRIVE')));
+}
+
 const msalConfig = {
   auth: {
     clientId: CLIENT_ID!,
