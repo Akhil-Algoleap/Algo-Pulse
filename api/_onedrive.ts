@@ -84,7 +84,15 @@ export const addTableRow = async (tableName: string, data: any) => {
   const columns = await client.api(`/drives/${DRIVE_ID}/items/${ITEM_ID}/workbook/tables/${tableName}/columns`).get();
   const columnNames = columns.value.map((c: any) => c.name);
   
-  const values = [columnNames.map((name: string) => data[name] || '')];
+  const values = [columnNames.map((name: string) => {
+    // Try different naming conventions
+    const val = data[name] || 
+                data[name.toLowerCase()] || 
+                data[name.toLowerCase().replace(' ', '_')] ||
+                data[name.toLowerCase().replace('_id', '')] ||
+                data[name.toLowerCase().replace(' ', '_') + '_id'];
+    return val || '';
+  })];
   
   const res = await client.api(`/drives/${DRIVE_ID}/items/${ITEM_ID}/workbook/tables/${tableName}/rows`).post({
     values
@@ -107,7 +115,14 @@ export const updateTableRow = async (tableName: string, id: string, data: any) =
   
   // 3. Prepare updated values
   const updatedRow = { ...rows[rowIndex], ...data };
-  const values = [columnNames.map((name: string) => updatedRow[name] || '')];
+  const values = [columnNames.map((name: string) => {
+    const val = updatedRow[name] || 
+                updatedRow[name.toLowerCase()] || 
+                updatedRow[name.toLowerCase().replace(' ', '_')] ||
+                updatedRow[name.toLowerCase().replace('_id', '')] ||
+                updatedRow[name.toLowerCase().replace(' ', '_') + '_id'];
+    return val || '';
+  })];
   
   // 4. Update the specific row
   await client.api(`/drives/${DRIVE_ID}/items/${ITEM_ID}/workbook/tables/${tableName}/rows/itemAt(index=${rowIndex})`).patch({
