@@ -34,6 +34,7 @@ export const getAccessToken = async () => {
   const tokenRequest = {
     refreshToken: REFRESH_TOKEN,
     scopes: ['https://graph.microsoft.com/Files.ReadWrite', 'offline_access'],
+    redirectUri: 'http://localhost:3000',
   };
   
   try {
