@@ -33,13 +33,14 @@ export const getAccessToken = async () => {
 
     const data = await response.json();
     if (data.error) {
+      console.error('[OneDrive] Token Error Details:', data);
       throw new Error(`${data.error}: ${data.error_description}`);
     }
 
     console.log('[OneDrive] App-only token acquired successfully');
     return data.access_token;
   } catch (err: any) {
-    console.error('[OneDrive] App-only token acquisition failed:', err.message);
+    console.error('[OneDrive] App-only token acquisition failed:', err);
     throw err;
   }
 };
