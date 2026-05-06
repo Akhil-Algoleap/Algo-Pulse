@@ -8,10 +8,7 @@ const CLIENT_SECRET = process.env.AZURE_CLIENT_SECRET;
 const DRIVE_ID = process.env.ONEDRIVE_DRIVE_ID;
 const ITEM_ID = process.env.ONEDRIVE_ITEM_ID; // The ID of database.xlsx
 
-const REFRESH_TOKEN = process.env.ONEDRIVE_REFRESH_TOKEN;
-
-// Validation
-if (!TENANT_ID || !CLIENT_ID || !CLIENT_SECRET || !DRIVE_ID || !ITEM_ID || !REFRESH_TOKEN) {
+if (!TENANT_ID || !CLIENT_ID || !CLIENT_SECRET || !DRIVE_ID || !ITEM_ID) {
   console.error('[OneDrive] CRITICAL: Missing one or more environment variables!');
   console.log('Available keys:', Object.keys(process.env).filter(k => k.startsWith('AZURE') || k.startsWith('ONEDRIVE')));
 }
@@ -19,17 +16,14 @@ if (!TENANT_ID || !CLIENT_ID || !CLIENT_SECRET || !DRIVE_ID || !ITEM_ID || !REFR
 
 
 export const getAccessToken = async () => {
-  if (!REFRESH_TOKEN) throw new Error('ONEDRIVE_REFRESH_TOKEN is missing');
-  
-  console.log('[OneDrive] Swapping refresh token via direct API call...');
+  console.log('[OneDrive] Acquiring App-only access token...');
   
   try {
     const params = new URLSearchParams();
     params.append('client_id', CLIENT_ID!);
     params.append('client_secret', CLIENT_SECRET!);
-    params.append('grant_type', 'refresh_token');
-    params.append('refresh_token', REFRESH_TOKEN);
-    params.append('scope', 'https://graph.microsoft.com/Files.ReadWrite offline_access');
+    params.append('grant_type', 'client_credentials');
+    params.append('scope', 'https://graph.microsoft.com/.default');
 
     const response = await fetch(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`, {
       method: 'POST',
@@ -42,10 +36,10 @@ export const getAccessToken = async () => {
       throw new Error(`${data.error}: ${data.error_description}`);
     }
 
-    console.log('[OneDrive] Token swapped successfully');
+    console.log('[OneDrive] App-only token acquired successfully');
     return data.access_token;
   } catch (err: any) {
-    console.error('[OneDrive] Token swap failed:', err.message);
+    console.error('[OneDrive] App-only token acquisition failed:', err.message);
     throw err;
   }
 };
