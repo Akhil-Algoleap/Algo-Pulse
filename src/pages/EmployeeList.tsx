@@ -45,24 +45,16 @@ export const EmployeeList: React.FC = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [empRes, deptRes, desigRes, clientRes, workRes] = await Promise.all([
-        apiService.getEmployees(),
-        apiService.getDepartments(),
-        apiService.getDesignations(),
-        apiService.getClients(),
-        apiService.getWorkplaces()
-      ]);
+      const empRes = await apiService.getEmployees();
       
       setEmployees(empRes.data);
-      setLookups({
-        departments: deptRes.data,
-        designations: desigRes.data,
-        clients: clientRes.data,
-        workplaces: workRes.data,
+      setLookups(prev => ({
+        ...prev,
         employees: empRes.data.map((e: any) => ({ id: e.id, employee_name: e.employee_name }))
-      });
+      }));
     } catch (error) {
-      toast.error('Failed to fetch data');
+      console.error('Fetch error:', error);
+      toast.error('Failed to fetch employee records');
     } finally {
       setIsLoading(false);
     }
