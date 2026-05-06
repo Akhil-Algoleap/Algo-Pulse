@@ -241,7 +241,7 @@ export const EmployeeList: React.FC = () => {
               className="w-full bg-transparent text-sm outline-none appearance-none"
             >
               <option value="">All Departments</option>
-              {lookups.departments.map(d => (
+              {HARDCODED_DEPARTMENTS.map(d => (
                 <option key={d.id} value={d.id}>{d.department_name}</option>
               ))}
             </select>
