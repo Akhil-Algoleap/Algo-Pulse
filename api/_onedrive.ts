@@ -24,13 +24,20 @@ const cca = new ConfidentialClientApplication(msalConfig);
 export const getAccessToken = async () => {
   if (!REFRESH_TOKEN) throw new Error('ONEDRIVE_REFRESH_TOKEN is missing');
   
+  console.log('[OneDrive] Acquiring access token using refresh token...');
   const tokenRequest = {
     refreshToken: REFRESH_TOKEN,
     scopes: ['https://graph.microsoft.com/Files.ReadWrite', 'offline_access'],
   };
   
-  const response = await cca.acquireTokenByRefreshToken(tokenRequest);
-  return response?.accessToken;
+  try {
+    const response = await cca.acquireTokenByRefreshToken(tokenRequest);
+    console.log('[OneDrive] Token acquired successfully');
+    return response?.accessToken;
+  } catch (err: any) {
+    console.error('[OneDrive] Token acquisition failed:', err.message);
+    throw err;
+  }
 };
 
 export const getGraphClient = async () => {
@@ -46,9 +53,11 @@ export const getGraphClient = async () => {
  */
 
 export const getTableRows = async (tableName: string) => {
+  console.log(`[OneDrive] Fetching rows for table: ${tableName}`);
   const client = await getGraphClient();
   const res = await client.api(`/drives/${DRIVE_ID}/items/${ITEM_ID}/workbook/tables/${tableName}/rows`).get();
   
+  console.log(`[OneDrive] Found ${res.value?.length || 0} rows`);
   // Map row values to objects using column names
   const columns = await client.api(`/drives/${DRIVE_ID}/items/${ITEM_ID}/workbook/tables/${tableName}/columns`).get();
   const columnNames = columns.value.map((c: any) => c.name);
