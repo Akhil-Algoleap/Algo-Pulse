@@ -1,5 +1,4 @@
 import { Client } from '@microsoft/microsoft-graph-client';
-import { ConfidentialClientApplication } from '@azure/msal-node';
 import 'isomorphic-fetch';
 
 // Credentials from Vercel Environment Variables
@@ -17,32 +16,36 @@ if (!TENANT_ID || !CLIENT_ID || !CLIENT_SECRET || !DRIVE_ID || !ITEM_ID || !REFR
   console.log('Available keys:', Object.keys(process.env).filter(k => k.startsWith('AZURE') || k.startsWith('ONEDRIVE')));
 }
 
-const msalConfig = {
-  auth: {
-    clientId: CLIENT_ID!,
-    authority: `https://login.microsoftonline.com/${TENANT_ID}`,
-    clientSecret: CLIENT_SECRET!,
-  }
-};
 
-const cca = new ConfidentialClientApplication(msalConfig);
 
 export const getAccessToken = async () => {
   if (!REFRESH_TOKEN) throw new Error('ONEDRIVE_REFRESH_TOKEN is missing');
   
-  console.log('[OneDrive] Acquiring access token using refresh token...');
-  const tokenRequest = {
-    refreshToken: REFRESH_TOKEN,
-    scopes: ['https://graph.microsoft.com/Files.ReadWrite', 'offline_access'],
-    redirectUri: 'http://localhost:3000',
-  };
+  console.log('[OneDrive] Swapping refresh token via direct API call...');
   
   try {
-    const response = await cca.acquireTokenByRefreshToken(tokenRequest);
-    console.log('[OneDrive] Token acquired successfully');
-    return response?.accessToken;
+    const params = new URLSearchParams();
+    params.append('client_id', CLIENT_ID!);
+    params.append('client_secret', CLIENT_SECRET!);
+    params.append('grant_type', 'refresh_token');
+    params.append('refresh_token', REFRESH_TOKEN);
+    params.append('scope', 'https://graph.microsoft.com/Files.ReadWrite offline_access');
+
+    const response = await fetch(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`, {
+      method: 'POST',
+      body: params,
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+
+    const data = await response.json();
+    if (data.error) {
+      throw new Error(`${data.error}: ${data.error_description}`);
+    }
+
+    console.log('[OneDrive] Token swapped successfully');
+    return data.access_token;
   } catch (err: any) {
-    console.error('[OneDrive] Token acquisition failed:', err.message);
+    console.error('[OneDrive] Token swap failed:', err.message);
     throw err;
   }
 };
