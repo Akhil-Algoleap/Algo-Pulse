@@ -26,6 +26,8 @@ export interface ApiService {
   applyLeave: (data: any) => Promise<any>;
   getDocuments: (employeeId?: string) => Promise<any>;
   updateLeaveStatus: (id: string, status: any) => Promise<any>;
+  getExpenses: () => Promise<any>;
+  updateExpenseStatus: (id: string, status: any, comment?: string) => Promise<any>;
   getLookups: () => Promise<any>;
   getDepartments: () => Promise<any>;
   getDesignations: () => Promise<any>;
@@ -96,6 +98,10 @@ export const apiService: ApiService = {
     const res = await axios.post(`${API_BASE}/assets`, { assetId, employeeId });
     return res.data;
   },
+  updateAsset: async (id: string, data: any) => {
+    const res = await axios.put(`${API_BASE}/assets/${id}`, data);
+    return res.data;
+  },
 
   // Attendance
   getAttendance: async (employeeId?: string) => {
@@ -108,7 +114,7 @@ export const apiService: ApiService = {
       employee_id: employeeId,
       date: new Date().toISOString().split('T')[0],
       clock_in: new Date().toISOString(),
-      status: 'Present'
+      status: 'present'
     });
     return res.data;
   },
@@ -141,6 +147,10 @@ export const apiService: ApiService = {
     }
   },
   updateLeaveStatus: async (_id: string, _status: any) => ({ data: {} }),
+
+  // Expenses
+  getExpenses: async () => ({ data: [] }),
+  updateExpenseStatus: async (_id: string, _status: any, _comment?: string) => ({ data: {} }),
 
   // Lookups
   getLookups: async () => {

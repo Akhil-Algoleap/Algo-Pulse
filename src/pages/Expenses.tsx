@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { 
   XCircle, 
-  Receipt,
   CheckCircle2,
   Clock,
   Filter,
@@ -11,7 +10,7 @@ import {
   Search
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { Button, Badge, Card, Select, Input, cn } from '../components/UI';
+import { Button, Badge, Card, Input, cn } from '../components/UI';
 import { apiService } from '../services/api';
 import { ExpenseClaim, ExpenseStatus, Employee } from '../types';
 

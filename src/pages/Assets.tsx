@@ -50,8 +50,8 @@ export const Assets: React.FC = () => {
     if (employee) {
       setFormData({
         employee_id: employee.id,
-        laptop_serial: employee.laptop_serial || '',
-        charger_serial: employee.charger_serial || '',
+        laptop_serial: employee.laptop_serial_number || '',
+        charger_serial: employee.charger_serial_number || '',
         has_mouse: employee.has_mouse || false,
         has_keyboard: employee.has_keyboard || false
       });
@@ -73,8 +73,8 @@ export const Assets: React.FC = () => {
     
     try {
       await apiService.updateEmployee(formData.employee_id, {
-        laptop_serial: formData.laptop_serial,
-        charger_serial: formData.charger_serial,
+        laptop_serial_number: formData.laptop_serial,
+        charger_serial_number: formData.charger_serial,
         has_mouse: formData.has_mouse,
         has_keyboard: formData.has_keyboard
       });
@@ -163,20 +163,20 @@ export const Assets: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-5">
-                    {emp.laptop_serial ? (
+                    {emp.laptop_serial_number ? (
                       <div className="flex items-center gap-2">
                         <Laptop className="w-3 h-3 text-slate-400" />
-                        <span className="text-sm font-mono font-medium text-slate-700">{emp.laptop_serial}</span>
+                        <span className="text-sm font-mono font-medium text-slate-700">{emp.laptop_serial_number}</span>
                       </div>
                     ) : (
                       <Badge variant="outline" className="text-slate-300 border-slate-100 font-medium">Not Assigned</Badge>
                     )}
                   </td>
                   <td className="px-6 py-5">
-                    {emp.charger_serial ? (
+                    {emp.charger_serial_number ? (
                       <div className="flex items-center gap-2">
                         <BatteryCharging className="w-3 h-3 text-slate-400" />
-                        <span className="text-sm font-mono font-medium text-slate-700">{emp.charger_serial}</span>
+                        <span className="text-sm font-mono font-medium text-slate-700">{emp.charger_serial_number}</span>
                       </div>
                     ) : (
                       <Badge variant="outline" className="text-slate-300 border-slate-100 font-medium">Not Assigned</Badge>

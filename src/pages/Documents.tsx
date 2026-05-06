@@ -126,7 +126,7 @@ export const Documents: React.FC = () => {
                     </button>
                   </td>
                   <td className="px-8 py-6 text-right">
-                    <Badge variant={emp.status === 'Active' ? 'success' : 'secondary'} className="text-[10px] font-bold px-3 py-1">
+                    <Badge variant={emp.status === 'Active' ? 'success' : 'outline'} className="text-[10px] font-bold px-3 py-1">
                       {emp.status}
                     </Badge>
                   </td>
