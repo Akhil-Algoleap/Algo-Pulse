@@ -2,14 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { 
   Eye,
   Search,
-  Users,
   FileText,
   Download,
   Filter,
-  ArrowLeft
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { Button, Card, Badge, Select, Input } from '../components/UI';
+import { Button, Badge } from '../components/UI';
 import { Modal } from '../components/Modal';
 import { apiService } from '../services/api';
 import { Document, Employee } from '../types';

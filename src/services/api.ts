@@ -1,49 +1,43 @@
 import axios from 'axios';
 import { 
-  type Employee, 
   type Department, 
   type Designation, 
   type Client, 
   type Workplace,
-  type Asset,
-  type AssetHistory,
-  type LeaveRequest,
   type Attendance,
   type PerformanceRecord,
-  type Document,
-  type ExpenseClaim
 } from '../types';
 
 const API_BASE = '/api';
 
-// Initial Mock Data (for lookups that are still static or hardcoded)
-const MOCK_DEPARTMENTS: Department[] = [
-  { id: '1', department_name: 'Engineering' },
-  { id: '2', department_name: 'Product' },
-  { id: '3', department_name: 'Design' },
-  { id: '4', department_name: 'HR' },
-];
+export interface ApiService {
+  getEmployees: () => Promise<any>;
+  createEmployee: (data: any) => Promise<any>;
+  bulkCreateEmployees: (data: any[]) => Promise<any>;
+  updateEmployee: (id: string, data: any) => Promise<any>;
+  deleteEmployee: (id: string) => Promise<any>;
+  getAssets: () => Promise<any>;
+  getAssetHistory: (assetId: string) => Promise<any>;
+  assignAsset: (assetId: string, employeeId: string) => Promise<any>;
+  getAttendance: (employeeId?: string) => Promise<any>;
+  clockIn: (employeeId: string) => Promise<any>;
+  getPerformance: (employeeId?: string) => Promise<any>;
+  getLeaves: () => Promise<any>;
+  applyLeave: (data: any) => Promise<any>;
+  getDocuments: (employeeId?: string) => Promise<any>;
+  updateLeaveStatus: (id: string, status: any) => Promise<any>;
+  getLookups: () => Promise<any>;
+  getDepartments: () => Promise<any>;
+  getDesignations: () => Promise<any>;
+  getClients: () => Promise<any>;
+  getWorkplaces: () => Promise<any>;
+  createDepartment: (data: any) => Promise<any>;
+  createDesignation: (data: any) => Promise<any>;
+  createClient: (data: any) => Promise<any>;
+  createWorkplace: (data: any) => Promise<any>;
+}
 
-const MOCK_DESIGNATIONS: Designation[] = [
-  { id: '1', designation_name: 'Software Engineer' },
-  { id: '2', designation_name: 'Senior Software Engineer' },
-  { id: '3', designation_name: 'Product Manager' },
-  { id: '4', designation_name: 'UX Designer' },
-];
-
-const MOCK_CLIENTS: Client[] = [
-  { id: '1', client_name: 'Google' },
-  { id: '2', client_name: 'Microsoft' },
-  { id: '3', client_name: 'Meta' },
-];
-
-const MOCK_WORKPLACES: Workplace[] = [
-  { id: '1', workplace_name: 'New York Office' },
-  { id: '2', workplace_name: 'London Office' },
-  { id: '3', workplace_name: 'Remote' },
-];
-
-export const apiService = {
+export const apiService: ApiService = {
   // Employees
   getEmployees: async () => {
     try {
@@ -64,7 +58,6 @@ export const apiService = {
     }
   },
   bulkCreateEmployees: async (data: any[]) => {
-    // For simplicity, we'll just loop or handle it in backend
     const results = [];
     for (const item of data) {
       const res = await axios.post(`${API_BASE}/employees`, item);
@@ -96,11 +89,11 @@ export const apiService = {
     const res = await axios.get(`${API_BASE}/assets`);
     return res.data;
   },
-  getAssetHistory: async (assetId: string) => ({
-    data: [] // Simplified for now
+  getAssetHistory: async (_assetId: string) => ({
+    data: [] 
   }),
   assignAsset: async (assetId: string, employeeId: string) => {
-    const res = await axios.post(`${API_BASE}/assets/assign`, { assetId, employeeId });
+    const res = await axios.post(`${API_BASE}/assets`, { assetId, employeeId });
     return res.data;
   },
 
@@ -132,14 +125,14 @@ export const apiService = {
     }
   },
 
-  // Leaves (Simplified to local/mock for now as per plan focus on Employees/Assets)
+  // Leaves
   getLeaves: async () => ({ data: [] }),
   applyLeave: async (data: any) => ({ data }),
   
   // Documents
   getDocuments: async (employeeId?: string) => {
     try {
-      const url = employeeId ? `${API_BASE}/documents/${employeeId}` : `${API_BASE}/documents`;
+      const url = employeeId ? `${API_BASE}/documents?employeeId=${employeeId}` : `${API_BASE}/documents`;
       const res = await axios.get(url);
       return res.data;
     } catch (err) {
@@ -147,11 +140,30 @@ export const apiService = {
       throw err;
     }
   },
-  updateLeaveStatus: async (id: string, status: any) => ({ data: {} }),
+  updateLeaveStatus: async (_id: string, _status: any) => ({ data: {} }),
 
   // Lookups
-  getDepartments: async () => ({ data: MOCK_DEPARTMENTS }),
-  getDesignations: async () => ({ data: MOCK_DESIGNATIONS }),
-  getClients: async () => ({ data: MOCK_CLIENTS }),
-  getWorkplaces: async () => ({ data: MOCK_WORKPLACES }),
+  getLookups: async () => {
+    const [depts, desigs, clients, works] = await Promise.all([
+      axios.get(`${API_BASE}/lookups?type=departments`),
+      axios.get(`${API_BASE}/lookups?type=designations`),
+      axios.get(`${API_BASE}/lookups?type=clients`),
+      axios.get(`${API_BASE}/lookups?type=workplaces`)
+    ]);
+    return {
+      departments: depts.data.data as Department[],
+      designations: desigs.data.data as Designation[],
+      clients: clients.data.data as Client[],
+      workplaces: works.data.data as Workplace[]
+    };
+  },
+  getDepartments: async () => axios.get(`${API_BASE}/lookups?type=departments`).then(r => r.data),
+  getDesignations: async () => axios.get(`${API_BASE}/lookups?type=designations`).then(r => r.data),
+  getClients: async () => axios.get(`${API_BASE}/lookups?type=clients`).then(r => r.data),
+  getWorkplaces: async () => axios.get(`${API_BASE}/lookups?type=workplaces`).then(r => r.data),
+  
+  createDepartment: async (data: any) => axios.post(`${API_BASE}/lookups?type=departments`, data),
+  createDesignation: async (data: any) => axios.post(`${API_BASE}/lookups?type=designations`, data),
+  createClient: async (data: any) => axios.post(`${API_BASE}/lookups?type=clients`, data),
+  createWorkplace: async (data: any) => axios.post(`${API_BASE}/lookups?type=workplaces`, data),
 };

@@ -35,8 +35,8 @@ export interface Employee {
   status: EmployeeStatus;
   experience_years: number;
   reporting_manager_id?: string;
-  laptop_serial?: string;
-  charger_serial?: string;
+  laptop_serial_number?: string;
+  charger_serial_number?: string;
   has_mouse?: boolean;
   has_keyboard?: boolean;
   role: UserRole;

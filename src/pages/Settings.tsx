@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
+  Cloud,
   Settings as SettingsIcon, 
   Building2, 
   Briefcase, 
@@ -8,7 +9,6 @@ import {
   Plus,
   Save,
   CheckCircle2,
-  Cloud
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { Button, Card, Input, Badge } from '../components/UI';
@@ -228,7 +228,17 @@ export const Settings: React.FC = () => {
                             <p className="text-[10px] text-slate-400 font-medium">Path: /AlgoLeap/Documents/Algo Pulse/</p>
                          </div>
                       </div>
-                      <Badge variant="success" className="bg-emerald-50 text-emerald-600 border-none">Synced 2m ago</Badge>
+                      <div className="flex items-center gap-3">
+                         <Button 
+                           variant="outline" 
+                           size="sm" 
+                           className="text-[10px] bg-white border-slate-200"
+                           onClick={() => window.open(import.meta.env.VITE_ONEDRIVE_VIEW_LINK || 'https://onedrive.live.com', '_blank')}
+                         >
+                            View Live Excel
+                         </Button>
+                         <Badge variant="success" className="bg-emerald-50 text-emerald-600 border-none">Synced 2m ago</Badge>
+                      </div>
                    </div>
                 </div>
                 

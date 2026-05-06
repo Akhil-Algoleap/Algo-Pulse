@@ -67,7 +67,7 @@ export const Leave: React.FC = () => {
 
   const handleStatusUpdate = async (id: string, status: 'Approved' | 'Rejected') => {
     try {
-      await apiService.updateLeaveStatus(id, status, 'Processed by Admin');
+      await apiService.updateLeaveStatus(id, status);
       toast.success(`Leave ${status.toLowerCase()}`);
       fetchData();
     } catch (error) {

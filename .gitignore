@@ -11,3 +11,4 @@ add_performance_sheet.js
 add_documents_sheet.js
 init_lookups.js
 migrate_assets.js
+service-account.json

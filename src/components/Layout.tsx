@@ -11,7 +11,6 @@ import {
   TrendingUp,
   Bell,
   FileText,
-  Receipt
 } from 'lucide-react';
 import { cn, Button } from './UI';
 
