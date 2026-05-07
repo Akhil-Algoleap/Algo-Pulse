@@ -19,13 +19,6 @@ import { Employee, Lookups, EmployeeFormData } from '../types';
 
 export const EmployeeList: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [lookups, setLookups] = useState<Lookups>({
-    departments: [],
-    designations: [],
-    clients: [],
-    workplaces: [],
-    employees: []
-  });
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
@@ -39,16 +32,8 @@ export const EmployeeList: React.FC = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [empRes, lookupRes] = await Promise.all([
-        apiService.getEmployees(),
-        apiService.getLookups()
-      ]);
-      
+      const empRes = await apiService.getEmployees();
       setEmployees(empRes.data);
-      setLookups({
-        ...lookupRes,
-        employees: empRes.data.map((e: any) => ({ id: e.id, employee_name: e.employee_name }))
-      });
     } catch (error) {
       console.error('Fetch error:', error);
       toast.error('Failed to fetch employee records');
@@ -108,27 +93,20 @@ export const EmployeeList: React.FC = () => {
           return;
         }
 
-        // Map data and resolve IDs by name
-        const processedData = data.map(row => {
-          const dept = lookups.departments.find(d => d.department_name.toLowerCase() === row.Department?.toString().toLowerCase());
-          const desig = lookups.designations.find(d => d.designation_name.toLowerCase() === row.Designation?.toString().toLowerCase());
-          const client = lookups.clients.find(c => c.client_name.toLowerCase() === row.Client?.toString().toLowerCase());
-          const work = lookups.workplaces.find(w => w.workplace_name.toLowerCase() === row.Workplace?.toString().toLowerCase());
-
-          return {
-            employee_id: row.EmployeeID?.toString() || `EMP${Math.floor(Math.random() * 1000)}`,
-            employee_name: row.Name || 'Unknown',
-            email: row.Email || '',
-            phone: row.Phone?.toString() || '',
-            joining_date: row.JoiningDate || new Date().toISOString().split('T')[0],
-            department_id: dept?.id || lookups.departments[0]?.id,
-            designation_id: desig?.id || lookups.designations[0]?.id,
-            client_id: client?.id || lookups.clients[0]?.id,
-            workplace_id: work?.id || lookups.workplaces[0]?.id,
-            status: row.Status || 'Active',
-            experience_years: Number(row.Experience) || 0
-          };
-        });
+        // Map data directly
+        const processedData = data.map(row => ({
+          employee_id: row.EmployeeID?.toString() || `EMP${Math.floor(Math.random() * 1000)}`,
+          employee_name: row.Name || 'Unknown',
+          email: row.Email || '',
+          phone: row.Phone?.toString() || '',
+          joining_date: row.JoiningDate || new Date().toISOString().split('T')[0],
+          department_id: row.Department?.toString() || 'Engineering',
+          designation_id: row.Designation?.toString() || 'Software Engineer',
+          client_id: row.Client?.toString() || 'Internal',
+          workplace_id: row.Workplace?.toString() || 'Office',
+          status: row.Status || 'Active',
+          experience_years: Number(row.Experience) || 0
+        }));
 
         await apiService.bulkCreateEmployees(processedData);
         toast.success(`Successfully imported ${processedData.length} employees`);
@@ -167,7 +145,7 @@ export const EmployeeList: React.FC = () => {
   const filteredEmployees = employees.filter(emp => {
     const matchesSearch = emp.employee_name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          emp.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDept = !deptFilter || emp.department_id === deptFilter;
+    const matchesDept = !deptFilter || emp.department_id.toLowerCase().includes(deptFilter.toLowerCase());
     const matchesStatus = !statusFilter || emp.status === statusFilter;
     return matchesSearch && matchesDept && matchesStatus;
   });
@@ -224,16 +202,12 @@ export const EmployeeList: React.FC = () => {
             />
           </div>
           <div className="p-4">
-            <select 
-              value={deptFilter} 
+            <input 
+              placeholder="Filter by Department..." 
+              className="w-full bg-transparent text-sm outline-none"
+              value={deptFilter}
               onChange={(e) => setDeptFilter(e.target.value)}
-              className="w-full bg-transparent text-sm outline-none appearance-none"
-            >
-              <option value="">All Departments</option>
-              {lookups.departments.map(d => (
-                <option key={d.id} value={d.id}>{d.department_name}</option>
-              ))}
-            </select>
+            />
           </div>
           <div className="p-4">
             <select 
@@ -297,18 +271,18 @@ export const EmployeeList: React.FC = () => {
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-sm font-bold text-slate-700">
-                        {lookups.departments.find(d => d.id === emp.department_id)?.department_name || 'N/A'}
+                        {emp.department_id || 'N/A'}
                       </p>
                       <p className="text-[10px] text-slate-400 font-bold uppercase">
-                        {lookups.designations.find(d => d.id === emp.designation_id)?.designation_name || 'N/A'}
+                        {emp.designation_id || 'N/A'}
                       </p>
                     </td>
                     <td className="px-6 py-4">
                        <p className="text-sm font-medium text-slate-600">
-                        {lookups.clients.find(c => c.id === emp.client_id)?.client_name || 'Direct'}
+                        {emp.client_id || 'Direct'}
                        </p>
                        <p className="text-[10px] text-slate-400">
-                        {lookups.workplaces.find(w => w.id === emp.workplace_id)?.workplace_name || 'On-site'}
+                        {emp.workplace_id || 'On-site'}
                        </p>
                     </td>
                     <td className="px-6 py-4 text-right">
@@ -358,7 +332,6 @@ export const EmployeeList: React.FC = () => {
       >
         <EmployeeForm 
           initialData={editingEmployee || undefined} 
-          lookups={lookups} 
           onSubmit={handleSubmit}
         />
       </Modal>

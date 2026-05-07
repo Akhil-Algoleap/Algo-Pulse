@@ -22,14 +22,12 @@ const employeeSchema = z.object({
 
 interface EmployeeFormProps {
   initialData?: Partial<Employee>;
-  lookups: Lookups;
   onSubmit: (data: EmployeeFormData) => void;
   isLoading?: boolean;
 }
 
 export const EmployeeForm: React.FC<EmployeeFormProps> = ({ 
   initialData, 
-  lookups, 
   onSubmit, 
   isLoading 
 }) => {
@@ -90,45 +88,25 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Department*</label>
-          <Select {...register('department_id')}>
-            <option value="">Select Department</option>
-            {lookups.departments.map(d => (
-              <option key={d.id} value={d.id}>{d.department_name}</option>
-            ))}
-          </Select>
+          <Input {...register('department_id')} placeholder="e.g. Engineering" />
           {errors.department_id && <p className="mt-1 text-xs text-red-500">{errors.department_id.message as string}</p>}
         </div>
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Designation*</label>
-          <Select {...register('designation_id')}>
-            <option value="">Select Designation</option>
-            {lookups.designations.map(d => (
-              <option key={d.id} value={d.id}>{d.designation_name}</option>
-            ))}
-          </Select>
+          <Input {...register('designation_id')} placeholder="e.g. Software Engineer" />
           {errors.designation_id && <p className="mt-1 text-xs text-red-500">{errors.designation_id.message as string}</p>}
         </div>
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Client*</label>
-          <Select {...register('client_id')}>
-            <option value="">Select Client</option>
-            {lookups.clients.map(c => (
-              <option key={c.id} value={c.id}>{c.client_name}</option>
-            ))}
-          </Select>
+          <Input {...register('client_id')} placeholder="e.g. Google" />
           {errors.client_id && <p className="mt-1 text-xs text-red-500">{errors.client_id.message as string}</p>}
         </div>
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">Workplace*</label>
-          <Select {...register('workplace_id')}>
-            <option value="">Select Workplace</option>
-            {lookups.workplaces.map(w => (
-              <option key={w.id} value={w.id}>{w.workplace_name}</option>
-            ))}
-          </Select>
+          <Input {...register('workplace_id')} placeholder="e.g. New York Office" />
           {errors.workplace_id && <p className="mt-1 text-xs text-red-500">{errors.workplace_id.message as string}</p>}
         </div>
 
@@ -139,13 +117,8 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Reporting Manager</label>
-          <Select {...register('reporting_manager_id')}>
-            <option value="">None</option>
-            {lookups.employees.map(e => (
-              <option key={e.id} value={e.id}>{e.employee_name}</option>
-            ))}
-          </Select>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Reporting Manager ID</label>
+          <Input {...register('reporting_manager_id')} placeholder="e.g. EMP001" />
         </div>
 
       </div>

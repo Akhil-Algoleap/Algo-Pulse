@@ -146,7 +146,7 @@ export const Performance: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                       <span className="px-2 py-1 bg-slate-100 text-slate-600 rounded text-[10px] font-bold uppercase tracking-tight">Engineering</span>
+                       <span className="px-2 py-1 bg-slate-100 text-slate-600 rounded text-[10px] font-bold uppercase tracking-tight">{emp.department_id || 'N/A'}</span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="space-y-1">
