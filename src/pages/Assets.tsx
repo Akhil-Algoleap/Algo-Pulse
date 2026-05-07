@@ -20,6 +20,7 @@ export const Assets: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Form State
   const [formData, setFormData] = useState({
@@ -71,6 +72,7 @@ export const Assets: React.FC = () => {
     e.preventDefault();
     if (!formData.employee_id) return toast.error('Please select an employee');
     
+    setIsSubmitting(true);
     try {
       await apiService.updateEmployee(formData.employee_id, {
         laptop_serial_number: formData.laptop_serial,
@@ -83,6 +85,8 @@ export const Assets: React.FC = () => {
       fetchData();
     } catch (error) {
       toast.error('Failed to assign assets');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -299,13 +303,9 @@ export const Assets: React.FC = () => {
             </label>
           </div>
 
-          <div className="flex gap-4 pt-4">
-             <Button variant="outline" type="button" className="flex-1 py-3" onClick={() => setIsModalOpen(false)}>
-                Cancel
-             </Button>
-             <Button type="submit" className="flex-1 py-3 shadow-lg shadow-primary-200">
-                Save Assignment
-             </Button>
+          <div className="flex gap-4 pt-2">
+            <Button variant="outline" className="flex-1 py-3" onClick={() => setIsModalOpen(false)} type="button">Cancel</Button>
+            <Button className="flex-1 py-3 shadow-lg shadow-primary-100" isLoading={isSubmitting} type="submit">Save Assignment</Button>
           </div>
         </form>
       </Modal>

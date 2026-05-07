@@ -20,6 +20,7 @@ export const Expenses: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'approvals'>('overview');
   const [searchTerm, setSearchTerm] = useState('');
+  const [loadingActionId, setLoadingActionId] = useState<string | null>(null);
   
   const fetchData = async () => {
     setIsLoading(true);
@@ -42,12 +43,15 @@ export const Expenses: React.FC = () => {
   }, []);
 
   const handleStatusUpdate = async (id: string, status: ExpenseStatus) => {
+    setLoadingActionId(id);
     try {
       await apiService.updateExpenseStatus(id, status, 'Processed by Admin');
       toast.success(`Claim ${status.toLowerCase()}`);
       fetchData();
     } catch (error) {
       toast.error('Action failed');
+    } finally {
+      setLoadingActionId(null);
     }
   };
 
@@ -247,6 +251,7 @@ export const Expenses: React.FC = () => {
                             onClick={() => handleStatusUpdate(claim.id, 'Approved')}
                             className="text-emerald-600 hover:bg-emerald-50 h-9 w-9 p-0 rounded-xl"
                             title="Approve"
+                            isLoading={loadingActionId === claim.id}
                           >
                             <CheckCircle2 className="w-5 h-5" />
                           </Button>
@@ -256,6 +261,7 @@ export const Expenses: React.FC = () => {
                             onClick={() => handleStatusUpdate(claim.id, 'Rejected')}
                             className="text-rose-600 hover:bg-rose-50 h-9 w-9 p-0 rounded-xl"
                             title="Reject"
+                            isLoading={loadingActionId === claim.id}
                           >
                             <XCircle className="w-5 h-5" />
                           </Button>

@@ -20,6 +20,7 @@ export const Documents: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [loadingActionId, setLoadingActionId] = useState<string | null>(null);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -39,7 +40,7 @@ export const Documents: React.FC = () => {
 
   const handleViewEmployeeDocs = async (emp: Employee) => {
     setSelectedEmployee(emp);
-    setIsLoading(true);
+    setLoadingActionId(emp.id);
     try {
       const docRes = await apiService.getDocuments(emp.id);
       setEmployeeDocs(docRes.data);
@@ -48,7 +49,7 @@ export const Documents: React.FC = () => {
     } catch (error) {
       toast.error('Failed to fetch documents for this employee');
     } finally {
-      setIsLoading(false);
+      setLoadingActionId(null);
     }
   };
 
@@ -117,13 +118,14 @@ export const Documents: React.FC = () => {
                     <Badge variant="outline" className="bg-slate-50 text-slate-600 border-slate-100 text-[10px] font-bold">Engineering</Badge>
                   </td>
                   <td className="px-8 py-6 text-center">
-                    <button 
+                    <Button 
                       onClick={() => handleViewEmployeeDocs(emp)}
-                      className="p-3 bg-primary-50 text-primary-600 rounded-2xl hover:bg-primary-600 hover:text-white transition-all shadow-sm hover:shadow-lg hover:shadow-primary-100 flex items-center gap-2 mx-auto"
+                      isLoading={loadingActionId === emp.id}
+                      className="py-2.5 px-4 bg-primary-50 text-primary-600 rounded-2xl hover:bg-primary-600 hover:text-white transition-all shadow-sm hover:shadow-lg hover:shadow-primary-100 flex items-center gap-2 mx-auto"
                     >
-                      <Eye className="w-5 h-5" />
+                      {!loadingActionId || loadingActionId !== emp.id ? <Eye className="w-5 h-5" /> : null}
                       <span className="text-xs font-bold uppercase tracking-tight">View Docs</span>
-                    </button>
+                    </Button>
                   </td>
                   <td className="px-8 py-6 text-right">
                     <Badge variant={emp.status === 'Active' ? 'success' : 'outline'} className="text-[10px] font-bold px-3 py-1">

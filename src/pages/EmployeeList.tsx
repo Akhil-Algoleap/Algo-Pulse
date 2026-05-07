@@ -23,6 +23,8 @@ export const EmployeeList: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,22 +49,25 @@ export const EmployeeList: React.FC = () => {
   }, []);
 
   const handleSubmit = async (data: EmployeeFormData) => {
+    setIsSubmitting(true);
     try {
       if (editingEmployee) {
         await apiService.updateEmployee(editingEmployee.id, data);
         toast.success('Employee updated successfully');
       } else {
-      await apiService.createEmployee(data);
-      toast.success('Employee added successfully');
+        await apiService.createEmployee(data);
+        toast.success('Employee added successfully');
+      }
+      setIsModalOpen(false);
+      setEditingEmployee(null);
+      fetchData();
+    } catch (error: any) {
+      const message = error.response?.data?.error || 'An error occurred';
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsModalOpen(false);
-    setEditingEmployee(null);
-    fetchData();
-  } catch (error: any) {
-    const message = error.response?.data?.error || 'An error occurred';
-    toast.error(message);
-  }
-};
+  };
 
   const handleDelete = async (id: string) => {
     try {
@@ -93,25 +98,30 @@ export const EmployeeList: React.FC = () => {
           return;
         }
 
-        // Map data directly
-        const processedData = data.map(row => ({
-          employee_id: row.EmployeeID?.toString() || `EMP${Math.floor(Math.random() * 1000)}`,
-          employee_name: row.Name || 'Unknown',
-          email: row.Email || '',
-          phone: row.Phone?.toString() || '',
-          joining_date: row.JoiningDate || new Date().toISOString().split('T')[0],
-          department_id: row.Department?.toString() || 'Engineering',
-          designation_id: row.Designation?.toString() || 'Software Engineer',
-          client_id: row.Client?.toString() || 'Internal',
-          workplace_id: row.Workplace?.toString() || 'Office',
-          status: row.Status || 'Active',
-          experience_years: Number(row.Experience) || 0
-        }));
+        setIsImporting(true);
+        try {
+          // Map data directly
+          const processedData = data.map(row => ({
+            employee_id: row.EmployeeID?.toString() || `EMP${Math.floor(Math.random() * 1000)}`,
+            employee_name: row.Name || 'Unknown',
+            email: row.Email || '',
+            phone: row.Phone?.toString() || '',
+            joining_date: row.JoiningDate || new Date().toISOString().split('T')[0],
+            department_id: row.Department?.toString() || 'Engineering',
+            designation_id: row.Designation?.toString() || 'Software Engineer',
+            client_id: row.Client?.toString() || 'Internal',
+            workplace_id: row.Workplace?.toString() || 'Office',
+            status: row.Status || 'Active',
+            experience_years: Number(row.Experience) || 0
+          }));
 
-        await apiService.bulkCreateEmployees(processedData);
-        toast.success(`Successfully imported ${processedData.length} employees`);
-        fetchData();
-        if (fileInputRef.current) fileInputRef.current.value = '';
+          await apiService.bulkCreateEmployees(processedData);
+          toast.success(`Successfully imported ${processedData.length} employees`);
+          fetchData();
+          if (fileInputRef.current) fileInputRef.current.value = '';
+        } finally {
+          setIsImporting(false);
+        }
       } catch (error) {
         console.error(error);
         toast.error('Failed to parse Excel file. Ensure it follows the template.');
@@ -178,9 +188,9 @@ export const EmployeeList: React.FC = () => {
             <Download className="w-4 h-4" />
             Template
           </Button>
-          <Button variant="secondary" className="flex items-center gap-2" onClick={() => fileInputRef.current?.click()}>
+          <Button variant="secondary" className="flex items-center gap-2" onClick={() => fileInputRef.current?.click()} disabled={isImporting}>
             <Upload className="w-4 h-4" />
-            Bulk Import
+            {isImporting ? 'Importing...' : 'Bulk Import'}
           </Button>
           <Button onClick={() => { setEditingEmployee(null); setIsModalOpen(true); }} className="shadow-lg shadow-primary-100">
             <Plus className="w-4 h-4" />
@@ -324,15 +334,19 @@ export const EmployeeList: React.FC = () => {
         </div>
       </Card>
 
-      {/* Modal for Add/Edit */}
-      <Modal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        title={editingEmployee ? 'Update Profile' : 'Register New Employee'}
+      {/* Employee Form Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingEmployee(null);
+        }}
+        title={editingEmployee ? 'Edit Employee' : 'Add New Employee'}
       >
         <EmployeeForm 
-          initialData={editingEmployee || undefined} 
+          initialData={editingEmployee || undefined}
           onSubmit={handleSubmit}
+          isLoading={isSubmitting}
         />
       </Modal>
     </div>

@@ -19,6 +19,8 @@ export const Leave: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadingActionId, setLoadingActionId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'my-leaves' | 'approvals'>('my-leaves');
   
   // Form State
@@ -54,6 +56,7 @@ export const Leave: React.FC = () => {
     if (!newLeave.start_date || !newLeave.end_date || !newLeave.reason) {
       return toast.error('Please fill all fields');
     }
+    setIsSubmitting(true);
     try {
       await apiService.applyLeave(newLeave);
       toast.success('Leave applied successfully');
@@ -62,16 +65,21 @@ export const Leave: React.FC = () => {
       fetchData();
     } catch (error) {
       toast.error('Application failed');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleStatusUpdate = async (id: string, status: 'Approved' | 'Rejected') => {
+    setLoadingActionId(id);
     try {
       await apiService.updateLeaveStatus(id, status);
       toast.success(`Leave ${status.toLowerCase()}`);
       fetchData();
     } catch (error) {
       toast.error('Action failed');
+    } finally {
+      setLoadingActionId(null);
     }
   };
 
@@ -271,6 +279,7 @@ export const Leave: React.FC = () => {
                             onClick={() => handleStatusUpdate(leave.id, 'Approved')}
                             className="text-emerald-600 hover:bg-emerald-50 h-9 w-9 p-0 rounded-xl"
                             title="Approve"
+                            isLoading={loadingActionId === leave.id}
                           >
                             <CheckCircle2 className="w-5 h-5" />
                           </Button>
@@ -280,6 +289,7 @@ export const Leave: React.FC = () => {
                             onClick={() => handleStatusUpdate(leave.id, 'Rejected')}
                             className="text-rose-600 hover:bg-rose-50 h-9 w-9 p-0 rounded-xl"
                             title="Reject"
+                            isLoading={loadingActionId === leave.id}
                           >
                             <XCircle className="w-5 h-5" />
                           </Button>
@@ -372,7 +382,7 @@ export const Leave: React.FC = () => {
           </div>
           <div className="flex gap-4 pt-2">
             <Button variant="outline" className="flex-1 py-3" onClick={() => setIsApplyModalOpen(false)}>Cancel</Button>
-            <Button onClick={handleApply} className="flex-1 py-3 shadow-lg shadow-primary-100">Submit Application</Button>
+            <Button onClick={handleApply} className="flex-1 py-3 shadow-lg shadow-primary-100" isLoading={isSubmitting}>Submit Application</Button>
           </div>
         </div>
       </Modal>
