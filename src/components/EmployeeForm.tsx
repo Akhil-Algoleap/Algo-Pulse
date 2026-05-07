@@ -2,7 +2,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Employee, EmployeeFormData, Lookups } from '../types';
+import { Employee, EmployeeFormData } from '../types';
 import { Button, Input, Select } from './UI';
 
 const employeeSchema = z.object({

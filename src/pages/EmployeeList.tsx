@@ -15,7 +15,7 @@ import { Button, Badge, Card } from '../components/UI';
 import { Modal } from '../components/Modal';
 import { EmployeeForm } from '../components/EmployeeForm';
 import { apiService } from '../services/api';
-import { Employee, Lookups, EmployeeFormData } from '../types';
+import { Employee, EmployeeFormData } from '../types';
 
 export const EmployeeList: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
