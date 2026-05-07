@@ -143,11 +143,11 @@ export const updateTableRow = async (tableName: string, id: string, data: any): 
   const values: any[][] = res.values;
   if (!values || values.length < 2) throw new Error('Sheet is empty');
 
-  const headers: string[] = values[0];
-  const idIdx = headers.indexOf('id');
-  if (idIdx === -1) throw new Error('No "id" column found');
+  const headers: string[] = values[0].map((h: any) => (h ?? '').toString().trim());
+  const idIdx = headers.findIndex(h => h.toLowerCase() === 'id');
+  if (idIdx === -1) throw new Error(`No "id" column found. Headers: [${headers.join(', ')}]`);
 
-  const rowIdx = values.findIndex((row, i) => i > 0 && row[idIdx]?.toString() === id.toString());
+  const rowIdx = values.findIndex((row, i) => i > 0 && row[idIdx]?.toString().trim() === id.toString().trim());
   if (rowIdx === -1) throw new Error(`Row with id ${id} not found`);
 
   const existingObj: any = {};
@@ -181,11 +181,11 @@ export const deleteTableRow = async (tableName: string, id: string): Promise<voi
   const values: any[][] = res.values;
   if (!values || values.length < 2) throw new Error('Sheet is empty');
 
-  const headers: string[] = values[0];
-  const idIdx = headers.indexOf('id');
-  if (idIdx === -1) throw new Error('No "id" column found');
+  const headers: string[] = values[0].map((h: any) => (h ?? '').toString().trim());
+  const idIdx = headers.findIndex(h => h.toLowerCase() === 'id');
+  if (idIdx === -1) throw new Error(`No "id" column found. Headers: [${headers.join(', ')}]`);
 
-  const rowIdx = values.findIndex((row, i) => i > 0 && row[idIdx]?.toString() === id.toString());
+  const rowIdx = values.findIndex((row, i) => i > 0 && row[idIdx]?.toString().trim() === id.toString().trim());
   if (rowIdx === -1) throw new Error(`Row with id ${id} not found`);
 
   const excelRow = rowIdx + 1; // 1-indexed
