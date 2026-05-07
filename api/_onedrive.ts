@@ -6,9 +6,21 @@ const TENANT_ID = process.env.AZURE_TENANT_ID?.trim();
 const CLIENT_ID = process.env.AZURE_CLIENT_ID?.trim();
 const CLIENT_SECRET = process.env.AZURE_CLIENT_SECRET?.trim();
 const DRIVE_ID = process.env.ONEDRIVE_DRIVE_ID?.trim();
-const ITEM_ID = process.env.ONEDRIVE_ITEM_ID?.trim(); // The ID of database.xlsx
-
+const ITEM_ID = process.env.ONEDRIVE_ITEM_ID?.trim();
 const REFRESH_TOKEN = process.env.ONEDRIVE_REFRESH_TOKEN?.trim();
+
+// Map table names to sheet names
+const SHEET_MAP: Record<string, string> = {
+  'EmployeesTable': 'Employees',
+  'AssetsTable': 'Assets',
+  'AttendanceTable': 'Attendance',
+  'PerformanceTable': 'Performance',
+  'DocumentsTable': 'Documents',
+  'DepartmentsTable': 'Departments',
+  'DesignationsTable': 'Designations',
+  'ClientsTable': 'Clients',
+  'WorkplacesTable': 'Workplaces',
+};
 
 if (!TENANT_ID || !CLIENT_ID || !CLIENT_SECRET || !DRIVE_ID || !ITEM_ID || !REFRESH_TOKEN) {
   console.error('[OneDrive] CRITICAL: Missing one or more environment variables!');
@@ -17,34 +29,22 @@ if (!TENANT_ID || !CLIENT_ID || !CLIENT_SECRET || !DRIVE_ID || !ITEM_ID || !REFR
 export const getAccessToken = async () => {
   if (!REFRESH_TOKEN) throw new Error('ONEDRIVE_REFRESH_TOKEN is missing');
   
-  console.log('[OneDrive] Swapping refresh token via direct API call...');
-  
-  try {
-    const params = new URLSearchParams();
-    params.append('client_id', CLIENT_ID!);
-    params.append('client_secret', CLIENT_SECRET!);
-    params.append('grant_type', 'refresh_token');
-    params.append('refresh_token', REFRESH_TOKEN);
-    params.append('scope', 'https://graph.microsoft.com/Files.ReadWrite offline_access');
+  const params = new URLSearchParams();
+  params.append('client_id', CLIENT_ID!);
+  params.append('client_secret', CLIENT_SECRET!);
+  params.append('grant_type', 'refresh_token');
+  params.append('refresh_token', REFRESH_TOKEN);
+  params.append('scope', 'https://graph.microsoft.com/Files.ReadWrite offline_access');
 
-    const response = await fetch(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`, {
-      method: 'POST',
-      body: params,
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
+  const response = await fetch(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`, {
+    method: 'POST',
+    body: params,
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+  });
 
-    const data = await response.json();
-    if (data.error) {
-      console.error('[OneDrive] Token swap error:', data);
-      throw new Error(`${data.error}: ${data.error_description}`);
-    }
-
-    console.log('[OneDrive] Token swapped successfully');
-    return data.access_token;
-  } catch (err: any) {
-    console.error('[OneDrive] Token swap failed:', err.message);
-    throw err;
-  }
+  const data = await response.json();
+  if (data.error) throw new Error(`${data.error}: ${data.error_description}`);
+  return data.access_token;
 };
 
 export const getGraphClient = async () => {
@@ -54,91 +54,134 @@ export const getGraphClient = async () => {
   });
 };
 
-/**
- * Excel Helper Functions
- * We assume each sheet has a Table named after the sheet (e.g. "EmployeesTable")
- */
+// ─── Sheet-based helpers ────────────────────────────────────────────────────
 
-export const getTableRows = async (tableName: string) => {
-  console.log(`[OneDrive] Fetching rows for table: ${tableName}`);
+const getSheetName = (tableName: string) => {
+  const sheet = SHEET_MAP[tableName];
+  if (!sheet) throw new Error(`Unknown table name: ${tableName}`);
+  return sheet;
+};
+
+/**
+ * Read all rows from a worksheet (first row = headers)
+ */
+export const getTableRows = async (tableName: string): Promise<any[]> => {
+  const sheetName = getSheetName(tableName);
   const client = await getGraphClient();
-  const res = await client.api(`/drives/${DRIVE_ID}/items/${ITEM_ID}/workbook/tables/${tableName}/rows`).get();
   
-  console.log(`[OneDrive] Found ${res.value?.length || 0} rows`);
-  // Map row values to objects using column names
-  const columns = await client.api(`/drives/${DRIVE_ID}/items/${ITEM_ID}/workbook/tables/${tableName}/columns`).get();
-  const columnNames = columns.value.map((c: any) => c.name);
-  
-  return res.value.map((row: any) => {
+  // Get used range
+  const res = await client
+    .api(`/drives/${DRIVE_ID}/items/${ITEM_ID}/workbook/worksheets/${encodeURIComponent(sheetName)}/usedRange`)
+    .get();
+
+  const values: any[][] = res.values;
+  if (!values || values.length < 2) return [];
+
+  const headers: string[] = values[0];
+  return values.slice(1).map((row) => {
     const obj: any = {};
-    row.values[0].forEach((val: any, idx: number) => {
-      obj[columnNames[idx]] = val;
-    });
+    headers.forEach((h, i) => { obj[h] = row[i] ?? ''; });
     return obj;
   });
 };
 
-export const addTableRow = async (tableName: string, data: any) => {
+/**
+ * Append a new row to a worksheet
+ */
+export const addTableRow = async (tableName: string, data: any): Promise<any> => {
+  const sheetName = getSheetName(tableName);
   const client = await getGraphClient();
-  
-  // Get column order
-  const columns = await client.api(`/drives/${DRIVE_ID}/items/${ITEM_ID}/workbook/tables/${tableName}/columns`).get();
-  const columnNames = columns.value.map((c: any) => c.name);
-  
-  const values = [columnNames.map((name: string) => {
-    // Try different naming conventions
-    const val = data[name] || 
-                data[name.toLowerCase()] || 
-                data[name.toLowerCase().replace(' ', '_')] ||
-                data[name.toLowerCase().replace('_id', '')] ||
-                data[name.toLowerCase().replace(' ', '_') + '_id'];
-    return val || '';
-  })];
-  
-  const res = await client.api(`/drives/${DRIVE_ID}/items/${ITEM_ID}/workbook/tables/${tableName}/rows`).post({
-    values
-  });
-  return res;
+
+  // Get headers from first row
+  const headerRes = await client
+    .api(`/drives/${DRIVE_ID}/items/${ITEM_ID}/workbook/worksheets/${encodeURIComponent(sheetName)}/usedRange`)
+    .get();
+
+  const values: any[][] = headerRes.values;
+  if (!values || values.length === 0) throw new Error(`Sheet "${sheetName}" is empty`);
+
+  const headers: string[] = values[0];
+  const newRow = headers.map((h) => data[h] ?? '');
+
+  // Find next empty row (usedRange row count + 1)
+  const nextRow = values.length + 1; // 1-indexed
+
+  // Write to the next row
+  const colCount = headers.length;
+  const endCol = String.fromCharCode(65 + colCount - 1); // e.g. A..Z
+  const range = `A${nextRow}:${endCol}${nextRow}`;
+
+  await client
+    .api(`/drives/${DRIVE_ID}/items/${ITEM_ID}/workbook/worksheets/${encodeURIComponent(sheetName)}/range(address='${range}')`)
+    .patch({ values: [newRow] });
+
+  return data;
 };
 
-export const updateTableRow = async (tableName: string, id: string, data: any) => {
+/**
+ * Update an existing row by matching the 'id' column
+ */
+export const updateTableRow = async (tableName: string, id: string, data: any): Promise<any> => {
+  const sheetName = getSheetName(tableName);
   const client = await getGraphClient();
-  
-  // 1. Find the row index by searching for the ID in the 'id' column
-  const rows = await getTableRows(tableName);
-  const rowIndex = rows.findIndex((r: any) => r.id?.toString() === id.toString());
-  
-  if (rowIndex === -1) throw new Error(`Row with ID ${id} not found`);
-  
-  // 2. Get column order
-  const columns = await client.api(`/drives/${DRIVE_ID}/items/${ITEM_ID}/workbook/tables/${tableName}/columns`).get();
-  const columnNames = columns.value.map((c: any) => c.name);
-  
-  // 3. Prepare updated values
-  const updatedRow = { ...rows[rowIndex], ...data };
-  const values = [columnNames.map((name: string) => {
-    const val = updatedRow[name] || 
-                updatedRow[name.toLowerCase()] || 
-                updatedRow[name.toLowerCase().replace(' ', '_')] ||
-                updatedRow[name.toLowerCase().replace('_id', '')] ||
-                updatedRow[name.toLowerCase().replace(' ', '_') + '_id'];
-    return val || '';
-  })];
-  
-  // 4. Update the specific row
-  await client.api(`/drives/${DRIVE_ID}/items/${ITEM_ID}/workbook/tables/${tableName}/rows/itemAt(index=${rowIndex})`).patch({
-    values
-  });
-  
-  return updatedRow;
+
+  const res = await client
+    .api(`/drives/${DRIVE_ID}/items/${ITEM_ID}/workbook/worksheets/${encodeURIComponent(sheetName)}/usedRange`)
+    .get();
+
+  const values: any[][] = res.values;
+  if (!values || values.length < 2) throw new Error('Sheet is empty');
+
+  const headers: string[] = values[0];
+  const idIdx = headers.indexOf('id');
+  if (idIdx === -1) throw new Error('No "id" column found');
+
+  const rowIdx = values.findIndex((row, i) => i > 0 && row[idIdx]?.toString() === id.toString());
+  if (rowIdx === -1) throw new Error(`Row with id ${id} not found`);
+
+  const existingObj: any = {};
+  headers.forEach((h, i) => { existingObj[h] = values[rowIdx][i] ?? ''; });
+
+  const merged = { ...existingObj, ...data };
+  const newRow = headers.map((h) => merged[h] ?? '');
+
+  const excelRow = rowIdx + 1; // 1-indexed
+  const colCount = headers.length;
+  const endCol = String.fromCharCode(65 + colCount - 1);
+  const range = `A${excelRow}:${endCol}${excelRow}`;
+
+  await client
+    .api(`/drives/${DRIVE_ID}/items/${ITEM_ID}/workbook/worksheets/${encodeURIComponent(sheetName)}/range(address='${range}')`)
+    .patch({ values: [newRow] });
+
+  return merged;
 };
 
-export const deleteTableRow = async (tableName: string, id: string) => {
+/**
+ * Delete a row by matching the 'id' column
+ */
+export const deleteTableRow = async (tableName: string, id: string): Promise<void> => {
+  const sheetName = getSheetName(tableName);
   const client = await getGraphClient();
-  const rows = await getTableRows(tableName);
-  const rowIndex = rows.findIndex((r: any) => r.id?.toString() === id.toString());
-  
-  if (rowIndex === -1) throw new Error(`Row with ID ${id} not found`);
-  
-  await client.api(`/drives/${DRIVE_ID}/items/${ITEM_ID}/workbook/tables/${tableName}/rows/itemAt(index=${rowIndex})`).delete();
+
+  const res = await client
+    .api(`/drives/${DRIVE_ID}/items/${ITEM_ID}/workbook/worksheets/${encodeURIComponent(sheetName)}/usedRange`)
+    .get();
+
+  const values: any[][] = res.values;
+  if (!values || values.length < 2) throw new Error('Sheet is empty');
+
+  const headers: string[] = values[0];
+  const idIdx = headers.indexOf('id');
+  if (idIdx === -1) throw new Error('No "id" column found');
+
+  const rowIdx = values.findIndex((row, i) => i > 0 && row[idIdx]?.toString() === id.toString());
+  if (rowIdx === -1) throw new Error(`Row with id ${id} not found`);
+
+  const excelRow = rowIdx + 1; // 1-indexed
+
+  // Delete the row by shifting rows up
+  await client
+    .api(`/drives/${DRIVE_ID}/items/${ITEM_ID}/workbook/worksheets/${encodeURIComponent(sheetName)}/range(address='${excelRow}:${excelRow}')/delete`)
+    .post({ shift: 'Up' });
 };
