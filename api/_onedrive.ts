@@ -62,6 +62,18 @@ const getSheetName = (tableName: string) => {
   return sheet;
 };
 
+// Convert 0-based column index to Excel column letters (A, B, ..., Z, AA, AB, ...)
+const colToLetter = (col: number): string => {
+  let letter = '';
+  col += 1; // 1-based
+  while (col > 0) {
+    const rem = (col - 1) % 26;
+    letter = String.fromCharCode(65 + rem) + letter;
+    col = Math.floor((col - 1) / 26);
+  }
+  return letter;
+};
+
 /**
  * Read all rows from a worksheet (first row = headers)
  */
@@ -107,8 +119,7 @@ export const addTableRow = async (tableName: string, data: any): Promise<any> =>
   const nextRow = values.length + 1; // 1-indexed
 
   // Write to the next row
-  const colCount = headers.length;
-  const endCol = String.fromCharCode(65 + colCount - 1); // e.g. A..Z
+  const endCol = colToLetter(headers.length - 1);
   const range = `A${nextRow}:${endCol}${nextRow}`;
 
   await client
@@ -146,8 +157,7 @@ export const updateTableRow = async (tableName: string, id: string, data: any): 
   const newRow = headers.map((h) => merged[h] ?? '');
 
   const excelRow = rowIdx + 1; // 1-indexed
-  const colCount = headers.length;
-  const endCol = String.fromCharCode(65 + colCount - 1);
+  const endCol = colToLetter(headers.length - 1);
   const range = `A${excelRow}:${endCol}${excelRow}`;
 
   await client
