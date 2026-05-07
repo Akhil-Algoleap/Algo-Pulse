@@ -133,8 +133,14 @@ export const apiService: ApiService = {
   },
 
   // Leaves
-  getLeaves: async () => ({ data: [] }),
-  applyLeave: async (data: any) => ({ data }),
+  getLeaves: async () => {
+    const res = await axios.get(`${API_BASE}/leaves`);
+    return res.data;
+  },
+  applyLeave: async (data: any) => {
+    const res = await axios.post(`${API_BASE}/leaves`, data);
+    return res.data;
+  },
   
   // Documents
   getDocuments: async (employeeId?: string) => {
@@ -147,7 +153,10 @@ export const apiService: ApiService = {
       throw err;
     }
   },
-  updateLeaveStatus: async (_id: string, _status: any) => ({ data: {} }),
+  updateLeaveStatus: async (id: string, status: any) => {
+    const res = await axios.put(`${API_BASE}/leaves?id=${id}`, { status });
+    return res.data;
+  },
 
   // Expenses
   getExpenses: async () => ({ data: [] }),

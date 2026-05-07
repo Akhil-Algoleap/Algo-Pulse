@@ -20,6 +20,7 @@ const SHEET_MAP: Record<string, string> = {
   'DesignationsTable': 'Designations',
   'ClientsTable': 'Clients',
   'WorkplacesTable': 'Workplaces',
+  'LeavesTable': 'Leaves',
 };
 
 if (!TENANT_ID || !CLIENT_ID || !CLIENT_SECRET || !DRIVE_ID || !ITEM_ID || !REFRESH_TOKEN) {
