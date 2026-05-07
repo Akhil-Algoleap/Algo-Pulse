@@ -70,7 +70,7 @@ export const apiService: ApiService = {
   },
   updateEmployee: async (id: string, data: any) => {
     try {
-      const res = await axios.put(`${API_BASE}/employees/${id}`, data);
+      const res = await axios.put(`${API_BASE}/employees?id=${id}`, data);
       return res.data;
     } catch (err) {
       console.error('updateEmployee error:', err);
@@ -79,7 +79,7 @@ export const apiService: ApiService = {
   },
   deleteEmployee: async (id: string) => {
     try {
-      const res = await axios.delete(`${API_BASE}/employees/${id}`);
+      const res = await axios.delete(`${API_BASE}/employees?id=${id}`);
       return res.data;
     } catch (err) {
       console.error('deleteEmployee error:', err);
@@ -100,7 +100,7 @@ export const apiService: ApiService = {
     return res.data;
   },
   updateAsset: async (id: string, data: any) => {
-    const res = await axios.put(`${API_BASE}/assets/${id}`, data);
+    const res = await axios.put(`${API_BASE}/assets?id=${id}`, data);
     return res.data;
   },
 

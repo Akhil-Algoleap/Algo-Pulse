@@ -2,9 +2,10 @@ const http = require('http');
 const axios = require('axios');
 const { exec } = require('child_process');
 
-const TENANT_ID = process.env.AZURE_TENANT_ID;
-const CLIENT_ID = process.env.AZURE_CLIENT_ID;
-const CLIENT_SECRET = process.env.AZURE_CLIENT_SECRET;
+// REPLACE THESE WITH YOUR OWN AZURE APP CREDENTIALS
+const TENANT_ID = "YOUR_TENANT_ID";
+const CLIENT_ID = "YOUR_CLIENT_ID";
+const CLIENT_SECRET = "YOUR_CLIENT_SECRET";
 const REDIRECT_URI = "http://localhost:3000";
 
 const server = http.createServer(async (req, res) => {
@@ -28,11 +29,11 @@ const server = http.createServer(async (req, res) => {
 
       const response = await axios.post(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`, params);
       
-      console.log('\n--- YOUR REFRESH TOKEN ---');
+      console.log('\n--- COPY THIS ENTIRE TOKEN BELOW ---');
       console.log(response.data.refresh_token);
-      console.log('---------------------------\n');
-      console.log('1. Copy the token above.');
-      console.log('2. Put it in Vercel ONEDRIVE_REFRESH_TOKEN.');
+      console.log('-------------------------------------\n');
+      console.log('1. Copy the token above (it is very long!).');
+      console.log('2. Paste it into Vercel ONEDRIVE_REFRESH_TOKEN.');
       console.log('3. REDEPLOY in Vercel.');
       
       process.exit(0);
@@ -53,7 +54,4 @@ server.listen(3000, () => {
   console.log('[System] Opening your browser automatically...');
   
   exec(`start "" "${authUrl}"`);
-  
-  console.log('\nIf the browser does not open, please copy this URL manually:');
-  console.log(authUrl);
 });

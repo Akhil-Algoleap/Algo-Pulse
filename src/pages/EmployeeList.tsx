@@ -16,12 +16,6 @@ import { Modal } from '../components/Modal';
 import { EmployeeForm } from '../components/EmployeeForm';
 import { apiService } from '../services/api';
 import { Employee, Lookups, EmployeeFormData } from '../types';
-import { 
-  HARDCODED_DEPARTMENTS, 
-  HARDCODED_DESIGNATIONS, 
-  HARDCODED_CLIENTS, 
-  HARDCODED_WORKPLACES 
-} from '../constants/lookups';
 
 export const EmployeeList: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -45,13 +39,16 @@ export const EmployeeList: React.FC = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const empRes = await apiService.getEmployees();
+      const [empRes, lookupRes] = await Promise.all([
+        apiService.getEmployees(),
+        apiService.getLookups()
+      ]);
       
       setEmployees(empRes.data);
-      setLookups(prev => ({
-        ...prev,
+      setLookups({
+        ...lookupRes,
         employees: empRes.data.map((e: any) => ({ id: e.id, employee_name: e.employee_name }))
-      }));
+      });
     } catch (error) {
       console.error('Fetch error:', error);
       toast.error('Failed to fetch employee records');
@@ -233,7 +230,7 @@ export const EmployeeList: React.FC = () => {
               className="w-full bg-transparent text-sm outline-none appearance-none"
             >
               <option value="">All Departments</option>
-              {HARDCODED_DEPARTMENTS.map(d => (
+              {lookups.departments.map(d => (
                 <option key={d.id} value={d.id}>{d.department_name}</option>
               ))}
             </select>
@@ -300,18 +297,18 @@ export const EmployeeList: React.FC = () => {
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-sm font-bold text-slate-700">
-                        {HARDCODED_DEPARTMENTS.find(d => d.id === emp.department_id)?.department_name || 'N/A'}
+                        {lookups.departments.find(d => d.id === emp.department_id)?.department_name || 'N/A'}
                       </p>
                       <p className="text-[10px] text-slate-400 font-bold uppercase">
-                        {HARDCODED_DESIGNATIONS.find(d => d.id === emp.designation_id)?.designation_name || 'N/A'}
+                        {lookups.designations.find(d => d.id === emp.designation_id)?.designation_name || 'N/A'}
                       </p>
                     </td>
                     <td className="px-6 py-4">
                        <p className="text-sm font-medium text-slate-600">
-                        {HARDCODED_CLIENTS.find(c => c.id === emp.client_id)?.client_name || 'Direct'}
+                        {lookups.clients.find(c => c.id === emp.client_id)?.client_name || 'Direct'}
                        </p>
                        <p className="text-[10px] text-slate-400">
-                        {HARDCODED_WORKPLACES.find(w => w.id === emp.workplace_id)?.workplace_name || 'On-site'}
+                        {lookups.workplaces.find(w => w.id === emp.workplace_id)?.workplace_name || 'On-site'}
                        </p>
                     </td>
                     <td className="px-6 py-4 text-right">

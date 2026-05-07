@@ -55,14 +55,62 @@ const excelBackendPlugin = () => ({
           const dbPath = path.resolve(__dirname, 'database.xlsx');
           const db = readExcel(dbPath);
           
-          const fullUrl = req.url.replace('/api/', '').split('?')[0];
-          const urlParts = fullUrl.split('/');
+          const url = new URL(req.url, `http://${req.headers.host}`);
+          const fullPath = url.pathname.replace('/api/', '');
+          const urlParts = fullPath.split('/');
           const resource = urlParts[0];
-          const id = urlParts[1];
+          const id = urlParts[1] || url.searchParams.get('id');
           const method = req.method;
 
           // Set common headers
           res.setHeader('Content-Type', 'application/json');
+
+          // --- LOOKUPS (Unified Endpoint) ---
+          if (resource === 'lookups') {
+            const type = url.searchParams.get('type');
+            const sheetMap: any = {
+              'departments': 'Departments',
+              'designations': 'Designations',
+              'clients': 'Clients',
+              'workplaces': 'Workplaces'
+            };
+            
+            if (!type || !sheetMap[type]) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: 'Invalid lookup type' }));
+              return;
+            }
+
+            const sheetName = sheetMap[type];
+
+            if (method === 'GET') {
+              res.end(JSON.stringify({ data: db[sheetName] || [] }));
+              return;
+            }
+
+            if (method === 'POST') {
+              let body = '';
+              req.on('data', (chunk: any) => body += chunk);
+              req.on('end', () => {
+                try {
+                  const newItem = JSON.parse(body);
+                  const items = db[sheetName] || [];
+                  const maxId = items.reduce((max: number, item: any) => {
+                    const idNum = parseInt(item.id);
+                    return isNaN(idNum) ? max : Math.max(max, idNum);
+                  }, 0);
+                  newItem.id = (maxId + 1).toString();
+                  db[sheetName] = [...items, newItem];
+                  writeExcel(dbPath, db);
+                  res.end(JSON.stringify({ data: newItem }));
+                } catch (err: any) {
+                  res.statusCode = err.code === 'EBUSY' ? 423 : 500;
+                  res.end(JSON.stringify({ error: err.message }));
+                }
+              });
+              return;
+            }
+          }
 
           // --- EMPLOYEES ---
           if (resource === 'employees') {
@@ -138,44 +186,6 @@ const excelBackendPlugin = () => ({
               return;
             }
           }
-          // --- LOOKUPS (Departments, Designations, etc.) ---
-          if (['departments', 'designations', 'clients', 'workplaces'].includes(resource)) {
-            const sheetMap: any = {
-              'departments': 'Departments',
-              'designations': 'Designations',
-              'clients': 'Clients',
-              'workplaces': 'Workplaces'
-            };
-            const sheetName = sheetMap[resource];
-
-            if (method === 'GET') {
-              res.end(JSON.stringify({ data: db[sheetName] || [] }));
-              return;
-            }
-
-            if (method === 'POST') {
-              let body = '';
-              req.on('data', (chunk: any) => body += chunk);
-              req.on('end', () => {
-                try {
-                  const newItem = JSON.parse(body);
-                  const items = db[sheetName] || [];
-                  const maxId = items.reduce((max: number, item: any) => {
-                    const idNum = parseInt(item.id);
-                    return isNaN(idNum) ? max : Math.max(max, idNum);
-                  }, 0);
-                  newItem.id = (maxId + 1).toString();
-                  db[sheetName] = [...items, newItem];
-                  writeExcel(dbPath, db);
-                  res.end(JSON.stringify({ data: newItem }));
-                } catch (err: any) {
-                  res.statusCode = err.code === 'EBUSY' ? 423 : 500;
-                  res.end(JSON.stringify({ error: err.message }));
-                }
-              });
-              return;
-            }
-          }
 
           // --- PERFORMANCE ---
           if (resource === 'performance') {
@@ -210,8 +220,6 @@ const excelBackendPlugin = () => ({
           // --- ASSETS ---
           if (resource === 'assets' && method === 'GET') {
             const employees = db.Employees || [];
-            // Map employees back to an asset-like structure if needed, 
-            // but the UI is now being updated to handle the unified structure.
             res.end(JSON.stringify({ data: employees }));
             return;
           }

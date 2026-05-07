@@ -4,12 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Employee, EmployeeFormData, Lookups } from '../types';
 import { Button, Input, Select } from './UI';
-import { 
-  HARDCODED_DEPARTMENTS, 
-  HARDCODED_DESIGNATIONS, 
-  HARDCODED_CLIENTS, 
-  HARDCODED_WORKPLACES 
-} from '../constants/lookups';
 
 const employeeSchema = z.object({
   employee_id: z.string().min(1, 'Employee ID is required'),
@@ -98,7 +92,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           <label className="block text-sm font-medium text-slate-700 mb-1">Department*</label>
           <Select {...register('department_id')}>
             <option value="">Select Department</option>
-            {HARDCODED_DEPARTMENTS.map(d => (
+            {lookups.departments.map(d => (
               <option key={d.id} value={d.id}>{d.department_name}</option>
             ))}
           </Select>
@@ -109,7 +103,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           <label className="block text-sm font-medium text-slate-700 mb-1">Designation*</label>
           <Select {...register('designation_id')}>
             <option value="">Select Designation</option>
-            {HARDCODED_DESIGNATIONS.map(d => (
+            {lookups.designations.map(d => (
               <option key={d.id} value={d.id}>{d.designation_name}</option>
             ))}
           </Select>
@@ -120,7 +114,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           <label className="block text-sm font-medium text-slate-700 mb-1">Client*</label>
           <Select {...register('client_id')}>
             <option value="">Select Client</option>
-            {HARDCODED_CLIENTS.map(c => (
+            {lookups.clients.map(c => (
               <option key={c.id} value={c.id}>{c.client_name}</option>
             ))}
           </Select>
@@ -131,7 +125,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           <label className="block text-sm font-medium text-slate-700 mb-1">Workplace*</label>
           <Select {...register('workplace_id')}>
             <option value="">Select Workplace</option>
-            {HARDCODED_WORKPLACES.map(w => (
+            {lookups.workplaces.map(w => (
               <option key={w.id} value={w.id}>{w.workplace_name}</option>
             ))}
           </Select>
