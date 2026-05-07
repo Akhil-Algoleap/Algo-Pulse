@@ -74,6 +74,14 @@ const colToLetter = (col: number): string => {
   return letter;
 };
 
+// Normalize headers to trim whitespace and strictly ensure 'id' is lowercase for frontend compatibility
+const normalizeHeaders = (rawHeaders: any[]): string[] => {
+  return rawHeaders.map((h: any) => {
+    const trimmed = (h ?? '').toString().trim();
+    return trimmed.toLowerCase() === 'id' ? 'id' : trimmed;
+  });
+};
+
 /**
  * Read all rows from a worksheet (first row = headers)
  */
@@ -89,7 +97,7 @@ export const getTableRows = async (tableName: string): Promise<any[]> => {
   const values: any[][] = res.values;
   if (!values || values.length < 2) return [];
 
-  const headers: string[] = values[0];
+  const headers = normalizeHeaders(values[0]);
   return values.slice(1).map((row) => {
     const obj: any = {};
     headers.forEach((h, i) => { obj[h] = row[i] ?? ''; });
@@ -112,7 +120,7 @@ export const addTableRow = async (tableName: string, data: any): Promise<any> =>
   const values: any[][] = headerRes.values;
   if (!values || values.length === 0) throw new Error(`Sheet "${sheetName}" is empty`);
 
-  const headers: string[] = values[0];
+  const headers = normalizeHeaders(values[0]);
   const newRow = headers.map((h) => data[h] ?? '');
 
   // Find next empty row (usedRange row count + 1)
@@ -143,7 +151,7 @@ export const updateTableRow = async (tableName: string, id: string, data: any): 
   const values: any[][] = res.values;
   if (!values || values.length < 2) throw new Error('Sheet is empty');
 
-  const headers: string[] = values[0].map((h: any) => (h ?? '').toString().trim());
+  const headers = normalizeHeaders(values[0]);
   const idIdx = headers.findIndex(h => h.toLowerCase() === 'id');
   if (idIdx === -1) throw new Error(`No "id" column found. Headers: [${headers.join(', ')}]`);
 
@@ -181,7 +189,7 @@ export const deleteTableRow = async (tableName: string, id: string): Promise<voi
   const values: any[][] = res.values;
   if (!values || values.length < 2) throw new Error('Sheet is empty');
 
-  const headers: string[] = values[0].map((h: any) => (h ?? '').toString().trim());
+  const headers = normalizeHeaders(values[0]);
   const idIdx = headers.findIndex(h => h.toLowerCase() === 'id');
   if (idIdx === -1) throw new Error(`No "id" column found. Headers: [${headers.join(', ')}]`);
 
