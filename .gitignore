@@ -12,3 +12,7 @@ add_documents_sheet.js
 init_lookups.js
 migrate_assets.js
 service-account.json
+scripts/check_excel.cjs
+scripts/find_ids.cjs
+scripts/get_file_url.cjs
+scripts/read_data.cjs
