@@ -16,3 +16,6 @@ scripts/check_excel.cjs
 scripts/find_ids.cjs
 scripts/get_file_url.cjs
 scripts/read_data.cjs
+
+.vercel
+.env*.local

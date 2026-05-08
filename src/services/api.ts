@@ -19,6 +19,7 @@ export interface ApiService {
   getAssets: () => Promise<any>;
   getAssetHistory: (assetId: string) => Promise<any>;
   assignAsset: (assetId: string, employeeId: string) => Promise<any>;
+  createAsset: (data: any) => Promise<any>;
   updateAsset: (id: string, data: any) => Promise<any>;
   getAttendance: (employeeId?: string) => Promise<any>;
   clockIn: (employeeId: string) => Promise<any>;
@@ -97,6 +98,10 @@ export const apiService: ApiService = {
   }),
   assignAsset: async (assetId: string, employeeId: string) => {
     const res = await axios.post(`${API_BASE}/assets`, { assetId, employeeId });
+    return res.data;
+  },
+  createAsset: async (data: any) => {
+    const res = await axios.post(`${API_BASE}/assets`, data);
     return res.data;
   },
   updateAsset: async (id: string, data: any) => {

@@ -80,7 +80,19 @@ export const Assets: React.FC = () => {
         has_mouse: formData.has_mouse,
         has_keyboard: formData.has_keyboard
       });
-      toast.success('Assets assigned successfully');
+
+      // Also record in Assets sheet
+      await apiService.createAsset({
+        employee_id: formData.employee_id,
+        laptop_serial: formData.laptop_serial,
+        charger_serial: formData.charger_serial,
+        has_mouse: formData.has_mouse,
+        has_keyboard: formData.has_keyboard,
+        status: 'Assigned',
+        assignment_date: new Date().toISOString().split('T')[0]
+      });
+
+      toast.success('Assets assigned and recorded successfully');
       setIsModalOpen(false);
       fetchData();
     } catch (error) {
