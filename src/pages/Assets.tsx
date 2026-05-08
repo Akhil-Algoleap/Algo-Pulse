@@ -13,9 +13,20 @@ import { toast } from 'react-hot-toast';
 import { Button, Select, Badge, Card, Input, cn } from '../components/UI';
 import { Modal } from '../components/Modal';
 import { apiService } from '../services/api';
-import { Employee } from '../types';
+import { Employee, Asset } from '../types';
+
+interface JoinedEmployeeAsset extends Employee {
+  asset_id?: string;
+  laptop_serial?: string;
+  charger_serial?: string;
+  has_mouse_assigned?: boolean;
+  has_keyboard_assigned?: boolean;
+  assignment_status?: string;
+  assignment_date?: string;
+}
 
 export const Assets: React.FC = () => {
+  const [joinedData, setJoinedData] = useState<JoinedEmployeeAsset[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -34,9 +45,33 @@ export const Assets: React.FC = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const empRes = await apiService.getEmployees();
-      setEmployees(empRes.data);
+      const [empRes, assetRes] = await Promise.all([
+        apiService.getEmployees(),
+        apiService.getAssets()
+      ]);
+      
+      const allEmployees: Employee[] = empRes.data;
+      const allAssets: Asset[] = assetRes.data || [];
+      setEmployees(allEmployees);
+
+      // Join data
+      const joined = allEmployees.map(emp => {
+        const asset = allAssets.find(a => a.employee_id?.toString() === emp.id.toString());
+        return {
+          ...emp,
+          asset_id: asset?.id,
+          laptop_serial: asset?.laptop_serial_number,
+          charger_serial: asset?.charger_serial_number,
+          has_mouse_assigned: asset?.has_mouse,
+          has_keyboard_assigned: asset?.has_keyboard,
+          assignment_status: asset?.status || 'Not Assigned',
+          assignment_date: asset?.last_assigned_date
+        };
+      });
+
+      setJoinedData(joined);
     } catch (error) {
+      console.error('Fetch error:', error);
       toast.error('Failed to fetch data');
     } finally {
       setIsLoading(false);
@@ -47,14 +82,14 @@ export const Assets: React.FC = () => {
     fetchData();
   }, []);
 
-  const handleOpenModal = (employee?: Employee) => {
-    if (employee) {
+  const handleOpenModal = (row?: JoinedEmployeeAsset) => {
+    if (row) {
       setFormData({
-        employee_id: employee.id,
-        laptop_serial: employee.laptop_serial_number || '',
-        charger_serial: employee.charger_serial_number || '',
-        has_mouse: employee.has_mouse || false,
-        has_keyboard: employee.has_keyboard || false
+        employee_id: row.id,
+        laptop_serial: row.laptop_serial || '',
+        charger_serial: row.charger_serial || '',
+        has_mouse: !!row.has_mouse_assigned,
+        has_keyboard: !!row.has_keyboard_assigned
       });
     } else {
       setFormData({
@@ -68,59 +103,45 @@ export const Assets: React.FC = () => {
     setIsModalOpen(true);
   };
 
+  const generateShortId = () => {
+    return `AST-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.employee_id) return toast.error('Please select an employee');
     
     setIsSubmitting(true);
     try {
-      // 1. Update Employee record (Main Workforce View)
-      await apiService.updateEmployee(formData.employee_id, {
-        laptop_serial_number: formData.laptop_serial,
-        charger_serial_number: formData.charger_serial,
-        has_mouse: formData.has_mouse,
-        has_keyboard: formData.has_keyboard
-      });
-
-      // 2. Manage Assets Sheet (Inventory/History)
-      // Check if this employee already has rows in the Assets sheet
+      const selectedEmp = employees.find(e => e.id.toString() === formData.employee_id.toString());
+      
+      // 1. Manage Assets Sheet (Inventory/History)
       const assetRes = await apiService.getAssets();
-      const existingAssets = (assetRes.data || []).filter((a: any) => 
+      const existingAsset = (assetRes.data || []).find((a: any) => 
         a.employee_id?.toString() === formData.employee_id.toString()
       );
 
-      const commonData = {
+      const payload = {
         employee_id: formData.employee_id,
+        employee_name: selectedEmp?.employee_name || 'Unknown',
+        laptop_serial_number: formData.laptop_serial,
+        charger_serial_number: formData.charger_serial,
+        has_mouse: formData.has_mouse,
+        has_keyboard: formData.has_keyboard,
         status: 'Assigned',
-        last_assigned_date: new Date().toISOString().split('T')[0]
+        last_assigned_date: new Date().toLocaleDateString()
       };
 
-      if (existingAssets.length > 0) {
-        // UPDATE Existing Rows
-        for (const asset of existingAssets) {
-          if (asset.type === 'Laptop' && formData.laptop_serial) {
-            await apiService.updateAsset(asset.id, { ...commonData, serial_number: formData.laptop_serial, type: 'Laptop' });
-          } else if (asset.type === 'Charger' && formData.charger_serial) {
-            await apiService.updateAsset(asset.id, { ...commonData, serial_number: formData.charger_serial, type: 'Charger' });
-          }
-        }
+      if (existingAsset) {
+        // UPDATE Existing Row
+        await apiService.updateAsset(existingAsset.id, payload);
         toast.success('Asset assignment updated successfully');
       } else {
-        // CREATE New Rows
-        if (formData.laptop_serial) {
-          await apiService.createAsset({
-            ...commonData,
-            type: 'Laptop',
-            serial_number: formData.laptop_serial
-          });
-        }
-        if (formData.charger_serial) {
-          await apiService.createAsset({
-            ...commonData,
-            type: 'Charger',
-            serial_number: formData.charger_serial
-          });
-        }
+        // CREATE New Row
+        await apiService.createAsset({
+          ...payload,
+          id: generateShortId()
+        });
         toast.success('Assets assigned and recorded successfully');
       }
 
@@ -134,9 +155,9 @@ export const Assets: React.FC = () => {
     }
   };
 
-  const filteredEmployees = employees.filter(emp => 
-    emp.employee_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    emp.employee_id.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredData = joinedData.filter(row => 
+    row.employee_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    row.employee_id.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -188,7 +209,7 @@ export const Assets: React.FC = () => {
                     <td colSpan={5} className="px-6 py-6"><div className="h-4 bg-slate-100 rounded w-full" /></td>
                   </tr>
                 ))
-              ) : filteredEmployees.length === 0 ? (
+              ) : filteredData.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-20 text-center">
                     <div className="flex flex-col items-center">
@@ -197,34 +218,34 @@ export const Assets: React.FC = () => {
                     </div>
                   </td>
                 </tr>
-              ) : filteredEmployees.map((emp) => (
-                <tr key={emp.id} className="hover:bg-slate-50/30 transition-colors">
+              ) : filteredData.map((row) => (
+                <tr key={row.id} className="hover:bg-slate-50/30 transition-colors">
                   <td className="px-6 py-5">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-600 text-sm shadow-sm">
-                        {emp.employee_name.charAt(0)}
+                        {row.employee_name.charAt(0)}
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-slate-900 leading-none mb-1">{emp.employee_name}</p>
-                        <p className="text-[10px] text-primary-600 font-bold uppercase tracking-wider">{emp.employee_id}</p>
+                        <p className="text-sm font-bold text-slate-900 leading-none mb-1">{row.employee_name}</p>
+                        <p className="text-[10px] text-primary-600 font-bold uppercase tracking-wider">{row.employee_id}</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-5">
-                    {emp.laptop_serial_number ? (
+                    {row.laptop_serial ? (
                       <div className="flex items-center gap-2">
                         <Laptop className="w-3 h-3 text-slate-400" />
-                        <span className="text-sm font-mono font-medium text-slate-700">{emp.laptop_serial_number}</span>
+                        <span className="text-sm font-mono font-medium text-slate-700">{row.laptop_serial}</span>
                       </div>
                     ) : (
                       <Badge variant="outline" className="text-slate-300 border-slate-100 font-medium">Not Assigned</Badge>
                     )}
                   </td>
                   <td className="px-6 py-5">
-                    {emp.charger_serial_number ? (
+                    {row.charger_serial ? (
                       <div className="flex items-center gap-2">
                         <BatteryCharging className="w-3 h-3 text-slate-400" />
-                        <span className="text-sm font-mono font-medium text-slate-700">{emp.charger_serial_number}</span>
+                        <span className="text-sm font-mono font-medium text-slate-700">{row.charger_serial}</span>
                       </div>
                     ) : (
                       <Badge variant="outline" className="text-slate-300 border-slate-100 font-medium">Not Assigned</Badge>
@@ -232,12 +253,12 @@ export const Assets: React.FC = () => {
                   </td>
                   <td className="px-6 py-5">
                     <div className="flex gap-2">
-                      {emp.has_mouse ? (
+                      {row.has_mouse_assigned ? (
                         <Badge variant="success" className="bg-emerald-50 text-emerald-600 border-emerald-100 text-[10px] py-0.5 px-2">Mouse</Badge>
                       ) : (
                         <Badge variant="outline" className="text-slate-200 border-slate-50 text-[10px] py-0.5 px-2">Mouse</Badge>
                       )}
-                      {emp.has_keyboard ? (
+                      {row.has_keyboard_assigned ? (
                         <Badge variant="success" className="bg-emerald-50 text-emerald-600 border-emerald-100 text-[10px] py-0.5 px-2">Keyboard</Badge>
                       ) : (
                         <Badge variant="outline" className="text-slate-200 border-slate-50 text-[10px] py-0.5 px-2">Keyboard</Badge>
@@ -249,7 +270,7 @@ export const Assets: React.FC = () => {
                       variant="ghost" 
                       size="sm" 
                       className="h-8 w-8 p-0 rounded-lg hover:bg-primary-50 text-slate-400 hover:text-primary-600 transition-colors"
-                      onClick={() => handleOpenModal(emp)}
+                      onClick={() => handleOpenModal(row)}
                     >
                       <Edit2 className="w-4 h-4" />
                     </Button>

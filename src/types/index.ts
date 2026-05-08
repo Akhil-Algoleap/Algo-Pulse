@@ -35,10 +35,6 @@ export interface Employee {
   status: EmployeeStatus;
   experience_years: number;
   reporting_manager_id?: string;
-  laptop_serial_number?: string;
-  charger_serial_number?: string;
-  has_mouse?: boolean;
-  has_keyboard?: boolean;
   role: UserRole;
   avatar?: string;
 }
@@ -51,11 +47,14 @@ export type AssetStatus = 'Assigned' | 'Returned' | 'In Repair' | 'Damaged';
 
 export interface Asset {
   id: string;
-  type: 'Laptop' | 'Charger' | 'Other';
-  serial_number: string;
-  employee_id?: string;
+  employee_id: string;
+  employee_name: string;
+  laptop_serial_number: string;
+  charger_serial_number: string;
+  has_mouse: boolean;
+  has_keyboard: boolean;
   status: AssetStatus;
-  last_assigned_date?: string;
+  last_assigned_date: string;
 }
 
 export interface AssetHistory {
