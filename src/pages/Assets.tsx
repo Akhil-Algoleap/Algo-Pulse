@@ -74,6 +74,7 @@ export const Assets: React.FC = () => {
     
     setIsSubmitting(true);
     try {
+      // 1. Update Employee record (Main Workforce View)
       await apiService.updateEmployee(formData.employee_id, {
         laptop_serial_number: formData.laptop_serial,
         charger_serial_number: formData.charger_serial,
@@ -81,22 +82,53 @@ export const Assets: React.FC = () => {
         has_keyboard: formData.has_keyboard
       });
 
-      // Also record in Assets sheet
-      await apiService.createAsset({
-        employee_id: formData.employee_id,
-        laptop_serial: formData.laptop_serial,
-        charger_serial: formData.charger_serial,
-        has_mouse: formData.has_mouse,
-        has_keyboard: formData.has_keyboard,
-        status: 'Assigned',
-        assignment_date: new Date().toISOString().split('T')[0]
-      });
+      // 2. Manage Assets Sheet (Inventory/History)
+      // Check if this employee already has rows in the Assets sheet
+      const assetRes = await apiService.getAssets();
+      const existingAssets = (assetRes.data || []).filter((a: any) => 
+        a.employee_id?.toString() === formData.employee_id.toString()
+      );
 
-      toast.success('Assets assigned and recorded successfully');
+      const commonData = {
+        employee_id: formData.employee_id,
+        status: 'Assigned',
+        last_assigned_date: new Date().toISOString().split('T')[0]
+      };
+
+      if (existingAssets.length > 0) {
+        // UPDATE Existing Rows
+        for (const asset of existingAssets) {
+          if (asset.type === 'Laptop' && formData.laptop_serial) {
+            await apiService.updateAsset(asset.id, { ...commonData, serial_number: formData.laptop_serial, type: 'Laptop' });
+          } else if (asset.type === 'Charger' && formData.charger_serial) {
+            await apiService.updateAsset(asset.id, { ...commonData, serial_number: formData.charger_serial, type: 'Charger' });
+          }
+        }
+        toast.success('Asset assignment updated successfully');
+      } else {
+        // CREATE New Rows
+        if (formData.laptop_serial) {
+          await apiService.createAsset({
+            ...commonData,
+            type: 'Laptop',
+            serial_number: formData.laptop_serial
+          });
+        }
+        if (formData.charger_serial) {
+          await apiService.createAsset({
+            ...commonData,
+            type: 'Charger',
+            serial_number: formData.charger_serial
+          });
+        }
+        toast.success('Assets assigned and recorded successfully');
+      }
+
       setIsModalOpen(false);
       fetchData();
-    } catch (error) {
-      toast.error('Failed to assign assets');
+    } catch (error: any) {
+      console.error('Submit error:', error);
+      toast.error('Failed to save assignment');
     } finally {
       setIsSubmitting(false);
     }
@@ -240,7 +272,6 @@ export const Assets: React.FC = () => {
             <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Select Employee</label>
             <Select 
               required
-              disabled={!!formData.employee_id && employees.some(e => e.id === formData.employee_id && (e.laptop_serial_number || e.charger_serial_number))}
               value={formData.employee_id} 
               onChange={(e) => setFormData({...formData, employee_id: e.target.value})}
             >
