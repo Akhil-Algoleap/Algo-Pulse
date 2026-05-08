@@ -4,6 +4,7 @@ import { getTableRows, addTableRow, updateTableRow } from './_onedrive.js';
 const TABLE_NAME = 'AssetsTable';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const { id } = req.query;
   const method = req.method;
 
   try {

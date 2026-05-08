@@ -59,7 +59,7 @@ export const Assets: React.FC = () => {
         const asset = allAssets.find(a => a.employee_id?.toString() === emp.id.toString());
         return {
           ...emp,
-          asset_id: asset?.id,
+          asset_id: asset?.employee_id,
           laptop_serial: asset?.laptop_serial_number,
           charger_serial: asset?.charger_serial_number,
           has_mouse_assigned: asset?.has_mouse,
