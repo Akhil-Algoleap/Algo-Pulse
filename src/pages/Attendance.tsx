@@ -11,6 +11,7 @@ import { toast } from 'react-hot-toast';
 import { Button, Card, Badge, Input } from '../components/UI';
 import { apiService } from '../services/api';
 import { Attendance as AttendanceType } from '../types';
+import { formatDate, formatTime } from '../utils/dateUtils';
 
 export const Attendance: React.FC = () => {
   const [logs, setLogs] = useState<AttendanceType[]>([]);
@@ -182,18 +183,18 @@ export const Attendance: React.FC = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-slate-600">{new Date(log.date).toLocaleDateString()}</td>
+                    <td className="px-6 py-4 text-sm text-slate-600">{formatDate(log.date)}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2 text-sm text-slate-600">
                         <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                        {new Date(log.clock_in).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {formatTime(log.clock_in)}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-600">
                       {log.clock_out ? (
                         <div className="flex items-center gap-2 text-sm text-slate-600">
                           <div className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                          {new Date(log.clock_out).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {formatTime(log.clock_out)}
                         </div>
                       ) : (
                         <span className="text-slate-400 italic font-light italic">Ongoing</span>

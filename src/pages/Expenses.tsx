@@ -13,6 +13,7 @@ import { toast } from 'react-hot-toast';
 import { Button, Badge, Card, Input, cn } from '../components/UI';
 import { apiService } from '../services/api';
 import { ExpenseClaim, ExpenseStatus, Employee } from '../types';
+import { formatDate } from '../utils/dateUtils';
 
 export const Expenses: React.FC = () => {
   const [expenses, setExpenses] = useState<ExpenseClaim[]>([]);
@@ -237,8 +238,8 @@ export const Expenses: React.FC = () => {
                       <p className="text-sm font-black text-slate-900">{claim.currency} {claim.amount.toFixed(2)}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-slate-600">{new Date(claim.date).toLocaleDateString()}</p>
-                      <p className="text-[10px] text-slate-400">Applied {new Date(claim.applied_at).toLocaleDateString()}</p>
+                      <p className="text-sm font-medium text-slate-600">{formatDate(claim.date)}</p>
+                      <p className="text-[10px] text-slate-400">Applied {formatDate(claim.applied_at)}</p>
                     </td>
                     <td className="px-6 py-4 text-right">
                       {activeTab === 'overview' ? (

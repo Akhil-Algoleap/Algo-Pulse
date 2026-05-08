@@ -13,6 +13,7 @@ import { Button, Badge, Card, Select, Input, cn } from '../components/UI';
 import { Modal } from '../components/Modal';
 import { apiService } from '../services/api';
 import { LeaveRequest, LeaveType, Employee } from '../types';
+import { formatDate } from '../utils/dateUtils';
 
 export const Leave: React.FC = () => {
   const [leaves, setLeaves] = useState<LeaveRequest[]>([]);
@@ -209,7 +210,7 @@ export const Leave: React.FC = () => {
                           <span className="text-sm font-medium text-slate-700">{leave.type}</span>
                         </td>
                         <td className="px-6 py-4">
-                          <p className="text-sm font-medium text-slate-700">{new Date(leave.start_date).toLocaleDateString()} - {new Date(leave.end_date).toLocaleDateString()}</p>
+                          <p className="text-sm font-medium text-slate-700">{formatDate(leave.start_date)} - {formatDate(leave.end_date)}</p>
                         </td>
                         <td className="px-6 py-4 text-right">
                           {getStatusBadge(leave.status)}
@@ -263,7 +264,7 @@ export const Leave: React.FC = () => {
                         <div className="flex items-center gap-2 mb-1">
                           <Badge variant="outline" className="text-[10px] py-0">{leave.type}</Badge>
                           <span className="text-xs font-bold text-slate-700">
-                             {new Date(leave.start_date).toLocaleDateString()} to {new Date(leave.end_date).toLocaleDateString()}
+                             {formatDate(leave.start_date)} to {formatDate(leave.end_date)}
                           </span>
                         </div>
                         <p className="text-[10px] text-slate-400">Submitted on {new Date(leave.applied_at).toLocaleString()}</p>
