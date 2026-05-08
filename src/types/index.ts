@@ -46,7 +46,6 @@ export interface EmployeeFormData extends Omit<Employee, 'id' | 'role'> {}
 export type AssetStatus = 'Assigned' | 'Returned' | 'In Repair' | 'Damaged';
 
 export interface Asset {
-  id: string;
   employee_id: string;
   employee_name: string;
   laptop_serial_number: string;

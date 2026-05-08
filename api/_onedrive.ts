@@ -141,7 +141,7 @@ export const addTableRow = async (tableName: string, data: any): Promise<any> =>
 /**
  * Update an existing row by matching the 'id' column
  */
-export const updateTableRow = async (tableName: string, id: string, data: any): Promise<any> => {
+export const updateTableRow = async (tableName: string, id: string, data: any, keyColumn: string = 'id'): Promise<any> => {
   const sheetName = getSheetName(tableName);
   const client = await getGraphClient();
 
@@ -153,11 +153,11 @@ export const updateTableRow = async (tableName: string, id: string, data: any): 
   if (!values || values.length < 2) throw new Error('Sheet is empty');
 
   const headers = normalizeHeaders(values[0]);
-  const idIdx = headers.findIndex(h => h.toLowerCase() === 'id');
-  if (idIdx === -1) throw new Error(`No "id" column found. Headers: [${headers.join(', ')}]`);
+  const idIdx = headers.findIndex(h => h.toLowerCase() === keyColumn.toLowerCase());
+  if (idIdx === -1) throw new Error(`No "${keyColumn}" column found. Headers: [${headers.join(', ')}]`);
 
   const rowIdx = values.findIndex((row, i) => i > 0 && row[idIdx]?.toString().trim() === id.toString().trim());
-  if (rowIdx === -1) throw new Error(`Row with id ${id} not found`);
+  if (rowIdx === -1) throw new Error(`Row with ${keyColumn} ${id} not found`);
 
   const existingObj: any = {};
   headers.forEach((h, i) => { existingObj[h] = values[rowIdx][i] ?? ''; });
@@ -179,7 +179,7 @@ export const updateTableRow = async (tableName: string, id: string, data: any): 
 /**
  * Delete a row by matching the 'id' column
  */
-export const deleteTableRow = async (tableName: string, id: string): Promise<void> => {
+export const deleteTableRow = async (tableName: string, id: string, keyColumn: string = 'id'): Promise<void> => {
   const sheetName = getSheetName(tableName);
   const client = await getGraphClient();
 
@@ -191,11 +191,11 @@ export const deleteTableRow = async (tableName: string, id: string): Promise<voi
   if (!values || values.length < 2) throw new Error('Sheet is empty');
 
   const headers = normalizeHeaders(values[0]);
-  const idIdx = headers.findIndex(h => h.toLowerCase() === 'id');
-  if (idIdx === -1) throw new Error(`No "id" column found. Headers: [${headers.join(', ')}]`);
+  const idIdx = headers.findIndex(h => h.toLowerCase() === keyColumn.toLowerCase());
+  if (idIdx === -1) throw new Error(`No "${keyColumn}" column found. Headers: [${headers.join(', ')}]`);
 
   const rowIdx = values.findIndex((row, i) => i > 0 && row[idIdx]?.toString().trim() === id.toString().trim());
-  if (rowIdx === -1) throw new Error(`Row with id ${id} not found`);
+  if (rowIdx === -1) throw new Error(`Row with ${keyColumn} ${id} not found`);
 
   const excelRow = rowIdx + 1; // 1-indexed
 

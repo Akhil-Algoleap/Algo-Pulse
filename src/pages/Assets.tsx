@@ -103,10 +103,6 @@ export const Assets: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const generateShortId = () => {
-    return `AST-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.employee_id) return toast.error('Please select an employee');
@@ -133,15 +129,12 @@ export const Assets: React.FC = () => {
       };
 
       if (existingAsset) {
-        // UPDATE Existing Row
-        await apiService.updateAsset(existingAsset.id, payload);
+        // UPDATE Existing Row (using employee_id as the unique key)
+        await apiService.updateAsset(formData.employee_id, payload);
         toast.success('Asset assignment updated successfully');
       } else {
         // CREATE New Row
-        await apiService.createAsset({
-          ...payload,
-          id: generateShortId()
-        });
+        await apiService.createAsset(payload);
         toast.success('Assets assigned and recorded successfully');
       }
 

@@ -13,21 +13,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (method === 'POST') {
-      // Handle assignment or creation
-      const { assetId, employeeId } = req.body;
-      if (employeeId) {
-        // Assignment logic
-        const updated = await updateTableRow(TABLE_NAME, assetId, { 
-            assigned_to: employeeId,
-            status: 'Assigned',
-            last_action_date: new Date().toISOString()
-        });
-        return res.status(200).json({ data: updated });
-      }
-      
-      const newItem = { ...req.body, id: Date.now().toString() };
+      const newItem = { ...req.body };
       await addTableRow(TABLE_NAME, newItem);
       return res.status(201).json({ data: newItem });
+    }
+
+    if (method === 'PUT' && id) {
+      const updatedItem = await updateTableRow(TABLE_NAME, id.toString(), req.body, 'employee_id');
+      return res.status(200).json({ data: updatedItem });
     }
 
     return res.status(405).json({ error: 'Method not allowed' });
