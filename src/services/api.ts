@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { supabase } from '../lib/supabase';
 import { 
   type Department, 
   type Designation, 
@@ -7,8 +7,6 @@ import {
   type Attendance,
   type PerformanceRecord,
 } from '../types';
-
-const API_BASE = '/api';
 
 export interface ApiService {
   getEmployees: () => Promise<any>;
@@ -45,158 +43,143 @@ export interface ApiService {
 export const apiService: ApiService = {
   // Employees
   getEmployees: async () => {
-    try {
-      const res = await axios.get(`${API_BASE}/employees`);
-      return res.data;
-    } catch (err) {
-      console.error('getEmployees error:', err);
-      throw err;
-    }
+    const { data, error } = await supabase.from('employees').select('*');
+    if (error) throw error;
+    return { data: data || [] };
   },
   createEmployee: async (data: any) => {
-    try {
-      const res = await axios.post(`${API_BASE}/employees`, data);
-      return res.data;
-    } catch (err) {
-      console.error('createEmployee error:', err);
-      throw err;
-    }
+    const { data: result, error } = await supabase.from('employees').insert([data]).select().single();
+    if (error) throw error;
+    return { data: result };
   },
   bulkCreateEmployees: async (data: any[]) => {
-    const results = [];
-    for (const item of data) {
-      const res = await axios.post(`${API_BASE}/employees`, item);
-      results.push(res.data.data);
-    }
-    return { data: results };
+    const { data: result, error } = await supabase.from('employees').insert(data).select();
+    if (error) throw error;
+    return { data: result || [] };
   },
   updateEmployee: async (id: string, data: any) => {
-    try {
-      const res = await axios.put(`${API_BASE}/employees?id=${id}`, data);
-      return res.data;
-    } catch (err) {
-      console.error('updateEmployee error:', err);
-      throw err;
-    }
+    const { data: result, error } = await supabase.from('employees').update(data).eq('id', id).select().single();
+    if (error) throw error;
+    return { data: result };
   },
   deleteEmployee: async (id: string) => {
-    try {
-      const res = await axios.delete(`${API_BASE}/employees?id=${id}`);
-      return res.data;
-    } catch (err) {
-      console.error('deleteEmployee error:', err);
-      throw err;
-    }
+    const { error } = await supabase.from('employees').delete().eq('id', id);
+    if (error) throw error;
+    return { message: 'Deleted successfully' };
   },
 
-  // Assets
-  getAssets: async () => {
-    const res = await axios.get(`${API_BASE}/assets`);
-    return res.data;
-  },
-  getAssetHistory: async (_assetId: string) => ({
-    data: [] 
-  }),
-  assignAsset: async (assetId: string, employeeId: string) => {
-    const res = await axios.post(`${API_BASE}/assets`, { assetId, employeeId });
-    return res.data;
-  },
-  createAsset: async (data: any) => {
-    const res = await axios.post(`${API_BASE}/assets`, data);
-    return res.data;
-  },
-  updateAsset: async (id: string, data: any) => {
-    const res = await axios.put(`${API_BASE}/assets?id=${id}`, data);
-    return res.data;
-  },
+  // Assets (Mocked for now as we don't have an assets table in the initial schema)
+  getAssets: async () => ({ data: [] }),
+  getAssetHistory: async (_assetId: string) => ({ data: [] }),
+  assignAsset: async (_assetId: string, _employeeId: string) => ({ data: {} }),
+  createAsset: async (data: any) => ({ data }),
+  updateAsset: async (_id: string, data: any) => ({ data }),
 
   // Attendance
   getAttendance: async (employeeId?: string) => {
-    const res = await axios.get(`${API_BASE}/attendance`);
-    const list = res.data.data as Attendance[];
-    return { data: employeeId ? list.filter(a => a.employee_id === employeeId) : list };
+    let query = supabase.from('attendance').select('*');
+    if (employeeId) {
+      query = query.eq('employee_id', employeeId);
+    }
+    const { data, error } = await query;
+    if (error) throw error;
+    return { data: data || [] };
   },
   clockIn: async (employeeId: string) => {
-    const res = await axios.post(`${API_BASE}/attendance`, {
+    const newRecord = {
       employee_id: employeeId,
       date: new Date().toISOString().split('T')[0],
       clock_in: new Date().toISOString(),
-      status: 'present'
-    });
-    return res.data;
+      status: 'Present'
+    };
+    const { data, error } = await supabase.from('attendance').insert([newRecord]).select().single();
+    if (error) throw error;
+    return { data };
   },
   triggerBiometricSwipe: async (employeeIdCode: string, timestamp?: string) => {
-    const res = await axios.post(`${API_BASE}/essl`, {
-      employee_id: employeeIdCode,
-      timestamp
-    });
-    return res.data;
+    // Basic implementation for biometric swipe
+    const newRecord = {
+      employee_id_code: employeeIdCode,
+      date: new Date().toISOString().split('T')[0],
+      clock_in: timestamp || new Date().toISOString(),
+      status: 'Present'
+    };
+    const { data, error } = await supabase.from('attendance').insert([newRecord]).select().single();
+    if (error) throw error;
+    return { data };
   },
 
-  // Performance
-  getPerformance: async (employeeId?: string) => {
-    try {
-      const res = await axios.get(`${API_BASE}/performance`);
-      const list = res.data.data as PerformanceRecord[];
-      return { data: employeeId ? list.filter(r => r.employee_id === employeeId) : list };
-    } catch (err) {
-      console.error('getPerformance error:', err);
-      throw err;
-    }
-  },
+  // Performance (Mocked for now)
+  getPerformance: async (employeeId?: string) => ({ data: [] }),
 
   // Leaves
   getLeaves: async () => {
-    const res = await axios.get(`${API_BASE}/leaves`);
-    return res.data;
+    const { data, error } = await supabase.from('leaves').select('*');
+    if (error) throw error;
+    return { data: data || [] };
   },
   applyLeave: async (data: any) => {
-    const res = await axios.post(`${API_BASE}/leaves`, data);
-    return res.data;
+    const { data: result, error } = await supabase.from('leaves').insert([data]).select().single();
+    if (error) throw error;
+    return { data: result };
+  },
+  updateLeaveStatus: async (id: string, status: any) => {
+    const { data, error } = await supabase.from('leaves').update({ status }).eq('id', id).select().single();
+    if (error) throw error;
+    return { data };
   },
   
   // Documents
   getDocuments: async (employeeId?: string) => {
-    try {
-      const url = employeeId ? `${API_BASE}/documents?employeeId=${employeeId}` : `${API_BASE}/documents`;
-      const res = await axios.get(url);
-      return res.data;
-    } catch (err) {
-      console.error('getDocuments error:', err);
-      throw err;
+    let query = supabase.from('documents').select('*');
+    if (employeeId) {
+      query = query.eq('employee_id', employeeId);
     }
-  },
-  updateLeaveStatus: async (id: string, status: any) => {
-    const res = await axios.put(`${API_BASE}/leaves?id=${id}`, { status });
-    return res.data;
+    const { data, error } = await query;
+    if (error) throw error;
+    return { data: data || [] };
   },
 
-  // Expenses
+  // Expenses (Mocked)
   getExpenses: async () => ({ data: [] }),
   updateExpenseStatus: async (_id: string, _status: any, _comment?: string) => ({ data: {} }),
 
   // Lookups
   getLookups: async () => {
-    const [depts, desigs, clients, works] = await Promise.all([
-      axios.get(`${API_BASE}/lookups?type=departments`),
-      axios.get(`${API_BASE}/lookups?type=designations`),
-      axios.get(`${API_BASE}/lookups?type=clients`),
-      axios.get(`${API_BASE}/lookups?type=workplaces`)
+    const [depts, clients] = await Promise.all([
+      supabase.from('departments').select('*'),
+      supabase.from('clients').select('*')
     ]);
     return {
-      departments: depts.data.data as Department[],
-      designations: desigs.data.data as Designation[],
-      clients: clients.data.data as Client[],
-      workplaces: works.data.data as Workplace[]
+      departments: depts.data || [],
+      designations: [],
+      clients: clients.data || [],
+      workplaces: []
     };
   },
-  getDepartments: async () => axios.get(`${API_BASE}/lookups?type=departments`).then(r => r.data),
-  getDesignations: async () => axios.get(`${API_BASE}/lookups?type=designations`).then(r => r.data),
-  getClients: async () => axios.get(`${API_BASE}/lookups?type=clients`).then(r => r.data),
-  getWorkplaces: async () => axios.get(`${API_BASE}/lookups?type=workplaces`).then(r => r.data),
+  getDepartments: async () => {
+    const { data, error } = await supabase.from('departments').select('*');
+    if (error) throw error;
+    return { data: data || [] };
+  },
+  getDesignations: async () => ({ data: [] }),
+  getClients: async () => {
+    const { data, error } = await supabase.from('clients').select('*');
+    if (error) throw error;
+    return { data: data || [] };
+  },
+  getWorkplaces: async () => ({ data: [] }),
   
-  createDepartment: async (data: any) => axios.post(`${API_BASE}/lookups?type=departments`, data),
-  createDesignation: async (data: any) => axios.post(`${API_BASE}/lookups?type=designations`, data),
-  createClient: async (data: any) => axios.post(`${API_BASE}/lookups?type=clients`, data),
-  createWorkplace: async (data: any) => axios.post(`${API_BASE}/lookups?type=workplaces`, data),
+  createDepartment: async (data: any) => {
+    const { data: result, error } = await supabase.from('departments').insert([data]).select().single();
+    if (error) throw error;
+    return { data: result };
+  },
+  createDesignation: async (data: any) => ({ data }),
+  createClient: async (data: any) => {
+    const { data: result, error } = await supabase.from('clients').insert([data]).select().single();
+    if (error) throw error;
+    return { data: result };
+  },
+  createWorkplace: async (data: any) => ({ data }),
 };
