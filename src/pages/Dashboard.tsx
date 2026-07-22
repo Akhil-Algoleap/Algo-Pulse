@@ -154,30 +154,108 @@ export const Dashboard: React.FC = () => {
   // --- EMPLOYEE DASHBOARD ---
   if (profile?.role === 'Employee') {
     return (
-      <div className="space-y-8">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Welcome, {profile?.employee_name || 'User'}</h1>
-          <p className="text-slate-500 text-lg">Here's your overview for today.</p>
+      <div className="max-w-5xl mx-auto space-y-6">
+        {/* Header Section */}
+        <div className="flex justify-between items-start">
+          <div className="space-y-4 max-w-lg pt-4">
+            <h1 className="text-3xl font-medium text-slate-800">Good Afternoon</h1>
+            <div className="space-y-1">
+              <p className="text-slate-500 text-[15px]">Don't worry about failures, worry about the chances you miss when you don't even try.</p>
+              <p className="text-slate-500 text-[15px]">- Jack Canfield</p>
+            </div>
+          </div>
+          <div className="hidden md:block w-72 h-40 bg-slate-100 rounded-2xl relative overflow-hidden flex-shrink-0 border border-slate-200">
+            {/* Placeholder for the car illustration */}
+            <div className="absolute inset-0 flex items-center justify-center text-slate-400">
+              <Briefcase className="w-12 h-12 opacity-20" />
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="flex flex-col items-center justify-center p-6 border-none shadow-md bg-white">
-             <Clock className="w-8 h-8 text-emerald-500 mb-2" />
-             <p className="text-sm font-bold text-slate-400 uppercase">Today's Status</p>
-             <p className="text-2xl font-black text-slate-900">Present</p>
-             <p className="text-xs text-slate-400 mt-2">Punched in at 09:00 AM</p>
+        {/* Banner Section */}
+        <div className="w-full bg-gradient-to-r from-pink-50 via-white to-blue-50 rounded-2xl border border-slate-200 p-4 flex items-center justify-center gap-4">
+           <div className="flex items-center gap-2 border-r border-slate-300 pr-4">
+             <span className="font-bold text-slate-800">Unite</span>
+             <span className="text-slate-500">by greytHR</span>
+           </div>
+           <div className="flex items-center gap-4 pl-2">
+             <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-500"><Users className="w-5 h-5"/></div>
+             <div>
+               <p className="font-bold text-slate-800 text-sm">Your Gateway to Possibilities</p>
+               <p className="text-xs text-slate-500">Loans, Taxes, Salary Advances, <span className="text-primary-600 font-medium">All within greytHR!</span></p>
+             </div>
+             <Button size="sm" className="ml-4 bg-indigo-500 hover:bg-indigo-600 rounded-lg px-6">Explore</Button>
+           </div>
+        </div>
+
+        {/* Widgets Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          {/* Review Card */}
+          <Card className="p-5 border-slate-200 shadow-sm flex flex-col h-[280px]">
+            <h3 className="text-sm text-slate-600 font-medium mb-auto">Review</h3>
+            <div className="flex flex-col items-center justify-center gap-4 mt-8">
+              <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-400">
+                <CheckSquare className="w-8 h-8" />
+              </div>
+              <p className="text-sm text-slate-500">Hurrah! You've nothing to review.</p>
+            </div>
+            <div className="mt-auto"></div>
           </Card>
-          <Card className="flex flex-col items-center justify-center p-6 border-none shadow-md bg-white">
-             <Calendar className="w-8 h-8 text-amber-500 mb-2" />
-             <p className="text-sm font-bold text-slate-400 uppercase">Leave Balance</p>
-             <p className="text-2xl font-black text-slate-900">12 Days</p>
-             <p className="text-xs text-slate-400 mt-2">Available for this year</p>
+
+          {/* Time & Attendance Card */}
+          <Card className="p-5 border-slate-200 shadow-sm flex flex-col h-[280px] bg-slate-50/50">
+            <p className="text-sm font-medium text-slate-800">22 July 2026</p>
+            <p className="text-xs text-slate-500 mb-6">Wednesday | General Shift</p>
+            
+            <p className="text-3xl font-medium text-slate-700 mb-8">15 : 59 : 00</p>
+            
+            <div className="mt-auto flex gap-3">
+              <Button variant="outline" className="flex-1 bg-white border-slate-300 text-slate-600">Web Sign In</Button>
+              <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white">Sign Out</Button>
+            </div>
           </Card>
-          <Card className="flex flex-col items-center justify-center p-6 border-none shadow-md bg-white">
-             <FileText className="w-8 h-8 text-blue-500 mb-2" />
-             <p className="text-sm font-bold text-slate-400 uppercase">Pending Tasks</p>
-             <p className="text-2xl font-black text-slate-900">3</p>
-             <p className="text-xs text-slate-400 mt-2">Due this week</p>
+
+          {/* Upcoming Holidays Card */}
+          <Card className="p-5 border-slate-200 shadow-sm flex flex-col h-[280px]">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-sm text-slate-600 font-medium">Upcoming Holidays</h3>
+              <button className="text-slate-400 hover:text-slate-600">→</button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm font-medium text-slate-700">02 Oct <span className="text-xs text-slate-500 font-normal ml-2">Friday</span></p>
+                <p className="text-xs text-slate-500">Mahatma Gandhi Jayanti</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-slate-700">20 Oct <span className="text-xs text-slate-500 font-normal ml-2">Tuesday</span></p>
+                <p className="text-xs text-slate-500">Dussehra</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-slate-700">25 Dec <span className="text-xs text-slate-500 font-normal ml-2">Friday</span></p>
+                <p className="text-xs text-slate-500">Christmas</p>
+              </div>
+            </div>
+          </Card>
+
+          {/* Bottom Row placehodlers */}
+          <Card className="p-5 border-slate-200 shadow-sm h-[200px]">
+             <div className="flex items-center justify-between">
+                <h3 className="text-sm text-slate-600 font-medium">IT Declaration</h3>
+             </div>
+          </Card>
+          <Card className="p-5 border-slate-200 shadow-sm h-[200px]">
+             <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm text-slate-600 font-medium">Payslip</h3>
+                <button className="text-slate-400 hover:text-slate-600">→</button>
+             </div>
+             <div className="w-full flex justify-center">
+               <div className="w-24 h-24 rounded-full border-[12px] border-slate-100 border-b-blue-500 border-l-blue-500 border-t-emerald-500 border-r-emerald-500"></div>
+             </div>
+          </Card>
+          <Card className="p-5 border-slate-200 shadow-sm h-[200px]">
+             <h3 className="text-sm text-slate-600 font-medium mb-4">Quick Access</h3>
           </Card>
         </div>
       </div>

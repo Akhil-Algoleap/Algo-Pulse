@@ -115,10 +115,12 @@ export const Documents: React.FC = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <Button onClick={() => setIsUploadModalOpen(true)} className="rounded-full shadow-lg shadow-primary-100 flex items-center gap-2">
-            <UploadCloud className="w-4 h-4" />
-            Upload
-          </Button>
+          {profile?.role !== 'Admin' && (
+            <Button onClick={() => setIsUploadModalOpen(true)} className="rounded-full shadow-lg shadow-primary-100 flex items-center gap-2">
+              <UploadCloud className="w-4 h-4" />
+              Upload
+            </Button>
+          )}
         </div>
       </div>
 
@@ -151,9 +153,11 @@ export const Documents: React.FC = () => {
                           <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
                             <FileText className="w-5 h-5" />
                           </div>
-                          <button className="text-slate-300 hover:text-slate-600 transition-colors">
-                            <MoreVertical className="w-4 h-4" />
-                          </button>
+                          {profile?.role !== 'Admin' && (
+                            <button className="text-slate-300 hover:text-slate-600 transition-colors">
+                              <MoreVertical className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                         <div>
                           <p className="text-sm font-bold text-slate-900 truncate" title={doc.name}>{doc.name}</p>
