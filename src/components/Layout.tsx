@@ -166,6 +166,16 @@ export const Layout: React.FC = () => {
                   />
                 </div>
               </div>
+              
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleLogout}
+                className="ml-2 text-slate-400 hover:text-red-600 hover:bg-red-50 p-2"
+                title="Logout"
+              >
+                <LogOut className="w-5 h-5" />
+              </Button>
             </div>
           </div>
         </header>
