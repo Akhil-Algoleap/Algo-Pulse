@@ -3,12 +3,14 @@ import { Shield } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { UserRole } from '../types';
+import { useNavigate } from 'react-router-dom';
 
 export const Login = () => {
   const [empId, setEmpId] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +40,7 @@ export const Login = () => {
       }
       
       signIn(role);
+      navigate('/', { replace: true });
       
     } catch (error: any) {
       toast.error('Failed to login');
