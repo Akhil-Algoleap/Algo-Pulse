@@ -12,13 +12,24 @@ import {
   Bell,
   FileText,
   CheckSquare,
-  Briefcase
+  Briefcase,
+  ChevronDown,
+  ChevronUp,
+  Radio,
+  Grid,
+  ClipboardList,
+  Banknote,
+  Info,
+  Layers,
+  GitBranch,
+  Settings
 } from 'lucide-react';
 import { cn, Button } from './UI';
 import { useAuth } from '../contexts/AuthContext';
 
 export const Layout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const [expandedMenu, setExpandedMenu] = React.useState<string | null>(null);
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -61,9 +72,47 @@ export const Layout: React.FC = () => {
     // Employee
     return [
       { to: '/', icon: LayoutDashboard, label: 'Home' },
-      { to: '/attendance', icon: Clock, label: 'Attendance' },
-      { to: '/leave', icon: Calendar, label: 'Leave' },
+      { to: '/engage', icon: Radio, label: 'Engage' },
+      { 
+        icon: Grid, 
+        label: 'My Worklife',
+        subItems: [
+          { to: '/my-worklife/kudos', label: 'Kudos' },
+          { to: '/my-worklife/feedback', label: 'Feedback' }
+        ]
+      },
+      { 
+        icon: ClipboardList, 
+        label: 'To do',
+        subItems: [
+          { to: '/todo', label: 'Tasks' }
+        ]
+      },
+      { 
+        icon: Banknote, 
+        label: 'Salary',
+        subItems: [
+          { to: '/salary', label: 'Payslips' }
+        ]
+      },
+      { 
+        icon: Calendar, 
+        label: 'Leave',
+        subItems: [
+          { to: '/leave', label: 'Leave Apply' }
+        ]
+      },
+      { 
+        icon: CheckSquare, 
+        label: 'Attendance',
+        subItems: [
+          { to: '/attendance', label: 'Attendance Info' }
+        ]
+      },
       { to: '/documents', icon: FileText, label: 'Document Center' },
+      { to: '/helpdesk', icon: Info, label: 'Helpdesk' },
+      { to: '/request-hub', icon: Layers, label: 'Request Hub' },
+      { to: '/workflow-delegates', icon: GitBranch, label: 'Workflow Delegates' },
     ];
   };
 
@@ -88,7 +137,6 @@ export const Layout: React.FC = () => {
           <div className="p-6">
             <div className="flex items-center gap-3">
               <div className="h-10">
-                {/* Use provided logo if available, else placeholder */}
                 <img 
                   src="https://media.licdn.com/dms/image/D560BAQH7VvFpZ9eEUA/company-logo_200_200/0/1705404558552?e=2147483647&v=beta&t=Z_K7B4pS6uL2N_Vj-Cj8T-hE_0U8xR9WzZ9m_z-vXFk" 
                   alt="Algoleap Logo" 
@@ -98,29 +146,80 @@ export const Layout: React.FC = () => {
                   }}
                 />
               </div>
-              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-800">
-                AlgoPulse
-              </span>
             </div>
           </div>
 
+          <div className="px-6 mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-200">
+                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.employee_name || 'User'}`} alt="Avatar" className="w-full h-full object-cover" />
+              </div>
+              <div>
+                <p className="text-[15px] text-slate-800">Hi <b>{profile?.employee_name?.split(' ')[0] || 'User'}</b></p>
+                <button className="text-xs text-blue-500 hover:underline">View My Info</button>
+              </div>
+            </div>
+            <button className="text-slate-400 hover:text-slate-600"><Settings className="w-5 h-5"/></button>
+          </div>
+
           <nav className="flex-1 px-4 space-y-1 overflow-y-auto pb-4">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                onClick={() => setIsSidebarOpen(false)}
-                className={({ isActive }) => cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
-                  isActive 
-                    ? "bg-primary-600 text-white shadow-lg shadow-primary-200 translate-x-1" 
-                    : "text-slate-600 hover:bg-primary-50 hover:text-primary-700 hover:translate-x-1"
-                )}
-              >
-                <item.icon className="w-5 h-5" />
-                {item.label}
-              </NavLink>
-            ))}
+            {navItems.map((item, index) => {
+              if (item.subItems) {
+                const isExpanded = expandedMenu === item.label;
+                return (
+                  <div key={index} className="flex flex-col">
+                    <button
+                      onClick={() => setExpandedMenu(isExpanded ? null : item.label)}
+                      className={cn(
+                        "flex items-center justify-between px-4 py-3 rounded-xl text-[14px] transition-colors",
+                        isExpanded ? "text-blue-600" : "text-slate-600 hover:bg-slate-50"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <item.icon className={cn("w-5 h-5", isExpanded ? "text-blue-600" : "text-slate-400")} strokeWidth={1.5} />
+                        {item.label}
+                      </div>
+                      {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                    </button>
+                    
+                    {isExpanded && (
+                      <div className="mt-1 ml-6 pl-4 border-l border-slate-200 flex flex-col gap-1">
+                        {item.subItems.map((sub, subIdx) => (
+                          <NavLink
+                            key={subIdx}
+                            to={sub.to}
+                            onClick={() => setIsSidebarOpen(false)}
+                            className={({ isActive }) => cn(
+                              "px-3 py-2 text-sm rounded-lg transition-colors",
+                              isActive ? "bg-blue-50 text-blue-600 font-medium" : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+                            )}
+                          >
+                            {sub.label}
+                          </NavLink>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to || '#'}
+                  onClick={() => setIsSidebarOpen(false)}
+                  className={({ isActive }) => cn(
+                    "flex items-center gap-3 px-4 py-3 rounded-xl text-[14px] transition-colors",
+                    isActive 
+                      ? "text-blue-600 font-medium bg-blue-50/50" 
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-800"
+                  )}
+                >
+                  <item.icon className="w-5 h-5 text-slate-400" strokeWidth={1.5} />
+                  {item.label}
+                </NavLink>
+              );
+            })}
           </nav>
 
           <div className="p-4 border-t border-slate-100">

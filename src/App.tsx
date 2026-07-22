@@ -13,6 +13,7 @@ import { Login } from './pages/Login';
 import { Projects } from './pages/Projects';
 import { Approvals } from './pages/Approvals';
 import { Reports } from './pages/Reports';
+import { Kudos } from './pages/Kudos';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Loader } from 'lucide-react';
 
@@ -29,6 +30,13 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   
   return <>{children}</>;
 };
+
+const PlaceholderPage = ({ title }: { title: string }) => (
+  <div className="flex flex-col items-center justify-center h-96">
+    <h2 className="text-2xl font-bold text-slate-700">{title}</h2>
+    <p className="text-slate-500 mt-2">This module is under development.</p>
+  </div>
+);
 
 function App() {
   return (
@@ -54,6 +62,14 @@ function App() {
             <Route path="reports" element={<Reports />} />
             <Route path="documents" element={<Documents />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="engage" element={<PlaceholderPage title="Engage" />} />
+            <Route path="my-worklife/kudos" element={<Kudos />} />
+            <Route path="my-worklife/feedback" element={<PlaceholderPage title="Feedback" />} />
+            <Route path="todo" element={<PlaceholderPage title="To Do" />} />
+            <Route path="salary" element={<PlaceholderPage title="Salary" />} />
+            <Route path="helpdesk" element={<PlaceholderPage title="Helpdesk" />} />
+            <Route path="request-hub" element={<PlaceholderPage title="Request Hub" />} />
+            <Route path="workflow-delegates" element={<PlaceholderPage title="Workflow Delegates" />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>
