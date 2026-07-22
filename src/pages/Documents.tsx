@@ -5,8 +5,7 @@ import {
   Download,
   Search,
   UploadCloud,
-  MoreVertical,
-  Plus
+  MoreVertical
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { Button, Badge, Input } from '../components/UI';
@@ -39,7 +38,7 @@ export const Documents: React.FC = () => {
         // For the sake of the grid design, let's pretend api returns documents with a category field.
         const empRes = await apiService.getEmployees();
         const allDocs = await Promise.all(
-          empRes.data.map(emp => apiService.getDocuments(emp.id))
+          empRes.data.map((emp: Employee) => apiService.getDocuments(emp.id))
         );
         const flatDocs = allDocs.flatMap(res => res.data);
         setDocs(flatDocs);

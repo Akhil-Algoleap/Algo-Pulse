@@ -56,6 +56,15 @@ export interface Asset {
   last_assigned_date: string;
 }
 
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: 'Admin' | 'Manager' | 'Employee';
+  department_id?: string;
+  avatar_url?: string;
+}
+
 export interface AssetHistory {
   id: string;
   asset_id: string;
