@@ -6,6 +6,7 @@ export interface UserProfile {
   employee_id: string;
   role: UserRole;
   employee_name: string;
+  department_id?: string;
 }
 
 interface AuthContextType {
