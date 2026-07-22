@@ -4,19 +4,15 @@ import {
   FileText,
   Download,
   Search,
-  UploadCloud,
-  MoreVertical,
   Mail,
   Receipt,
   BookOpen
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { Button, Badge, Input } from '../components/UI';
-import { Modal } from '../components/Modal';
+import { Badge, Input } from '../components/UI';
 import { apiService } from '../services/api';
 import { Document, Employee } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { cn } from '../components/UI';
 
 const CATEGORIES = ['Onboarding', 'Identity', 'Contracts', 'Policies', 'Other'];
 
@@ -25,10 +21,6 @@ export const Documents: React.FC = () => {
   const [docs, setDocs] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [uploadData, setUploadData] = useState({ name: '', type: 'Onboarding', file: null as File | null });
-  const [isUploading, setIsUploading] = useState(false);
 
   const isAdminOrManager = profile?.role === 'Admin' || profile?.role === 'Manager';
 
@@ -58,23 +50,6 @@ export const Documents: React.FC = () => {
   useEffect(() => {
     if (profile) fetchData();
   }, [profile]);
-
-  const handleUpload = async () => {
-    if (!uploadData.name || !uploadData.file) {
-      toast.error('Please provide a name and select a file');
-      return;
-    }
-    setIsUploading(true);
-    try {
-      toast.success(`${uploadData.file.name} uploaded to ${uploadData.type}`);
-      setIsUploadModalOpen(false);
-      setUploadData({ name: '', type: 'Onboarding', file: null });
-    } catch (error) {
-      toast.error('Upload failed');
-    } finally {
-      setIsUploading(false);
-    }
-  };
 
   const filteredDocs = docs.filter(doc => 
     doc.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
