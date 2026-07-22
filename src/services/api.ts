@@ -1,12 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { 
-  type Department, 
-  type Designation, 
-  type Client, 
-  type Workplace,
-  type Attendance,
-  type PerformanceRecord,
-} from '../types';
+
 
 export interface ApiService {
   getEmployees: () => Promise<any>;
@@ -110,7 +103,7 @@ export const apiService: ApiService = {
   },
 
   // Performance (Mocked for now)
-  getPerformance: async (employeeId?: string) => ({ data: [] }),
+  getPerformance: async (_employeeId?: string) => ({ data: [] }),
 
   // Leaves
   getLeaves: async () => {
