@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { supabase } from '../lib/supabase';
 import { Shield } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useAuth } from '../contexts/AuthContext';
+import { UserRole } from '../types';
 
 export const Login = () => {
   const [empId, setEmpId] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const { signIn } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,22 +17,30 @@ export const Login = () => {
       return;
     }
 
+    if (password !== '123456') {
+      toast.error('Invalid password');
+      return;
+    }
+
     setLoading(true);
     try {
-      // Map Employee ID to a dummy email for Supabase Auth
-      const email = `${empId.trim().toLowerCase()}@algopulse.local`;
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        throw error;
+      const idStr = empId.trim().toLowerCase();
+      let role: UserRole | null = null;
+      
+      if (idStr === 'admin') role = 'Admin';
+      else if (idStr === 'manager' || idStr === 'project manager') role = 'Manager';
+      else if (idStr === 'employee') role = 'Employee';
+      
+      if (!role) {
+        toast.error('Invalid Employee ID. Use: admin, manager, or employee');
+        setLoading(false);
+        return;
       }
       
-      // On success, AuthContext will handle redirect since state changes
+      signIn(role);
+      
     } catch (error: any) {
-      toast.error(error.message || 'Failed to login');
+      toast.error('Failed to login');
       console.error('Login error:', error);
     } finally {
       setLoading(false);

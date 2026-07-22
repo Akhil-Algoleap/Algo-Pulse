@@ -1,6 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
 import { UserRole } from '../types';
 
 export interface UserProfile {
@@ -11,10 +9,11 @@ export interface UserProfile {
 }
 
 interface AuthContextType {
-  session: Session | null;
-  user: User | null;
+  session: any | null;
+  user: any | null;
   profile: UserProfile | null;
   loading: boolean;
+  signIn: (role: UserRole) => void;
   signOut: () => Promise<void>;
 }
 
@@ -23,67 +22,51 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   profile: null,
   loading: true,
+  signIn: () => {},
   signOut: async () => {},
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<any | null>(null);
+  const [user, setUser] = useState<any | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      } else {
-        setLoading(false);
-      }
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      } else {
-        setProfile(null);
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const fetchProfile = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) throw error;
-      setProfile(data as UserProfile);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-      // Fallback for development if profile table isn't ready
-      // setProfile({ id: userId, employee_id: 'DEV001', role: 'Admin', employee_name: 'Developer' });
-    } finally {
+    // Check local storage for mock session
+    const storedRole = localStorage.getItem('mock_role');
+    if (storedRole) {
+      signIn(storedRole as UserRole);
+    } else {
       setLoading(false);
     }
+  }, []);
+
+  const signIn = (role: UserRole) => {
+    const mockUser = { id: `mock-${role.toLowerCase()}` };
+    const mockProfile: UserProfile = {
+      id: mockUser.id,
+      employee_id: role === 'Admin' ? 'admin' : role === 'Manager' ? 'manager' : 'employee',
+      role: role,
+      employee_name: role === 'Admin' ? 'Admin User' : role === 'Manager' ? 'Project Manager' : 'Employee User'
+    };
+    
+    setSession({ user: mockUser });
+    setUser(mockUser);
+    setProfile(mockProfile);
+    localStorage.setItem('mock_role', role);
+    setLoading(false);
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    setSession(null);
+    setUser(null);
+    setProfile(null);
+    localStorage.removeItem('mock_role');
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, profile, loading, signOut }}>
+    <AuthContext.Provider value={{ session, user, profile, loading, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
