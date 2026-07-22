@@ -5,7 +5,6 @@ import {
   Briefcase,
   Globe,
   UserCheck,
-  Clock,
   Calendar,
   FileText,
   CheckSquare
@@ -22,7 +21,7 @@ import {
   Pie,
   Cell
 } from 'recharts';
-import { Card, cn, Badge } from '../components/UI';
+import { Card, cn, Badge, Button } from '../components/UI';
 import { apiService } from '../services/api';
 import { Employee, Department, Client, LeaveRequest } from '../types';
 import { useAuth } from '../contexts/AuthContext';
