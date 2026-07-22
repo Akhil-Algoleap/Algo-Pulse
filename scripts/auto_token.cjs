@@ -3,9 +3,9 @@ const axios = require('axios');
 const { exec } = require('child_process');
 
 // REPLACE THESE WITH YOUR OWN AZURE APP CREDENTIALS
-const TENANT_ID = "YOUR_TENANT_ID";
-const CLIENT_ID = "YOUR_CLIENT_ID";
-const CLIENT_SECRET = "YOUR_CLIENT_SECRET";
+const TENANT_ID = "efe60221-cdd1-4867-aacd-c78966781692";
+const CLIENT_ID = "06ce5be0-ca62-4ba3-81be-3c5c23623107";
+const CLIENT_SECRET = "YOUR_CLIENT_SECRET_HERE";
 const REDIRECT_URI = "http://localhost:3000";
 
 const server = http.createServer(async (req, res) => {

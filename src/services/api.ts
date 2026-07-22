@@ -23,6 +23,7 @@ export interface ApiService {
   updateAsset: (id: string, data: any) => Promise<any>;
   getAttendance: (employeeId?: string) => Promise<any>;
   clockIn: (employeeId: string) => Promise<any>;
+  triggerBiometricSwipe: (employeeIdCode: string, timestamp?: string) => Promise<any>;
   getPerformance: (employeeId?: string) => Promise<any>;
   getLeaves: () => Promise<any>;
   applyLeave: (data: any) => Promise<any>;
@@ -121,6 +122,13 @@ export const apiService: ApiService = {
       date: new Date().toISOString().split('T')[0],
       clock_in: new Date().toISOString(),
       status: 'present'
+    });
+    return res.data;
+  },
+  triggerBiometricSwipe: async (employeeIdCode: string, timestamp?: string) => {
+    const res = await axios.post(`${API_BASE}/essl`, {
+      employee_id: employeeIdCode,
+      timestamp
     });
     return res.data;
   },
