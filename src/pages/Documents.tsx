@@ -4,12 +4,14 @@ import {
   FileText,
   Download,
   Search,
+  UploadCloud,
   Mail,
   Receipt,
   BookOpen
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { Badge, Input } from '../components/UI';
+import { Button, Badge, Input } from '../components/UI';
+import { Modal } from '../components/Modal';
 import { apiService } from '../services/api';
 import { Document, Employee } from '../types';
 import { useAuth } from '../contexts/AuthContext';
@@ -21,6 +23,10 @@ export const Documents: React.FC = () => {
   const [docs, setDocs] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [uploadData, setUploadData] = useState({ name: '', type: 'Onboarding', file: null as File | null });
+  const [isUploading, setIsUploading] = useState(false);
 
   const isAdminOrManager = profile?.role === 'Admin' || profile?.role === 'Manager';
 
@@ -51,6 +57,25 @@ export const Documents: React.FC = () => {
     if (profile) fetchData();
   }, [profile]);
 
+  const handleUpload = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!uploadData.name || !uploadData.file) {
+      toast.error('Please provide a name and select a file');
+      return;
+    }
+    setIsUploading(true);
+    try {
+      // Since it's a mock frontend, just show toast
+      toast.success(`${uploadData.file.name} uploaded successfully!`);
+      setIsUploadModalOpen(false);
+      setUploadData({ name: '', type: 'Onboarding', file: null });
+    } catch (error) {
+      toast.error('Upload failed');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const filteredDocs = docs.filter(doc => 
     doc.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
     doc.type?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -73,7 +98,13 @@ export const Documents: React.FC = () => {
     // Employee View (Matches Screenshot 3)
     return (
       <div className="space-y-8 animate-in fade-in duration-500">
-        <h1 className="text-xl font-bold text-slate-800">Document Center</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold text-slate-800">Document Center</h1>
+          <Button onClick={() => setIsUploadModalOpen(true)} className="flex items-center gap-2">
+            <UploadCloud className="w-4 h-4" />
+            Upload Document
+          </Button>
+        </div>
         
         {/* Banner */}
         <div className="bg-white rounded-xl border border-slate-100 p-8 flex items-center justify-between shadow-sm relative overflow-hidden">
@@ -179,6 +210,54 @@ export const Documents: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Upload Modal */}
+        <Modal
+          isOpen={isUploadModalOpen}
+          onClose={() => setIsUploadModalOpen(false)}
+          title="Upload Document"
+        >
+          <form onSubmit={handleUpload} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Document Name</label>
+              <Input
+                required
+                placeholder="e.g., Q3 Performance Review"
+                value={uploadData.name}
+                onChange={(e) => setUploadData({ ...uploadData, name: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
+              <select
+                className="w-full rounded-lg border-slate-200 border p-2 text-sm focus:border-primary-500 focus:ring-primary-500"
+                value={uploadData.type}
+                onChange={(e) => setUploadData({ ...uploadData, type: e.target.value })}
+              >
+                {CATEGORIES.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">File</label>
+              <input
+                type="file"
+                required
+                className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-primary-50 file:text-primary-600 hover:file:bg-primary-100"
+                onChange={(e) => setUploadData({ ...uploadData, file: e.target.files?.[0] || null })}
+              />
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <Button type="button" variant="outline" onClick={() => setIsUploadModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isUploading || !uploadData.file || !uploadData.name}>
+                {isUploading ? 'Uploading...' : 'Upload'}
+              </Button>
+            </div>
+          </form>
+        </Modal>
       </div>
     );
   }
