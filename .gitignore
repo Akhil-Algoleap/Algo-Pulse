@@ -18,4 +18,4 @@ scripts/get_file_url.cjs
 scripts/read_data.cjs
 
 .vercel
-.env*.local
+.env*

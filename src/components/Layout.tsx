@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
@@ -11,22 +11,63 @@ import {
   TrendingUp,
   Bell,
   FileText,
+  CheckSquare,
+  Briefcase
 } from 'lucide-react';
 import { cn, Button } from './UI';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Layout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const { profile, signOut } = useAuth();
+  const navigate = useNavigate();
 
-  const navItems = [
-    { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/employees', icon: Users, label: 'Employees' },
-    { to: '/assets', icon: Laptop, label: 'Assets' },
-    { to: '/leave', icon: Calendar, label: 'Leave' },
-    { to: '/attendance', icon: Clock, label: 'Attendance' },
-    { to: '/performance', icon: TrendingUp, label: 'Performance' },
-    { to: '/documents', icon: FileText, label: 'Documents' },
-    { to: '/settings', icon: Bell, label: 'Settings' },
-  ];
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/login');
+  };
+
+  const getNavItems = () => {
+    const role = profile?.role || 'Employee';
+
+    if (role === 'Admin') {
+      return [
+        { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+        { to: '/employees', icon: Users, label: 'Employees' },
+        { to: '/assets', icon: Laptop, label: 'Assets' },
+        { to: '/leave', icon: Calendar, label: 'Leaves' },
+        { to: '/attendance', icon: Clock, label: 'Attendance' },
+        { to: '/performance', icon: TrendingUp, label: 'Performance' },
+        { to: '/documents', icon: FileText, label: 'Documents' },
+        { to: '/settings', icon: Bell, label: 'Settings' },
+      ];
+    }
+    
+    if (role === 'Manager') {
+      return [
+        { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+        { to: '/employees', icon: Users, label: 'My Team' },
+        { to: '/attendance', icon: Clock, label: 'Attendance' },
+        { to: '/leave', icon: Calendar, label: 'Leave Requests' },
+        { to: '/projects', icon: Briefcase, label: 'Projects' },
+        { to: '/performance', icon: TrendingUp, label: 'Performance Reviews' },
+        { to: '/approvals', icon: CheckSquare, label: 'Approvals' },
+        { to: '/documents', icon: FileText, label: 'Documents' },
+        { to: '/reports', icon: FileText, label: 'Reports' },
+        { to: '/settings', icon: Bell, label: 'Settings' },
+      ];
+    }
+
+    // Employee
+    return [
+      { to: '/', icon: LayoutDashboard, label: 'Home' },
+      { to: '/attendance', icon: Clock, label: 'Attendance' },
+      { to: '/leave', icon: Calendar, label: 'Leave' },
+      { to: '/documents', icon: FileText, label: 'Document Center' },
+    ];
+  };
+
+  const navItems = getNavItems();
 
   return (
     <div className="min-h-screen flex bg-slate-50 text-slate-900">
@@ -83,7 +124,10 @@ export const Layout: React.FC = () => {
           </nav>
 
           <div className="p-4 border-t border-slate-100">
-            <button className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors">
+            <button 
+              onClick={handleLogout}
+              className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+            >
               <LogOut className="w-5 h-5" />
               Logout
             </button>
@@ -110,13 +154,13 @@ export const Layout: React.FC = () => {
             
             <div className="flex items-center gap-3 pl-3 border-l border-slate-100">
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-bold text-slate-900">John Doe</p>
-                <p className="text-[10px] uppercase tracking-wider font-bold text-primary-600">Super Admin</p>
+                <p className="text-sm font-bold text-slate-900">{profile?.employee_name || 'User'}</p>
+                <p className="text-[10px] uppercase tracking-wider font-bold text-primary-600">{profile?.role || 'Employee'}</p>
               </div>
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 p-0.5 shadow-sm">
                 <div className="w-full h-full rounded-[10px] bg-white flex items-center justify-center text-primary-700 font-bold overflow-hidden">
                   <img 
-                    src="https://api.dicebear.com/7.x/avataaars/svg?seed=John" 
+                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.employee_name || 'User'}`}
                     alt="Avatar" 
                     className="w-full h-full object-cover"
                   />
@@ -127,7 +171,7 @@ export const Layout: React.FC = () => {
         </header>
 
         {/* Page Body */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-50">
           <div className="max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
             <Outlet />
           </div>

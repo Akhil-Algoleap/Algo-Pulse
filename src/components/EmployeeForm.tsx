@@ -18,6 +18,7 @@ const employeeSchema = z.object({
   status: z.enum(['Active', 'Inactive', 'Resigned']),
   experience_years: z.coerce.number().min(0, 'Experience must be 0 or more'),
   reporting_manager_id: z.string().optional(),
+  role: z.enum(['Employee', 'Manager', 'Admin']).default('Employee'),
 });
 
 interface EmployeeFormProps {
@@ -114,6 +115,16 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           <label className="block text-sm font-medium text-slate-700 mb-1">Experience (Years)*</label>
           <Input type="number" {...register('experience_years')} placeholder="0" />
           {errors.experience_years && <p className="mt-1 text-xs text-red-500">{errors.experience_years.message as string}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Role*</label>
+          <Select {...register('role')}>
+            <option value="Employee">Employee</option>
+            <option value="Manager">Project Manager</option>
+            <option value="Admin">Admin</option>
+          </Select>
+          {errors.role && <p className="mt-1 text-xs text-red-500">{errors.role.message as string}</p>}
         </div>
 
         <div>

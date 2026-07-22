@@ -39,7 +39,7 @@ export interface Employee {
   avatar?: string;
 }
 
-export interface EmployeeFormData extends Omit<Employee, 'id' | 'role'> {}
+export interface EmployeeFormData extends Omit<Employee, 'id'> {}
 
 // --- New Types ---
 

@@ -16,8 +16,10 @@ import { Button, Card, Badge, Input } from '../components/UI';
 import { apiService } from '../services/api';
 import { Attendance as AttendanceType, Employee } from '../types';
 import { formatDate, formatTime } from '../utils/dateUtils';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Attendance: React.FC = () => {
+  const { profile } = useAuth();
   const [logs, setLogs] = useState<AttendanceType[]>([]);
   const [filteredLogs, setFilteredLogs] = useState<AttendanceType[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -33,11 +35,21 @@ export const Attendance: React.FC = () => {
   // Live Sync Polling State
   const [isLiveSync, setIsLiveSync] = useState(false);
 
+  const isAdmin = profile?.role === 'Admin';
+  const isManager = profile?.role === 'Manager';
+
   const fetchData = async (showLoading = true) => {
     if (showLoading) setIsLoading(true);
     try {
       const res = await apiService.getAttendance();
-      const rawData = res.data || [];
+      let rawData = res.data || [];
+      
+      // Role-based filtering
+      if (profile?.role === 'Employee') {
+        // filter by employee_id matching profile id (assuming api doesn't do it)
+        rawData = rawData.filter((log: any) => log.employee_id === profile.id);
+      }
+      
       const reversed = [...rawData].reverse();
       setLogs(reversed);
       setFilteredLogs(reversed);
@@ -49,6 +61,7 @@ export const Attendance: React.FC = () => {
   };
 
   const fetchEmployees = async () => {
+    if (!isAdmin) return;
     try {
       const res = await apiService.getEmployees();
       const empList = res.data || [];
@@ -62,9 +75,11 @@ export const Attendance: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchData(true);
-    fetchEmployees();
-  }, []);
+    if (profile) {
+      fetchData(true);
+      fetchEmployees();
+    }
+  }, [profile]);
 
   // 5-second Live Sync Polling
   useEffect(() => {
@@ -154,37 +169,43 @@ export const Attendance: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            Attendance Management
-            <span className="inline-flex items-center text-xs font-normal px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-              <Zap className="w-3 h-3 mr-1 fill-emerald-500 text-emerald-500" />
-              eSSL Biometric Ready
-            </span>
+            {profile?.role === 'Employee' ? 'My Attendance' : 'Attendance Management'}
+            {isAdmin && (
+              <span className="inline-flex items-center text-xs font-normal px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                <Zap className="w-3 h-3 mr-1 fill-emerald-500 text-emerald-500" />
+                eSSL Biometric Ready
+              </span>
+            )}
           </h1>
           <p className="text-slate-500">Monitor employee work hours and daily biometric logs</p>
         </div>
         <div className="flex items-center gap-3">
-          {/* Live Sync Toggle */}
-          <button
-            onClick={() => {
-              const nextState = !isLiveSync;
-              setIsLiveSync(nextState);
-              if (nextState) toast.success('Live Sync Enabled (polling every 5s)');
-              else toast('Live Sync Disabled');
-            }}
-            className={`flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg transition-all border ${
-              isLiveSync 
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-300 shadow-sm animate-pulse' 
-                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-            }`}
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isLiveSync ? 'animate-spin text-emerald-600' : 'text-slate-400'}`} />
-            <span>Live Sync {isLiveSync ? '(5s)' : 'Off'}</span>
-          </button>
+          {/* Live Sync Toggle - Only for Admin */}
+          {isAdmin && (
+            <button
+              onClick={() => {
+                const nextState = !isLiveSync;
+                setIsLiveSync(nextState);
+                if (nextState) toast.success('Live Sync Enabled (polling every 5s)');
+                else toast('Live Sync Disabled');
+              }}
+              className={`flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-lg transition-all border ${
+                isLiveSync 
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-300 shadow-sm animate-pulse' 
+                  : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isLiveSync ? 'animate-spin text-emerald-600' : 'text-slate-400'}`} />
+              <span>Live Sync {isLiveSync ? '(5s)' : 'Off'}</span>
+            </button>
+          )}
 
-          <Button variant="outline" onClick={handleExport}>
-            <Download className="w-4 h-4 mr-2" />
-            Export CSV
-          </Button>
+          {(isAdmin || isManager) && (
+            <Button variant="outline" onClick={handleExport}>
+              <Download className="w-4 h-4 mr-2" />
+              Export CSV
+            </Button>
+          )}
         </div>
       </div>
 
@@ -224,78 +245,82 @@ export const Attendance: React.FC = () => {
         </Card>
       </div>
 
-      {/* eSSL Biometric Device Simulator Widget */}
-      <Card className="p-5 border-slate-200 bg-slate-900 text-white shadow-xl relative overflow-hidden">
-        <div className="absolute right-0 top-0 translate-x-4 -translate-y-4 w-48 h-48 bg-primary-500/10 rounded-full blur-2xl pointer-events-none" />
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <Fingerprint className="w-5 h-5 text-primary-400 animate-pulse" />
-              <h2 className="text-lg font-bold text-white tracking-wide">eSSL Biometric Device Simulator</h2>
+      {/* eSSL Biometric Device Simulator Widget - Admin Only */}
+      {isAdmin && (
+        <Card className="p-5 border-slate-200 bg-slate-900 text-white shadow-xl relative overflow-hidden">
+          <div className="absolute right-0 top-0 translate-x-4 -translate-y-4 w-48 h-48 bg-primary-500/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Fingerprint className="w-5 h-5 text-primary-400 animate-pulse" />
+                <h2 className="text-lg font-bold text-white tracking-wide">eSSL Biometric Device Simulator</h2>
+              </div>
+              <p className="text-xs text-slate-400">
+                Simulate hardware biometric card/finger punches directly to <code className="text-primary-300 font-mono bg-slate-800 px-1.5 py-0.5 rounded">/api/essl</code>. First swipe clocks IN (before/after 9:30 AM), second swipe clocks OUT.
+              </p>
             </div>
-            <p className="text-xs text-slate-400">
-              Simulate hardware biometric card/finger punches directly to <code className="text-primary-300 font-mono bg-slate-800 px-1.5 py-0.5 rounded">/api/essl</code>. First swipe clocks IN (before/after 9:30 AM), second swipe clocks OUT.
-            </p>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-col">
+                <label className="text-[11px] text-slate-400 mb-1 font-medium">Select Employee</label>
+                <select
+                  value={selectedEmpCode}
+                  onChange={(e) => setSelectedEmpCode(e.target.value)}
+                  className="bg-slate-800 text-white border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500 min-w-[200px]"
+                >
+                  {employees.map((emp) => (
+                    <option key={emp.id} value={emp.employee_id || emp.id}>
+                      {emp.employee_name} ({emp.employee_id || `ID:${emp.id}`})
+                    </option>
+                  ))}
+                  {!employees.some(e => e.employee_id === 'EMP123') && (
+                    <option value="EMP123">Jagan Mohan (EMP123)</option>
+                  )}
+                  <option value="EMP999">Test User (EMP999)</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col">
+                <label className="text-[11px] text-slate-400 mb-1 font-medium font-mono">Custom Time (Optional)</label>
+                <input
+                  type="time"
+                  value={customTime}
+                  onChange={(e) => setCustomTime(e.target.value)}
+                  placeholder="Now"
+                  className="bg-slate-800 text-white border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500"
+                />
+              </div>
+
+              <div className="flex flex-col justify-end pt-5">
+                <Button
+                  onClick={handleSimulateSwipe}
+                  disabled={isSimulating}
+                  className="bg-primary-500 hover:bg-primary-600 text-white border-none shadow-md shadow-primary-500/30 flex items-center gap-2"
+                >
+                  <Activity className={`w-4 h-4 ${isSimulating ? 'animate-spin' : ''}`} />
+                  {isSimulating ? 'Processing...' : 'Simulate Swipe'}
+                </Button>
+              </div>
+            </div>
           </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex flex-col">
-              <label className="text-[11px] text-slate-400 mb-1 font-medium">Select Employee</label>
-              <select
-                value={selectedEmpCode}
-                onChange={(e) => setSelectedEmpCode(e.target.value)}
-                className="bg-slate-800 text-white border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500 min-w-[200px]"
-              >
-                {employees.map((emp) => (
-                  <option key={emp.id} value={emp.employee_id || emp.id}>
-                    {emp.employee_name} ({emp.employee_id || `ID:${emp.id}`})
-                  </option>
-                ))}
-                {!employees.some(e => e.employee_id === 'EMP123') && (
-                  <option value="EMP123">Jagan Mohan (EMP123)</option>
-                )}
-                <option value="EMP999">Test User (EMP999)</option>
-              </select>
-            </div>
-
-            <div className="flex flex-col">
-              <label className="text-[11px] text-slate-400 mb-1 font-medium font-mono">Custom Time (Optional)</label>
-              <input
-                type="time"
-                value={customTime}
-                onChange={(e) => setCustomTime(e.target.value)}
-                placeholder="Now"
-                className="bg-slate-800 text-white border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500"
-              />
-            </div>
-
-            <div className="flex flex-col justify-end pt-5">
-              <Button
-                onClick={handleSimulateSwipe}
-                disabled={isSimulating}
-                className="bg-primary-500 hover:bg-primary-600 text-white border-none shadow-md shadow-primary-500/30 flex items-center gap-2"
-              >
-                <Activity className={`w-4 h-4 ${isSimulating ? 'animate-spin' : ''}`} />
-                {isSimulating ? 'Processing...' : 'Simulate Swipe'}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </Card>
+        </Card>
+      )}
 
       {/* Filters & Table */}
       <Card className="overflow-hidden border-slate-200">
         <div className="p-6 border-b border-slate-100 bg-slate-50/50">
           <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input
-                placeholder="Search by employee name or ID..."
-                className="pl-10"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+            {(isAdmin || isManager) && (
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Input
+                  placeholder="Search by employee name or ID..."
+                  className="pl-10"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            )}
             <div className="flex gap-4">
               <div className="relative">
                 <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -370,7 +395,7 @@ export const Attendance: React.FC = () => {
                           {formatTime(log.clock_out)}
                         </div>
                       ) : (
-                        <span className="text-slate-400 italic font-light italic">Ongoing</span>
+                        <span className="text-slate-400 italic font-light">Ongoing</span>
                       )}
                     </td>
                     <td className="px-6 py-4 text-sm font-mono text-slate-600">

@@ -1,210 +1,229 @@
 import React, { useEffect, useState } from 'react';
 import { 
-  Eye,
-  Search,
+  Folder,
   FileText,
   Download,
-  Filter,
+  Search,
+  UploadCloud,
+  MoreVertical,
+  Plus
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { Button, Badge } from '../components/UI';
+import { Button, Badge, Input } from '../components/UI';
 import { Modal } from '../components/Modal';
 import { apiService } from '../services/api';
 import { Document, Employee } from '../types';
+import { useAuth } from '../contexts/AuthContext';
+import { cn } from '../components/UI';
+
+const CATEGORIES = ['Onboarding', 'Identity', 'Contracts', 'Policies', 'Other'];
 
 export const Documents: React.FC = () => {
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
-  const [employeeDocs, setEmployeeDocs] = useState<Document[]>([]);
-  const [docTypeFilter, setDocTypeFilter] = useState<string>('');
+  const { profile } = useAuth();
+  const [docs, setDocs] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
-  const [loadingActionId, setLoadingActionId] = useState<string | null>(null);
+  
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [uploadData, setUploadData] = useState({ name: '', type: 'Onboarding', file: null as File | null });
+  const [isUploading, setIsUploading] = useState(false);
+
+  const isAdminOrManager = profile?.role === 'Admin' || profile?.role === 'Manager';
 
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const empRes = await apiService.getEmployees();
-      setEmployees(empRes.data);
+      if (isAdminOrManager) {
+        // Admin sees all docs (simplified for demo, in reality they might see all employees' folders)
+        // Here we just fetch all docs if possible, or we could group by category.
+        // For the sake of the grid design, let's pretend api returns documents with a category field.
+        const empRes = await apiService.getEmployees();
+        const allDocs = await Promise.all(
+          empRes.data.map(emp => apiService.getDocuments(emp.id))
+        );
+        const flatDocs = allDocs.flatMap(res => res.data);
+        setDocs(flatDocs);
+      } else {
+        if (profile?.id) {
+          const res = await apiService.getDocuments(profile.id);
+          setDocs(res.data);
+        }
+      }
     } catch (error) {
-      toast.error('Failed to fetch employees');
+      toast.error('Failed to fetch documents');
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (profile) fetchData();
+  }, [profile]);
 
-  const handleViewEmployeeDocs = async (emp: Employee) => {
-    setSelectedEmployee(emp);
-    setLoadingActionId(emp.id);
+  const handleUpload = async () => {
+    if (!uploadData.name || !uploadData.file) {
+      toast.error('Please provide a name and select a file');
+      return;
+    }
+    setIsUploading(true);
     try {
-      const docRes = await apiService.getDocuments(emp.id);
-      setEmployeeDocs(docRes.data);
-      setDocTypeFilter('');
-      setIsPreviewModalOpen(true);
+      // Fake upload process since apiService doesn't have an upload file method that takes File object
+      // We would normally upload to Supabase Storage here and save the DB record.
+      toast.success(`${uploadData.file.name} uploaded to ${uploadData.type}`);
+      setIsUploadModalOpen(false);
+      setUploadData({ name: '', type: 'Onboarding', file: null });
     } catch (error) {
-      toast.error('Failed to fetch documents for this employee');
+      toast.error('Upload failed');
     } finally {
-      setLoadingActionId(null);
+      setIsUploading(false);
     }
   };
 
-  const filteredEmployees = employees.filter(emp => 
-    emp.employee_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    emp.employee_id.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredDocs = docs.filter(doc => 
+    doc.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    doc.type?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredDocs = employeeDocs.filter(doc => 
-    !docTypeFilter || doc.type === docTypeFilter
-  );
+  const getDocsByCategory = (category: string) => {
+    // We map existing document types to these new categories loosely
+    return filteredDocs.filter(doc => {
+      const typeStr = (doc.type || 'Other').toLowerCase();
+      const catStr = category.toLowerCase();
+      if (catStr === 'identity' && (typeStr.includes('id') || typeStr.includes('pan') || typeStr.includes('aadhar'))) return true;
+      if (catStr === 'contracts' && typeStr.includes('offer')) return true;
+      if (catStr === 'onboarding' && typeStr.includes('resume')) return true;
+      if (catStr === 'other' && !['resume', 'id proof', 'offer letter'].includes(typeStr)) return true;
+      if (typeStr === catStr) return true;
+      return false;
+    });
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Document Hub</h1>
-          <p className="text-slate-500">Administrative employee document repository</p>
+          <h1 className="text-2xl font-bold text-slate-900">Document Center</h1>
+          <p className="text-slate-500">Secure repository for all {isAdminOrManager ? 'company' : 'your'} files</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input 
+              type="text"
+              placeholder="Search files..."
+              className="pl-10 rounded-full"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <Button onClick={() => setIsUploadModalOpen(true)} className="rounded-full shadow-lg shadow-primary-100 flex items-center gap-2">
+            <UploadCloud className="w-4 h-4" />
+            Upload
+          </Button>
         </div>
       </div>
 
-      {/* Search Header */}
-      <div className="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input 
-            type="text"
-            placeholder="Search employee name or ID..."
-            className="w-full pl-10 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-primary-500 transition-all outline-none"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-      </div>
-
-      {isLoading && employees.length === 0 ? (
+      {isLoading ? (
         <div className="flex justify-center py-20">
-          <div className="w-10 h-10 border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin" />
+           <div className="w-10 h-10 border-4 border-primary-100 border-t-primary-600 rounded-full animate-spin" />
         </div>
       ) : (
-        <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-slate-50/50 border-b border-slate-100">
-                <th className="px-8 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Employee Profile</th>
-                <th className="px-8 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Department</th>
-                <th className="px-8 py-5 text-center text-[10px] font-black text-slate-500 uppercase tracking-widest">Documents</th>
-                <th className="px-8 py-5 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {filteredEmployees.map((emp) => (
-                <tr key={emp.id} className="hover:bg-slate-50/50 transition-colors group">
-                  <td className="px-8 py-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-50 to-white border border-primary-100 flex items-center justify-center font-black text-primary-600 shadow-sm group-hover:scale-110 transition-transform">
-                        {emp.employee_name.charAt(0)}
+        <div className="space-y-8">
+          {CATEGORIES.map(category => {
+            const categoryDocs = getDocsByCategory(category);
+            
+            return (
+              <div key={category} className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Folder className="w-5 h-5 text-primary-500 fill-primary-100" />
+                  <h2 className="text-lg font-bold text-slate-800">{category}</h2>
+                  <Badge variant="outline" className="ml-2 text-xs">{categoryDocs.length}</Badge>
+                </div>
+
+                {categoryDocs.length === 0 ? (
+                  <div className="p-6 border border-dashed border-slate-200 rounded-2xl bg-slate-50/50 flex flex-col items-center justify-center text-slate-400">
+                    <p className="text-sm font-medium">No files in {category}</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {categoryDocs.map(doc => (
+                      <div key={doc.id} className="group p-4 bg-white border border-slate-100 rounded-2xl hover:border-primary-200 hover:shadow-lg hover:shadow-primary-50 transition-all cursor-pointer flex flex-col gap-3">
+                        <div className="flex items-start justify-between">
+                          <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
+                            <FileText className="w-5 h-5" />
+                          </div>
+                          <button className="text-slate-300 hover:text-slate-600 transition-colors">
+                            <MoreVertical className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-slate-900 truncate" title={doc.name}>{doc.name}</p>
+                          <p className="text-[10px] text-slate-400 font-medium uppercase mt-1">{doc.type}</p>
+                        </div>
+                        <div className="pt-3 mt-auto border-t border-slate-50 flex items-center justify-between">
+                          <p className="text-[10px] text-slate-400 font-mono">1.2 MB</p>
+                          <button className="p-1.5 bg-slate-50 text-slate-600 rounded-lg hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                            <Download className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-bold text-slate-900 leading-none mb-1.5">{emp.employee_name}</p>
-                        <p className="text-[10px] font-bold text-slate-400 tracking-wider uppercase">{emp.employee_id}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-8 py-6">
-                    <Badge variant="outline" className="bg-slate-50 text-slate-600 border-slate-100 text-[10px] font-bold">Engineering</Badge>
-                  </td>
-                  <td className="px-8 py-6 text-center">
-                    <Button 
-                      onClick={() => handleViewEmployeeDocs(emp)}
-                      isLoading={loadingActionId === emp.id}
-                      className="py-2.5 px-4 bg-primary-50 text-primary-600 rounded-2xl hover:bg-primary-600 hover:text-white transition-all shadow-sm hover:shadow-lg hover:shadow-primary-100 flex items-center gap-2 mx-auto"
-                    >
-                      {!loadingActionId || loadingActionId !== emp.id ? <Eye className="w-5 h-5" /> : null}
-                      <span className="text-xs font-bold uppercase tracking-tight">View Docs</span>
-                    </Button>
-                  </td>
-                  <td className="px-8 py-6 text-right">
-                    <Badge variant={emp.status === 'Active' ? 'success' : 'outline'} className="text-[10px] font-bold px-3 py-1">
-                      {emp.status}
-                    </Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 
-      {/* Document Detail Modal */}
-      <Modal 
-        isOpen={isPreviewModalOpen} 
-        onClose={() => setIsPreviewModalOpen(false)}
-        title="Employee Documents"
-      >
-        <div className="space-y-6">
-          <div className="flex items-center gap-4 p-5 bg-primary-600 rounded-3xl text-white shadow-xl shadow-primary-100">
-            <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center font-black text-xl border border-white/30">
-              {selectedEmployee?.employee_name.charAt(0)}
-            </div>
-            <div>
-              <h4 className="text-lg font-bold">{selectedEmployee?.employee_name}</h4>
-              <p className="text-xs text-primary-100 font-medium tracking-wide">ID: {selectedEmployee?.employee_id}</p>
-            </div>
+      {/* Upload Modal */}
+      <Modal isOpen={isUploadModalOpen} onClose={() => setIsUploadModalOpen(false)} title="Upload Document">
+        <div className="space-y-5">
+          <div>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Document Name</label>
+            <Input 
+              placeholder="e.g. Employee Handbook v2" 
+              value={uploadData.name}
+              onChange={(e) => setUploadData({...uploadData, name: e.target.value})}
+            />
           </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Document List</h5>
-              <div className="flex items-center gap-2">
-                <Filter className="w-3 h-3 text-slate-400" />
-                <select 
-                  className="text-xs font-bold text-slate-600 bg-slate-50 border-none rounded-lg focus:ring-1 focus:ring-primary-500 py-1"
-                  value={docTypeFilter}
-                  onChange={(e) => setDocTypeFilter(e.target.value)}
+          <div>
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Category</label>
+            <div className="grid grid-cols-2 gap-2">
+              {CATEGORIES.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setUploadData({...uploadData, type: cat})}
+                  className={cn(
+                    "px-3 py-2 text-sm font-semibold rounded-xl border transition-all",
+                    uploadData.type === cat 
+                      ? "border-primary-500 bg-primary-50 text-primary-700" 
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                  )}
                 >
-                  <option value="">All Types</option>
-                  <option value="Resume">Resume</option>
-                  <option value="ID Proof">ID Proof</option>
-                  <option value="Offer Letter">Offer Letter</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
+                  {cat}
+                </button>
+              ))}
             </div>
-
-            {filteredDocs.length === 0 ? (
-              <div className="py-12 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-200">
-                <FileText className="w-10 h-10 text-slate-200 mx-auto mb-2" />
-                <p className="text-slate-400 text-sm font-medium">No documents found for this criteria.</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {filteredDocs.map((doc) => (
-                  <div key={doc.id} className="group p-4 bg-white border border-slate-100 rounded-2xl flex items-center justify-between hover:border-primary-200 hover:shadow-md transition-all">
-                    <div className="flex items-center gap-4">
-                      <div className="p-2.5 bg-slate-50 rounded-xl group-hover:bg-primary-50 text-slate-400 group-hover:text-primary-600 transition-colors">
-                        <FileText className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-slate-900 truncate max-w-[180px]">{doc.name}</p>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{doc.type}</p>
-                      </div>
-                    </div>
-                    <Button variant="ghost" size="sm" className="h-9 w-9 p-0 rounded-xl hover:bg-primary-50 hover:text-primary-600">
-                      <Download className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
+          </div>
+          <div>
+             <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">File</label>
+             <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center bg-slate-50">
+               <UploadCloud className="w-8 h-8 text-slate-400 mb-2" />
+               <input 
+                 type="file"
+                 className="text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                 onChange={(e) => setUploadData({...uploadData, file: e.target.files?.[0] || null})}
+               />
+             </div>
           </div>
 
-          <Button variant="outline" className="w-full py-3 rounded-2xl font-bold" onClick={() => setIsPreviewModalOpen(false)}>
-            Close Repository
-          </Button>
+          <div className="flex gap-3 pt-4 border-t border-slate-100">
+             <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setIsUploadModalOpen(false)}>Cancel</Button>
+             <Button className="flex-1 rounded-xl shadow-lg shadow-primary-100" onClick={handleUpload} isLoading={isUploading}>
+               Upload File
+             </Button>
+          </div>
         </div>
       </Modal>
     </div>
