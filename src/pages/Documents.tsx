@@ -5,7 +5,10 @@ import {
   Download,
   Search,
   UploadCloud,
-  MoreVertical
+  MoreVertical,
+  Mail,
+  Receipt,
+  BookOpen
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { Button, Badge, Input } from '../components/UI';
@@ -33,9 +36,6 @@ export const Documents: React.FC = () => {
     setIsLoading(true);
     try {
       if (isAdminOrManager) {
-        // Admin sees all docs (simplified for demo, in reality they might see all employees' folders)
-        // Here we just fetch all docs if possible, or we could group by category.
-        // For the sake of the grid design, let's pretend api returns documents with a category field.
         const empRes = await apiService.getEmployees();
         const allDocs = await Promise.all(
           empRes.data.map((emp: Employee) => apiService.getDocuments(emp.id))
@@ -66,8 +66,6 @@ export const Documents: React.FC = () => {
     }
     setIsUploading(true);
     try {
-      // Fake upload process since apiService doesn't have an upload file method that takes File object
-      // We would normally upload to Supabase Storage here and save the DB record.
       toast.success(`${uploadData.file.name} uploaded to ${uploadData.type}`);
       setIsUploadModalOpen(false);
       setUploadData({ name: '', type: 'Onboarding', file: null });
@@ -84,7 +82,6 @@ export const Documents: React.FC = () => {
   );
 
   const getDocsByCategory = (category: string) => {
-    // We map existing document types to these new categories loosely
     return filteredDocs.filter(doc => {
       const typeStr = (doc.type || 'Other').toLowerCase();
       const catStr = category.toLowerCase();
@@ -97,12 +94,127 @@ export const Documents: React.FC = () => {
     });
   };
 
+  if (!isAdminOrManager) {
+    // Employee View (Matches Screenshot 3)
+    return (
+      <div className="space-y-8 animate-in fade-in duration-500">
+        <h1 className="text-xl font-bold text-slate-800">Document Center</h1>
+        
+        {/* Banner */}
+        <div className="bg-white rounded-xl border border-slate-100 p-8 flex items-center justify-between shadow-sm relative overflow-hidden">
+          <div className="space-y-4 z-10">
+            <h2 className="text-xl font-bold text-slate-800">We've got it sorted for you!</h2>
+            <div className="space-y-1">
+              <p className="text-sm text-slate-600">All Documents are now in one place..</p>
+              <p className="text-sm text-slate-600">You can now request a new letter if you don't find the one you were looking for..</p>
+            </div>
+          </div>
+          <div className="relative z-10 hidden md:block opacity-90">
+            <div className="w-32 h-32 flex items-center justify-center">
+              <div className="w-20 h-28 bg-white rounded shadow-md border border-slate-200 relative overflow-hidden flex flex-col justify-between p-2">
+                <div className="space-y-1.5 mt-2">
+                  <div className="w-full h-1 bg-slate-200 rounded"></div>
+                  <div className="w-3/4 h-1 bg-slate-200 rounded"></div>
+                  <div className="w-5/6 h-1 bg-slate-200 rounded"></div>
+                </div>
+                <div className="w-8 h-8 self-end bg-blue-100 rounded-lg flex items-center justify-center mb-1">
+                  <FileText className="w-4 h-4 text-blue-500" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Documents Section */}
+        <div>
+          <h3 className="text-sm font-bold text-slate-800 mb-4">Documents</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            
+            <div className="bg-white border border-slate-100 p-5 rounded-xl shadow-sm flex items-center justify-between hover:border-blue-200 transition-colors cursor-pointer group">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <span className="text-[14px] font-medium text-slate-700">Documents</span>
+              </div>
+              <span className="text-[13px] font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">View All</span>
+            </div>
+
+            <div className="bg-white border border-slate-100 p-5 rounded-xl shadow-sm flex items-center justify-between hover:border-blue-200 transition-colors cursor-pointer group">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center text-orange-500">
+                  <Receipt className="w-4 h-4" />
+                </div>
+                <span className="text-[14px] font-medium text-slate-700">Payslips</span>
+              </div>
+              <span className="text-[13px] font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">View All</span>
+            </div>
+
+            <div className="bg-white border border-slate-100 p-5 rounded-xl shadow-sm flex items-center justify-between hover:border-blue-200 transition-colors cursor-pointer group">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-red-500">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <span className="text-[14px] font-medium text-slate-700">Form 16</span>
+              </div>
+              <span className="text-[13px] font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">View All</span>
+            </div>
+
+            <div className="bg-white border border-slate-100 p-5 rounded-xl shadow-sm flex items-center justify-between hover:border-blue-200 transition-colors cursor-pointer group">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-500">
+                  <BookOpen className="w-4 h-4" />
+                </div>
+                <span className="text-[14px] font-medium text-slate-700">Company Policies</span>
+              </div>
+              <span className="text-[13px] font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">View All</span>
+            </div>
+
+            <div className="bg-white border border-slate-100 p-5 rounded-xl shadow-sm flex items-center justify-between hover:border-blue-200 transition-colors cursor-pointer group">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center text-rose-500">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <span className="text-[14px] font-medium text-slate-700">Forms</span>
+              </div>
+              <span className="text-[13px] font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">View All</span>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Request Section */}
+        <div>
+          <h3 className="text-sm font-bold text-slate-800 mb-4">Request</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="bg-white border border-slate-100 p-5 rounded-xl shadow-sm hover:border-blue-200 transition-colors cursor-pointer group">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-500">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <span className="text-[14px] font-medium text-slate-700">Letters</span>
+                </div>
+                <span className="text-[13px] font-medium text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">View All</span>
+              </div>
+              <div className="flex items-center gap-4 text-xs font-medium text-slate-500">
+                <span className="border-r border-slate-200 pr-4">Pending: <span className="text-slate-700">0</span></span>
+                <span>Closed: <span className="text-slate-700">0</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Admin View (Existing code layout)
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Document Center</h1>
-          <p className="text-slate-500">Secure repository for all {isAdminOrManager ? 'company' : 'your'} files</p>
+          <p className="text-slate-500">Secure repository for all company files</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative">
@@ -115,12 +227,6 @@ export const Documents: React.FC = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          {profile?.role !== 'Admin' && (
-            <Button onClick={() => setIsUploadModalOpen(true)} className="rounded-full shadow-lg shadow-primary-100 flex items-center gap-2">
-              <UploadCloud className="w-4 h-4" />
-              Upload
-            </Button>
-          )}
         </div>
       </div>
 
@@ -153,11 +259,6 @@ export const Documents: React.FC = () => {
                           <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
                             <FileText className="w-5 h-5" />
                           </div>
-                          {profile?.role !== 'Admin' && (
-                            <button className="text-slate-300 hover:text-slate-600 transition-colors">
-                              <MoreVertical className="w-4 h-4" />
-                            </button>
-                          )}
                         </div>
                         <div>
                           <p className="text-sm font-bold text-slate-900 truncate" title={doc.name}>{doc.name}</p>
@@ -179,56 +280,7 @@ export const Documents: React.FC = () => {
         </div>
       )}
 
-      {/* Upload Modal */}
-      <Modal isOpen={isUploadModalOpen} onClose={() => setIsUploadModalOpen(false)} title="Upload Document">
-        <div className="space-y-5">
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Document Name</label>
-            <Input 
-              placeholder="e.g. Employee Handbook v2" 
-              value={uploadData.name}
-              onChange={(e) => setUploadData({...uploadData, name: e.target.value})}
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Category</label>
-            <div className="grid grid-cols-2 gap-2">
-              {CATEGORIES.map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setUploadData({...uploadData, type: cat})}
-                  className={cn(
-                    "px-3 py-2 text-sm font-semibold rounded-xl border transition-all",
-                    uploadData.type === cat 
-                      ? "border-primary-500 bg-primary-50 text-primary-700" 
-                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                  )}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div>
-             <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">File</label>
-             <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center bg-slate-50">
-               <UploadCloud className="w-8 h-8 text-slate-400 mb-2" />
-               <input 
-                 type="file"
-                 className="text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
-                 onChange={(e) => setUploadData({...uploadData, file: e.target.files?.[0] || null})}
-               />
-             </div>
-          </div>
-
-          <div className="flex gap-3 pt-4 border-t border-slate-100">
-             <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setIsUploadModalOpen(false)}>Cancel</Button>
-             <Button className="flex-1 rounded-xl shadow-lg shadow-primary-100" onClick={handleUpload} isLoading={isUploading}>
-               Upload File
-             </Button>
-          </div>
-        </div>
-      </Modal>
+      {/* Upload Modal is no longer rendered for admin since they can't upload */}
     </div>
   );
 };
