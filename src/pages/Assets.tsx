@@ -149,8 +149,8 @@ export const Assets: React.FC = () => {
   };
 
   const filteredData = joinedData.filter(row => 
-    row.employee_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    row.employee_id.toLowerCase().includes(searchQuery.toLowerCase())
+    (row.employee_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (row.employee_id || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (

@@ -153,9 +153,9 @@ export const EmployeeList: React.FC = () => {
   };
 
   const filteredEmployees = employees.filter(emp => {
-    const matchesSearch = emp.employee_name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         emp.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDept = !deptFilter || emp.department_id.toLowerCase().includes(deptFilter.toLowerCase());
+    const matchesSearch = (emp.employee_name || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+                         (emp.email || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesDept = !deptFilter || (emp.department_id || '').toLowerCase().includes(deptFilter.toLowerCase());
     const matchesStatus = !statusFilter || emp.status === statusFilter;
     return matchesSearch && matchesDept && matchesStatus;
   });

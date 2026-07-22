@@ -99,9 +99,9 @@ export const Attendance: React.FC = () => {
     
     if (searchTerm) {
       result = result.filter(log => 
-        log.employee_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.employee_id_code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.employee_id?.toLowerCase().includes(searchTerm.toLowerCase())
+        (log.employee_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (log.employee_id_code || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (log.employee_id || '').toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     

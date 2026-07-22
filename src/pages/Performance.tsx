@@ -66,8 +66,8 @@ export const Performance: React.FC = () => {
   };
 
   const filteredEmployees = employees.filter(emp => 
-    emp.employee_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    emp.employee_id.toLowerCase().includes(searchQuery.toLowerCase())
+    (emp.employee_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (emp.employee_id || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
