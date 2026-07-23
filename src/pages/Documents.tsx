@@ -28,7 +28,7 @@ export const Documents: React.FC = () => {
   const [uploadData, setUploadData] = useState({ name: '', type: 'Onboarding', file: null as File | null });
   const [isUploading, setIsUploading] = useState(false);
 
-  const isAdminOrManager = profile?.role === 'Admin' || profile?.role === 'Manager' || profile?.role === 'Reporting Manager';
+  const isAdminOrManager = profile?.role === 'Admin' || profile?.role === 'Super Admin' || profile?.role === 'Manager' || profile?.role === 'Reporting Manager';
 
   const fetchData = async () => {
     setIsLoading(true);

@@ -66,8 +66,197 @@ export const Dashboard: React.FC = () => {
     );
   }
 
+  // --- SUPER ADMIN DASHBOARD ---
+  if (profile?.role === 'Super Admin') {
+    return (
+      <div className="space-y-8">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Super Admin Dashboard</h1>
+          <p className="text-slate-500 text-lg">System Overview & Company Health</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="flex flex-col p-6 border-none shadow-md bg-white">
+             <div className="flex justify-between items-center mb-4">
+               <p className="text-sm font-bold text-slate-400 uppercase">Total Employees</p>
+               <Users className="w-6 h-6 text-blue-500" />
+             </div>
+             <p className="text-3xl font-black text-slate-900">550</p>
+          </Card>
+          <Card className="flex flex-col p-6 border-none shadow-md bg-white">
+             <div className="flex justify-between items-center mb-4">
+               <p className="text-sm font-bold text-slate-400 uppercase">Active Users</p>
+               <UserCheck className="w-6 h-6 text-emerald-500" />
+             </div>
+             <p className="text-3xl font-black text-slate-900">543</p>
+          </Card>
+          <Card className="flex flex-col p-6 border-none shadow-md bg-white">
+             <div className="flex justify-between items-center mb-4">
+               <p className="text-sm font-bold text-slate-400 uppercase">Pending Approvals</p>
+               <CheckSquare className="w-6 h-6 text-amber-500" />
+             </div>
+             <p className="text-3xl font-black text-slate-900">18</p>
+          </Card>
+          <Card className="flex flex-col p-6 border-none shadow-md bg-white">
+             <div className="flex justify-between items-center mb-4">
+               <p className="text-sm font-bold text-slate-400 uppercase">System Health</p>
+               <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center border-2 border-emerald-500" />
+             </div>
+             <p className="text-3xl font-black text-emerald-600">Healthy</p>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+          <Card className="p-6 border-none shadow-sm text-center">
+            <p className="text-sm text-slate-500 mb-2">Today's Attendance</p>
+            <p className="text-2xl font-bold text-slate-800">512</p>
+          </Card>
+          <Card className="p-6 border-none shadow-sm text-center">
+            <p className="text-sm text-slate-500 mb-2">New Joiners</p>
+            <p className="text-2xl font-bold text-slate-800">5</p>
+          </Card>
+          <Card className="p-6 border-none shadow-sm text-center">
+            <p className="text-sm text-slate-500 mb-2">On Leave</p>
+            <p className="text-2xl font-bold text-slate-800">12</p>
+          </Card>
+          <Card className="p-6 border-none shadow-sm text-center">
+            <p className="text-sm text-slate-500 mb-2">Open Recruitment</p>
+            <p className="text-2xl font-bold text-slate-800">16</p>
+          </Card>
+          <Card className="p-6 border-none shadow-sm text-center">
+            <p className="text-sm text-slate-500 mb-2">Audit Events</p>
+            <p className="text-2xl font-bold text-slate-800">42</p>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // --- PAYROLL MANAGER DASHBOARD ---
+  if (profile?.role === 'Payroll Manager') {
+    return (
+      <div className="space-y-8">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Payroll Manager Dashboard</h1>
+          <p className="text-slate-500 text-lg">Payroll Month: July 2026</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="p-6 border-none shadow-md bg-white">
+             <p className="text-sm font-bold text-slate-400 uppercase mb-2">Total Employees</p>
+             <p className="text-4xl font-black text-slate-900">550</p>
+          </Card>
+          <Card className="p-6 border-none shadow-md bg-amber-50">
+             <p className="text-sm font-bold text-amber-600 uppercase mb-2">Payroll Pending</p>
+             <p className="text-4xl font-black text-amber-700">28</p>
+          </Card>
+          <Card className="p-6 border-none shadow-md bg-emerald-50">
+             <p className="text-sm font-bold text-emerald-600 uppercase mb-2">Payroll Processed</p>
+             <p className="text-4xl font-black text-emerald-700">522</p>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+          <Card className="p-6 border-none shadow-sm flex items-center justify-between">
+            <div>
+              <p className="font-bold text-slate-900 text-lg">Pending Salary Revision</p>
+              <p className="text-sm text-slate-500">Requires review</p>
+            </div>
+            <span className="text-3xl font-black text-slate-800">6</span>
+          </Card>
+          <Card className="p-6 border-none shadow-sm flex items-center justify-between">
+            <div>
+              <p className="font-bold text-slate-900 text-lg">Pending Bonus Approval</p>
+              <p className="text-sm text-slate-500">Requires review</p>
+            </div>
+            <span className="text-3xl font-black text-slate-800">3</span>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // --- FINANCE DASHBOARD ---
+  if (profile?.role === 'Finance') {
+    return (
+      <div className="space-y-8">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Finance Dashboard</h1>
+          <p className="text-slate-500 text-lg">Expense and Budget Tracking</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="p-6 border-none shadow-md bg-white">
+             <p className="text-sm font-bold text-slate-400 uppercase mb-2">Pending Claims</p>
+             <p className="text-4xl font-black text-rose-500">14</p>
+          </Card>
+          <Card className="p-6 border-none shadow-md bg-white">
+             <p className="text-sm font-bold text-slate-400 uppercase mb-2">Pending Budget Approval</p>
+             <p className="text-4xl font-black text-amber-500">5</p>
+          </Card>
+          <Card className="p-6 border-none shadow-md bg-white">
+             <p className="text-sm font-bold text-slate-400 uppercase mb-2">Travel Claims</p>
+             <p className="text-4xl font-black text-blue-500">8</p>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+          <Card className="p-8 border-none shadow-sm bg-slate-900 text-white">
+             <p className="text-sm font-bold text-slate-400 uppercase mb-2">Total Payroll Cost</p>
+             <p className="text-4xl font-black text-white">₹1.25 Crore</p>
+          </Card>
+          <Card className="p-8 border-none shadow-sm bg-emerald-900 text-white">
+             <p className="text-sm font-bold text-emerald-400 uppercase mb-2">Total Expenses</p>
+             <p className="text-4xl font-black text-white">₹18 Lakhs</p>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // --- IT ADMIN DASHBOARD ---
+  if (profile?.role === 'IT Admin') {
+    return (
+      <div className="space-y-8">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">IT Administrator Dashboard</h1>
+          <p className="text-slate-500 text-lg">Hardware & Access Management</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="p-6 border-none shadow-md bg-white text-center">
+             <p className="text-sm font-bold text-slate-400 uppercase mb-2">Laptop Requests</p>
+             <p className="text-4xl font-black text-slate-800">3</p>
+          </Card>
+          <Card className="p-6 border-none shadow-md bg-white text-center">
+             <p className="text-sm font-bold text-slate-400 uppercase mb-2">Email Creation</p>
+             <p className="text-4xl font-black text-slate-800">2</p>
+          </Card>
+          <Card className="p-6 border-none shadow-md bg-white text-center">
+             <p className="text-sm font-bold text-slate-400 uppercase mb-2">Asset Returns</p>
+             <p className="text-4xl font-black text-amber-500">4</p>
+          </Card>
+          <Card className="p-6 border-none shadow-md bg-white text-center">
+             <p className="text-sm font-bold text-slate-400 uppercase mb-2">Inactive Devices</p>
+             <p className="text-4xl font-black text-rose-500">6</p>
+          </Card>
+        </div>
+
+        <div className="mt-6">
+          <Card className="p-6 border-none shadow-sm flex items-center justify-between bg-purple-50">
+            <div>
+              <p className="font-bold text-purple-900 text-lg">Software Licenses Expiring</p>
+              <p className="text-sm text-purple-700">Require renewal</p>
+            </div>
+            <span className="text-4xl font-black text-purple-600">8</span>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   // --- MANAGER DASHBOARD ---
-  if (profile?.role === 'Manager') {
+  if (profile?.role === 'Manager' || profile?.role === 'Reporting Manager') {
     // Assuming manager sees data for their team. For now we use dummy aggregated data that matches the mock.
     const myTeamSize = employees.length > 0 ? Math.min(employees.length, 18) : 18; 
     const presentToday = myTeamSize > 2 ? myTeamSize - 2 : myTeamSize;

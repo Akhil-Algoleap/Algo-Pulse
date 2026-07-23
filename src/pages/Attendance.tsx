@@ -35,7 +35,7 @@ export const Attendance: React.FC = () => {
   // Live Sync Polling State
   const [isLiveSync, setIsLiveSync] = useState(false);
 
-  const isAdmin = profile?.role === 'Admin';
+  const isAdmin = profile?.role === 'Admin' || profile?.role === 'Super Admin';
   const isManager = profile?.role === 'Manager';
 
   const fetchData = async (showLoading = true) => {

@@ -50,7 +50,7 @@ export const Leave: React.FC = () => {
     reason: ''
   });
 
-  const isManagerOrAdmin = profile?.role === 'Admin' || profile?.role === 'Manager';
+  const isManagerOrAdmin = profile?.role === 'Admin' || profile?.role === 'Super Admin' || profile?.role === 'Manager';
 
   const fetchData = async () => {
     setIsLoading(true);

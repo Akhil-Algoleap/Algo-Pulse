@@ -300,7 +300,7 @@ export const Performance: React.FC = () => {
             <Button variant="outline" className="flex-1" onClick={() => isAddingReview ? setIsAddingReview(false) : setIsPreviewModalOpen(false)}>
               {isAddingReview ? 'Cancel' : 'Close'}
             </Button>
-            {(profile?.role === 'Manager' || profile?.role === 'Admin') && (
+            {(profile?.role === 'Manager' || profile?.role === 'Admin' || profile?.role === 'Super Admin') && (
               isAddingReview ? (
                 <Button className="flex-1" onClick={handleSubmitReview}>Submit Review</Button>
               ) : (
