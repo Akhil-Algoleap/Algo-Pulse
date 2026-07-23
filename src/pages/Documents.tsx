@@ -28,7 +28,7 @@ export const Documents: React.FC = () => {
   const [uploadData, setUploadData] = useState({ name: '', type: 'Onboarding', file: null as File | null });
   const [isUploading, setIsUploading] = useState(false);
 
-  const isAdminOrManager = profile?.role === 'Admin' || profile?.role === 'Manager';
+  const isAdminOrManager = profile?.role === 'Admin' || profile?.role === 'Manager' || profile?.role === 'Reporting Manager';
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -36,9 +36,16 @@ export const Documents: React.FC = () => {
       if (isAdminOrManager) {
         const empRes = await apiService.getEmployees();
         const allDocs = await Promise.all(
-          empRes.data.map((emp: Employee) => apiService.getDocuments(emp.id))
+          empRes.data.map(async (emp: Employee) => {
+            const res = await apiService.getDocuments(emp.id);
+            return (res.data || []).map((doc: any) => ({
+              ...doc,
+              emp_name: emp.employee_name,
+              emp_code: emp.employee_id
+            }));
+          })
         );
-        const flatDocs = allDocs.flatMap(res => res.data);
+        const flatDocs = allDocs.flat();
         setDocs(flatDocs);
       } else {
         if (profile?.id) {
@@ -317,6 +324,12 @@ export const Documents: React.FC = () => {
                         <div>
                           <p className="text-sm font-bold text-slate-900 truncate" title={doc.name}>{doc.name}</p>
                           <p className="text-[10px] text-slate-400 font-medium uppercase mt-1">{doc.type}</p>
+                          {doc.emp_name && (
+                            <div className="mt-2 text-xs text-slate-500 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                              <p className="font-bold text-slate-700 truncate" title={doc.emp_name}>{doc.emp_name}</p>
+                              <p className="text-[10px] uppercase text-primary-600 font-bold tracking-wider">{doc.emp_code}</p>
+                            </div>
+                          )}
                         </div>
                         <div className="pt-3 mt-auto border-t border-slate-50 flex items-center justify-between">
                           <p className="text-[10px] text-slate-400 font-mono">1.2 MB</p>

@@ -175,13 +175,13 @@ export const Dashboard: React.FC = () => {
         <div className="w-full bg-gradient-to-r from-pink-50 via-white to-blue-50 rounded-2xl border border-slate-200 p-4 flex items-center justify-center gap-4">
            <div className="flex items-center gap-2 border-r border-slate-300 pr-4">
              <span className="font-bold text-slate-800">Unite</span>
-             <span className="text-slate-500">by greytHR</span>
+             <span className="text-slate-500">by Algo Pulse</span>
            </div>
            <div className="flex items-center gap-4 pl-2">
              <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-500"><Users className="w-5 h-5"/></div>
              <div>
                <p className="font-bold text-slate-800 text-sm">Your Gateway to Possibilities</p>
-               <p className="text-xs text-slate-500">Loans, Taxes, Salary Advances, <span className="text-primary-600 font-medium">All within greytHR!</span></p>
+               <p className="text-xs text-slate-500">Loans, Taxes, Salary Advances, <span className="text-primary-600 font-medium">All within Algo Pulse!</span></p>
              </div>
              <Button size="sm" className="ml-4 bg-indigo-500 hover:bg-indigo-600 rounded-lg px-6">Explore</Button>
            </div>

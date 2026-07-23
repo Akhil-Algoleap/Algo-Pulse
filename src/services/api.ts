@@ -16,10 +16,14 @@ export interface ApiService {
   clockIn: (employeeId: string) => Promise<any>;
   triggerBiometricSwipe: (employeeIdCode: string, timestamp?: string) => Promise<any>;
   getPerformance: (employeeId?: string) => Promise<any>;
+  addPerformance: (data: any) => Promise<any>;
   getLeaves: () => Promise<any>;
   applyLeave: (data: any) => Promise<any>;
-  getDocuments: (employeeId?: string) => Promise<any>;
   updateLeaveStatus: (id: string, status: any) => Promise<any>;
+  getRegularizations: () => Promise<any>;
+  applyRegularization: (data: any) => Promise<any>;
+  updateRegularizationStatus: (id: string, status: any) => Promise<any>;
+  getDocuments: (employeeId?: string) => Promise<any>;
   getExpenses: () => Promise<any>;
   updateExpenseStatus: (id: string, status: any, comment?: string) => Promise<any>;
   getLookups: () => Promise<any>;
@@ -41,7 +45,14 @@ export const apiService: ApiService = {
     return { data: data || [] };
   },
   createEmployee: async (data: any) => {
-    const { data: result, error } = await supabase.from('employees').insert([data]).select().single();
+    const payload = { ...data };
+    if (payload.reporting_manager_id === 'N/A' || payload.reporting_manager_id === '') {
+      payload.reporting_manager_id = null;
+    }
+    if (payload.project_manager_id === 'N/A' || payload.project_manager_id === '') {
+      payload.project_manager_id = null;
+    }
+    const { data: result, error } = await supabase.from('employees').insert([payload]).select().single();
     if (error) throw error;
     return { data: result };
   },
@@ -51,7 +62,14 @@ export const apiService: ApiService = {
     return { data: result || [] };
   },
   updateEmployee: async (id: string, data: any) => {
-    const { data: result, error } = await supabase.from('employees').update(data).eq('id', id).select().single();
+    const payload = { ...data };
+    if (payload.reporting_manager_id === 'N/A' || payload.reporting_manager_id === '') {
+      payload.reporting_manager_id = null;
+    }
+    if (payload.project_manager_id === 'N/A' || payload.project_manager_id === '') {
+      payload.project_manager_id = null;
+    }
+    const { data: result, error } = await supabase.from('employees').update(payload).eq('id', id).select().single();
     if (error) throw error;
     return { data: result };
   },
@@ -61,12 +79,24 @@ export const apiService: ApiService = {
     return { message: 'Deleted successfully' };
   },
 
-  // Assets (Mocked for now as we don't have an assets table in the initial schema)
-  getAssets: async () => ({ data: [] }),
+  // Assets
+  getAssets: async () => {
+    const { data, error } = await supabase.from('assets').select('*');
+    if (error) throw error;
+    return { data: data || [] };
+  },
   getAssetHistory: async (_assetId: string) => ({ data: [] }),
   assignAsset: async (_assetId: string, _employeeId: string) => ({ data: {} }),
-  createAsset: async (data: any) => ({ data }),
-  updateAsset: async (_id: string, data: any) => ({ data }),
+  createAsset: async (data: any) => {
+    const { data: result, error } = await supabase.from('assets').insert([data]).select().single();
+    if (error) throw error;
+    return { data: result };
+  },
+  updateAsset: async (employee_id: string, data: any) => {
+    const { data: result, error } = await supabase.from('assets').update(data).eq('employee_id', employee_id).select().single();
+    if (error) throw error;
+    return { data: result };
+  },
 
   // Attendance
   getAttendance: async (employeeId?: string) => {
@@ -104,6 +134,7 @@ export const apiService: ApiService = {
 
   // Performance (Mocked for now)
   getPerformance: async (_employeeId?: string) => ({ data: [] }),
+  addPerformance: async (data: any) => ({ data: { id: Date.now().toString(), ...data, date: new Date().toISOString() } }),
 
   // Leaves
   getLeaves: async () => {
@@ -121,6 +152,11 @@ export const apiService: ApiService = {
     if (error) throw error;
     return { data };
   },
+
+  // Regularizations (Mocked for now since table doesn't exist yet)
+  getRegularizations: async () => ({ data: [] }),
+  applyRegularization: async (data: any) => ({ data: { id: Date.now().toString(), ...data, applied_at: new Date().toISOString() } }),
+  updateRegularizationStatus: async (id: string, status: any) => ({ data: { id, status } }),
   
   // Documents
   getDocuments: async (employeeId?: string) => {
@@ -130,6 +166,28 @@ export const apiService: ApiService = {
     }
     const { data, error } = await query;
     if (error) throw error;
+    
+    // If no data exists in Supabase, return a mock document so the UI can be tested
+    if (!data || data.length === 0) {
+      return { 
+        data: [{
+          id: 'mock-doc-1',
+          employee_id: employeeId || 'mock-emp',
+          name: 'Signed Offer Letter',
+          type: 'Offer Letter',
+          url: '#',
+          uploaded_at: new Date().toISOString()
+        }, {
+          id: 'mock-doc-2',
+          employee_id: employeeId || 'mock-emp',
+          name: 'ID Proof (Passport)',
+          type: 'ID Proof',
+          url: '#',
+          uploaded_at: new Date().toISOString()
+        }] 
+      };
+    }
+    
     return { data: data || [] };
   },
 

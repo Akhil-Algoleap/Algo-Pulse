@@ -1,5 +1,5 @@
 export type EmployeeStatus = 'Active' | 'Inactive' | 'Resigned';
-export type UserRole = 'Admin' | 'Manager' | 'Employee';
+export type UserRole = 'Admin' | 'Manager' | 'Reporting Manager' | 'Employee' | 'Super Admin' | 'Payroll Manager' | 'Finance' | 'IT Admin';
 
 export interface Department {
   id: string;
@@ -35,6 +35,7 @@ export interface Employee {
   status: EmployeeStatus;
   experience_years: number;
   reporting_manager_id?: string;
+  project_manager_id?: string;
   role: UserRole;
   avatar?: string;
 }
@@ -60,7 +61,7 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
-  role: 'Admin' | 'Manager' | 'Employee';
+  role: 'Admin' | 'Manager' | 'Reporting Manager' | 'Employee';
   department_id?: string;
   avatar_url?: string;
 }
@@ -85,6 +86,18 @@ export interface LeaveRequest {
   end_date: string;
   reason: string;
   status: LeaveStatus;
+  manager_comment?: string;
+  applied_at: string;
+}
+
+export type RegularizationStatus = 'Pending' | 'Approved' | 'Rejected';
+
+export interface RegularizationRequest {
+  id: string;
+  employee_id: string;
+  date: string;
+  reason: string;
+  status: RegularizationStatus;
   manager_comment?: string;
   applied_at: string;
 }

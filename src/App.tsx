@@ -62,6 +62,10 @@ function App() {
             <Route path="reports" element={<Reports />} />
             <Route path="documents" element={<Documents />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="regularization" element={<PlaceholderPage title="Regularization Requests" />} />
+            <Route path="employee-profiles" element={<PlaceholderPage title="Employee Profiles" />} />
+            <Route path="goals" element={<PlaceholderPage title="Goals & KPIs" />} />
+            <Route path="notifications" element={<PlaceholderPage title="Notifications" />} />
             <Route path="engage" element={<PlaceholderPage title="Engage" />} />
             <Route path="my-worklife/kudos" element={<Kudos />} />
             <Route path="my-worklife/feedback" element={<PlaceholderPage title="Feedback" />} />
@@ -70,6 +74,44 @@ function App() {
             <Route path="helpdesk" element={<PlaceholderPage title="Helpdesk" />} />
             <Route path="request-hub" element={<PlaceholderPage title="Request Hub" />} />
             <Route path="workflow-delegates" element={<PlaceholderPage title="Workflow Delegates" />} />
+            
+            {/* Super Admin Routes */}
+            <Route path="organization" element={<PlaceholderPage title="Organization" />} />
+            <Route path="users" element={<PlaceholderPage title="Users" />} />
+            <Route path="roles" element={<PlaceholderPage title="Roles & Permissions" />} />
+            <Route path="departments" element={<PlaceholderPage title="Departments" />} />
+            <Route path="branches" element={<PlaceholderPage title="Branches" />} />
+            <Route path="workflows" element={<PlaceholderPage title="Workflow Engine" />} />
+            <Route path="security" element={<PlaceholderPage title="Security" />} />
+            <Route path="audit-logs" element={<PlaceholderPage title="Audit Logs" />} />
+
+            {/* Payroll Manager Routes */}
+            <Route path="salary-structure" element={<PlaceholderPage title="Salary Structure" />} />
+            <Route path="payroll-processing" element={<PlaceholderPage title="Payroll Processing" />} />
+            <Route path="payslips" element={<PlaceholderPage title="Payslips" />} />
+            <Route path="tax" element={<PlaceholderPage title="Tax" />} />
+            <Route path="bonuses" element={<PlaceholderPage title="Bonuses" />} />
+            <Route path="reimbursements" element={<PlaceholderPage title="Reimbursements" />} />
+            <Route path="salary-revision" element={<PlaceholderPage title="Salary Revision" />} />
+            <Route path="loans" element={<PlaceholderPage title="Loans" />} />
+            <Route path="bank-export" element={<PlaceholderPage title="Bank Export" />} />
+
+            {/* Finance Routes */}
+            <Route path="expense-claims" element={<PlaceholderPage title="Expense Claims" />} />
+            <Route path="travel-claims" element={<PlaceholderPage title="Travel Claims" />} />
+            <Route path="payroll-approval" element={<PlaceholderPage title="Payroll Approval" />} />
+            <Route path="budget" element={<PlaceholderPage title="Budget" />} />
+            <Route path="invoices" element={<PlaceholderPage title="Invoices" />} />
+            <Route path="vendor-payments" element={<PlaceholderPage title="Vendor Payments" />} />
+            <Route path="finance-reports" element={<PlaceholderPage title="Finance Reports" />} />
+
+            {/* IT Admin Routes */}
+            <Route path="employee-accounts" element={<PlaceholderPage title="Employee Accounts" />} />
+            <Route path="software" element={<PlaceholderPage title="Software" />} />
+            <Route path="access-requests" element={<PlaceholderPage title="Access Requests" />} />
+            <Route path="service-desk" element={<PlaceholderPage title="Service Desk" />} />
+            <Route path="repairs" element={<PlaceholderPage title="Repairs" />} />
+            
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>

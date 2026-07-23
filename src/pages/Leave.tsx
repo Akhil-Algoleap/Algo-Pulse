@@ -14,22 +14,28 @@ import { toast } from 'react-hot-toast';
 import { Button, Badge, Card, Input, cn } from '../components/UI';
 import { Modal } from '../components/Modal';
 import { apiService } from '../services/api';
-import { LeaveRequest, LeaveType, Employee } from '../types';
+import { LeaveRequest, LeaveType, Employee, RegularizationRequest } from '../types';
 import { formatDate } from '../utils/dateUtils';
 import { useAuth } from '../contexts/AuthContext';
 
 export const Leave: React.FC = () => {
   const { profile } = useAuth();
   const [leaves, setLeaves] = useState<LeaveRequest[]>([]);
+  const [regularizations, setRegularizations] = useState<RegularizationRequest[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
+  const [isApplyRegModalOpen, setIsApplyRegModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingActionId, setLoadingActionId] = useState<string | null>(null);
   
+  // Manager Tab State
+  const [managerTab, setManagerTab] = useState<'Leaves'|'Regularizations'>('Leaves');
+
   // Employee Sub-tabs State
-  const [employeeTab, setEmployeeTab] = useState<'Apply'|'Balances'|'Calendar'|'Holiday'>('Apply');
+  const [employeeTab, setEmployeeTab] = useState<'Apply'|'Balances'|'Calendar'|'Holiday'|'Regularization'>('Apply');
   const [applySubTab, setApplySubTab] = useState<'Apply'|'Pending'|'History'>('Apply');
+  const [regSubTab, setRegSubTab] = useState<'Apply'|'History'>('Apply');
   
   // Form State
   const [newLeave, setNewLeave] = useState({
@@ -39,23 +45,33 @@ export const Leave: React.FC = () => {
     reason: ''
   });
 
+  const [newRegularization, setNewRegularization] = useState({
+    date: '',
+    reason: ''
+  });
+
   const isManagerOrAdmin = profile?.role === 'Admin' || profile?.role === 'Manager';
 
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [leaveRes, empRes] = await Promise.all([
+      const [leaveRes, empRes, regRes] = await Promise.all([
         apiService.getLeaves(),
-        apiService.getEmployees()
+        apiService.getEmployees(),
+        apiService.getRegularizations()
       ]);
       
       let fetchedLeaves = leaveRes.data as LeaveRequest[];
+      let fetchedRegs = regRes.data as RegularizationRequest[];
+      
       if (profile?.role === 'Employee') {
         fetchedLeaves = fetchedLeaves.filter(l => l.employee_id === profile.id);
+        fetchedRegs = fetchedRegs.filter(r => r.employee_id === profile.id);
       }
       // If Manager, filter by team (reporting_manager_id). Simplified here assuming data returns relevant leaves for manager.
 
       setLeaves(fetchedLeaves);
+      setRegularizations(fetchedRegs);
       setEmployees(empRes.data);
     } catch (error) {
       toast.error('Failed to fetch data');
@@ -102,6 +118,41 @@ export const Leave: React.FC = () => {
     }
   };
 
+  const handleApplyReg = async () => {
+    if (!newRegularization.date || !newRegularization.reason) {
+      return toast.error('Please fill all fields');
+    }
+    setIsSubmitting(true);
+    try {
+      await apiService.applyRegularization({
+        ...newRegularization,
+        employee_id: profile?.id,
+        status: 'Pending'
+      });
+      toast.success('Regularization requested successfully');
+      setIsApplyRegModalOpen(false);
+      setNewRegularization({ date: '', reason: '' });
+      fetchData();
+    } catch (error) {
+      toast.error('Application failed');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleRegStatusUpdate = async (id: string, status: 'Approved' | 'Rejected') => {
+    setLoadingActionId(id);
+    try {
+      await apiService.updateRegularizationStatus(id, status);
+      toast.success(`Regularization ${status.toLowerCase()}`);
+      fetchData();
+    } catch (error) {
+      toast.error('Action failed');
+    } finally {
+      setLoadingActionId(null);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'Approved': return <Badge variant="success" className="bg-emerald-50 text-emerald-600 border-emerald-100">Approved</Badge>;
@@ -121,6 +172,9 @@ export const Leave: React.FC = () => {
            <button onClick={() => setEmployeeTab('Balances')} className={cn("px-6 py-2.5 text-left text-sm", employeeTab === 'Balances' ? "bg-white border-l-4 border-primary-500 text-primary-600 font-medium shadow-sm" : "text-slate-600 hover:bg-slate-100")}>Leave Balances</button>
            <button onClick={() => setEmployeeTab('Calendar')} className={cn("px-6 py-2.5 text-left text-sm", employeeTab === 'Calendar' ? "bg-white border-l-4 border-primary-500 text-primary-600 font-medium shadow-sm" : "text-slate-600 hover:bg-slate-100")}>Leave Calendar</button>
            <button onClick={() => setEmployeeTab('Holiday')} className={cn("px-6 py-2.5 text-left text-sm", employeeTab === 'Holiday' ? "bg-white border-l-4 border-primary-500 text-primary-600 font-medium shadow-sm" : "text-slate-600 hover:bg-slate-100")}>Holiday Calendar</button>
+           
+           <div className="px-6 mb-2 mt-6 text-sm font-bold text-slate-800">Attendance</div>
+           <button onClick={() => setEmployeeTab('Regularization')} className={cn("px-6 py-2.5 text-left text-sm", employeeTab === 'Regularization' ? "bg-white border-l-4 border-primary-500 text-primary-600 font-medium shadow-sm" : "text-slate-600 hover:bg-slate-100")}>Regularizations</button>
         </div>
         
         {/* Main Content Area */}
@@ -352,6 +406,66 @@ export const Leave: React.FC = () => {
              </div>
            )}
 
+           {employeeTab === 'Regularization' && (
+             <div>
+                <div className="flex justify-center mb-8">
+                  <div className="inline-flex bg-slate-100 rounded-md p-1">
+                    <button onClick={() => setRegSubTab('Apply')} className={cn("px-8 py-1.5 text-sm rounded transition-colors", regSubTab === 'Apply' ? "bg-blue-500 text-white shadow" : "text-slate-500 hover:text-slate-700")}>Apply</button>
+                    <button onClick={() => setRegSubTab('History')} className={cn("px-8 py-1.5 text-sm rounded transition-colors", regSubTab === 'History' ? "bg-white text-slate-800 shadow" : "text-slate-500 hover:text-slate-700")}>History</button>
+                  </div>
+                </div>
+
+                {regSubTab === 'Apply' && (
+                  <div className="max-w-3xl mx-auto space-y-6">
+                    <h3 className="font-bold text-slate-700 text-lg">Apply for Regularization</h3>
+                    <div className="space-y-6">
+                       <div>
+                         <label className="block text-xs text-slate-600 mb-1">Date <span className="text-red-500">*</span></label>
+                         <input type="date" value={newRegularization.date} onChange={(e) => setNewRegularization({...newRegularization, date: e.target.value})} className="w-1/2 p-2 border border-slate-200 rounded text-sm text-slate-600 outline-none focus:border-blue-400" />
+                       </div>
+                       
+                       <div>
+                         <label className="block text-xs text-slate-600 mb-1">Reason <span className="text-red-500">*</span></label>
+                         <textarea value={newRegularization.reason} onChange={(e) => setNewRegularization({...newRegularization, reason: e.target.value})} className="w-full p-2 border border-slate-200 rounded text-sm text-slate-600 outline-none focus:border-blue-400 h-24" placeholder="Reason for regularization..." />
+                       </div>
+
+                       <div className="pt-4 flex gap-4">
+                         <Button onClick={handleApplyReg} className="bg-blue-500 hover:bg-blue-600 px-6" isLoading={isSubmitting}>Apply</Button>
+                         <Button variant="outline">Cancel</Button>
+                       </div>
+                    </div>
+                  </div>
+                )}
+                
+                {regSubTab === 'History' && (
+                  <div className="max-w-4xl mx-auto">
+                    <table className="w-full bg-white border border-slate-200 rounded overflow-hidden">
+                      <thead className="bg-slate-50 border-b border-slate-200">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-bold text-slate-500">Date</th>
+                          <th className="px-6 py-3 text-left text-xs font-bold text-slate-500">Reason</th>
+                          <th className="px-6 py-3 text-left text-xs font-bold text-slate-500">Applied At</th>
+                          <th className="px-6 py-3 text-right text-xs font-bold text-slate-500">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {regularizations.length === 0 ? (
+                          <tr><td colSpan={4} className="px-6 py-12 text-center text-slate-400">No requests found</td></tr>
+                        ) : regularizations.map(reg => (
+                          <tr key={reg.id}>
+                            <td className="px-6 py-4 text-sm font-medium text-slate-700">{formatDate(reg.date)}</td>
+                            <td className="px-6 py-4 text-sm text-slate-500">{reg.reason}</td>
+                            <td className="px-6 py-4 text-sm text-slate-500">{new Date(reg.applied_at).toLocaleDateString()}</td>
+                            <td className="px-6 py-4 text-right">{getStatusBadge(reg.status)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+             </div>
+           )}
+
         </div>
       </div>
     );
@@ -361,20 +475,21 @@ export const Leave: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">{isManagerOrAdmin ? 'Leave Requests' : 'My Leaves'}</h1>
+          <h1 className="text-2xl font-bold text-slate-900">{isManagerOrAdmin ? 'Requests & Approvals' : 'My Leaves'}</h1>
           <p className="text-slate-500">Track balance and process time-off requests</p>
         </div>
-        {!isManagerOrAdmin && (
-          <Button onClick={() => setIsApplyModalOpen(true)} className="flex items-center gap-2 shadow-lg shadow-primary-100">
-            <Plus className="w-4 h-4" />
-            Apply Leave
-          </Button>
+        {isManagerOrAdmin && (
+           <div className="inline-flex bg-slate-100 rounded-md p-1">
+             <button onClick={() => setManagerTab('Leaves')} className={cn("px-6 py-1.5 text-sm rounded transition-colors", managerTab === 'Leaves' ? "bg-white text-slate-900 shadow" : "text-slate-500 hover:text-slate-700")}>Leaves</button>
+             <button onClick={() => setManagerTab('Regularizations')} className={cn("px-6 py-1.5 text-sm rounded transition-colors", managerTab === 'Regularizations' ? "bg-white text-slate-900 shadow" : "text-slate-500 hover:text-slate-700")}>Regularizations</button>
+           </div>
         )}
       </div>
 
+      {managerTab === 'Leaves' ? (
       <Card className="border-none shadow-sm overflow-hidden p-0">
         <div className="p-6 border-b border-slate-50">
-          <h3 className="text-lg font-bold text-slate-900">Request History</h3>
+          <h3 className="text-lg font-bold text-slate-900">Leave Requests</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -453,6 +568,84 @@ export const Leave: React.FC = () => {
           </table>
         </div>
       </Card>
+      ) : (
+      <Card className="border-none shadow-sm overflow-hidden p-0">
+        <div className="p-6 border-b border-slate-50">
+          <h3 className="text-lg font-bold text-slate-900">Regularization Requests</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-slate-50/50">
+                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Employee</th>
+                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Date</th>
+                <th className="px-6 py-4 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Reason</th>
+                <th className="px-6 py-4 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Status/Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {isLoading ? (
+                 <tr><td colSpan={4} className="p-8 text-center"><div className="animate-spin w-6 h-6 border-2 border-primary-600 border-t-transparent rounded-full mx-auto" /></td></tr>
+              ) : regularizations.length === 0 ? (
+                 <tr><td colSpan={4} className="px-6 py-12 text-center text-slate-400">No requests found</td></tr>
+              ) : regularizations.map((reg) => {
+                const emp = employees.find(e => e.id === reg.employee_id) || { employee_name: profile?.employee_name, employee_id: profile?.employee_id };
+                return (
+                  <tr key={reg.id} className="hover:bg-slate-50/30 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600">
+                           {emp?.employee_name?.charAt(0) || 'U'}
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-slate-900">{emp?.employee_name || 'Unknown'}</p>
+                          <p className="text-[10px] text-slate-400">{emp?.employee_id}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-xs font-bold text-slate-700">{formatDate(reg.date)}</span>
+                      <p className="text-[10px] text-slate-400">Applied {new Date(reg.applied_at).toLocaleString()}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-sm text-slate-600 italic">"{reg.reason}"</p>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      {isManagerOrAdmin && reg.status === 'Pending' ? (
+                        <div className="flex justify-end gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => handleRegStatusUpdate(reg.id, 'Approved')}
+                            className="text-emerald-600 hover:bg-emerald-50 h-9 w-9 p-0 rounded-xl"
+                            title="Approve"
+                            isLoading={loadingActionId === reg.id}
+                          >
+                            <CheckCircle2 className="w-5 h-5" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => handleRegStatusUpdate(reg.id, 'Rejected')}
+                            className="text-rose-600 hover:bg-rose-50 h-9 w-9 p-0 rounded-xl"
+                            title="Reject"
+                            isLoading={loadingActionId === reg.id}
+                          >
+                            <XCircle className="w-5 h-5" />
+                          </Button>
+                        </div>
+                      ) : (
+                        getStatusBadge(reg.status)
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+      )}
 
       {/* Apply Modal */}
       <Modal isOpen={isApplyModalOpen} onClose={() => setIsApplyModalOpen(false)} title="Apply for Leave">

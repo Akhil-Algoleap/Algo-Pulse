@@ -22,7 +22,31 @@ import {
   Info,
   Layers,
   GitBranch,
-  Settings
+  Settings,
+  Target,
+  UserCircle,
+  FileWarning,
+  Building,
+  Shield,
+  ShieldCheck,
+  History,
+  BarChart,
+  Calculator,
+  IndianRupee,
+  RefreshCw,
+  Percent,
+  Gift,
+  Receipt,
+  CreditCard,
+  Plane,
+  PieChart,
+  Code,
+  Box,
+  Key,
+  Headphones,
+  Database,
+  Wrench,
+  MapPin
 } from 'lucide-react';
 import { cn, Button } from './UI';
 import { useAuth } from '../contexts/AuthContext';
@@ -54,18 +78,94 @@ export const Layout: React.FC = () => {
       ];
     }
     
+    if (role === 'Super Admin') {
+      return [
+        { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+        { to: '/organization', icon: Building, label: 'Organization' },
+        { to: '/users', icon: Users, label: 'Users' },
+        { to: '/roles', icon: Shield, label: 'Roles & Permissions' },
+        { to: '/departments', icon: Layers, label: 'Departments' },
+        { to: '/branches', icon: MapPin, label: 'Branches' },
+        { to: '/projects', icon: Briefcase, label: 'Projects' },
+        { to: '/workflows', icon: GitBranch, label: 'Workflow Engine' },
+        { to: '/notifications', icon: Bell, label: 'Notifications' },
+        { to: '/security', icon: ShieldCheck, label: 'Security' },
+        { to: '/audit-logs', icon: History, label: 'Audit Logs' },
+        { to: '/reports', icon: BarChart, label: 'Reports' },
+        { to: '/settings', icon: Settings, label: 'Settings' },
+      ];
+    }
+
+    if (role === 'Payroll Manager') {
+      return [
+        { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+        { to: '/salary-structure', icon: Calculator, label: 'Salary Structure' },
+        { to: '/payroll-processing', icon: RefreshCw, label: 'Payroll Processing' },
+        { to: '/payslips', icon: FileText, label: 'Payslips' },
+        { to: '/tax', icon: Percent, label: 'Tax' },
+        { to: '/bonuses', icon: Gift, label: 'Bonuses' },
+        { to: '/reimbursements', icon: Receipt, label: 'Reimbursements' },
+        { to: '/salary-revision', icon: TrendingUp, label: 'Salary Revision' },
+        { to: '/loans', icon: CreditCard, label: 'Loans' },
+        { to: '/reports', icon: BarChart, label: 'Reports' },
+        { to: '/bank-export', icon: Download, label: 'Bank Export' },
+      ];
+    }
+
+    if (role === 'Finance') {
+      return [
+        { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+        { to: '/expense-claims', icon: Receipt, label: 'Expense Claims' },
+        { to: '/travel-claims', icon: Plane, label: 'Travel Claims' },
+        { to: '/payroll-approval', icon: CheckSquare, label: 'Payroll Approval' },
+        { to: '/budget', icon: PieChart, label: 'Budget' },
+        { to: '/invoices', icon: FileText, label: 'Invoices' },
+        { to: '/vendor-payments', icon: CreditCard, label: 'Vendor Payments' },
+        { to: '/finance-reports', icon: BarChart, label: 'Finance Reports' },
+      ];
+    }
+
+    if (role === 'IT Admin') {
+      return [
+        { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+        { to: '/assets', icon: Laptop, label: 'Assets' },
+        { to: '/employee-accounts', icon: UserCircle, label: 'Employee Accounts' },
+        { to: '/software', icon: Box, label: 'Software' },
+        { to: '/access-requests', icon: Key, label: 'Access Requests' },
+        { to: '/service-desk', icon: Headphones, label: 'Service Desk' },
+        { to: '/repairs', icon: Wrench, label: 'Repairs' },
+        { to: '/reports', icon: BarChart, label: 'Reports' },
+      ];
+    }
+
     if (role === 'Manager') {
       return [
         { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
         { to: '/employees', icon: Users, label: 'My Team' },
         { to: '/attendance', icon: Clock, label: 'Attendance' },
-        { to: '/leave', icon: Calendar, label: 'Leave Requests' },
+        { to: '/leave', icon: Calendar, label: 'Leaves & Regularization' },
         { to: '/projects', icon: Briefcase, label: 'Projects' },
         { to: '/performance', icon: TrendingUp, label: 'Performance Reviews' },
         { to: '/approvals', icon: CheckSquare, label: 'Approvals' },
         { to: '/documents', icon: FileText, label: 'Documents' },
         { to: '/reports', icon: FileText, label: 'Reports' },
         { to: '/settings', icon: Bell, label: 'Settings' },
+      ];
+    }
+
+    if (role === 'Reporting Manager') {
+      return [
+        { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+        { to: '/employees', icon: Users, label: 'My Team' },
+        { to: '/leave', icon: Calendar, label: 'Leaves & Regularization' },
+        { to: '/attendance', icon: Clock, label: 'Attendance' },
+        { to: '/employee-profiles', icon: UserCircle, label: 'Employee Profiles' },
+        { to: '/performance', icon: TrendingUp, label: 'Performance' },
+        { to: '/goals', icon: Target, label: 'Goals & KPIs' },
+        { to: '/documents', icon: FileText, label: 'Documents' },
+        { to: '/reports', icon: FileText, label: 'Reports' },
+        { to: '/notifications', icon: Bell, label: 'Notifications' },
+        { to: '/settings', icon: Settings, label: 'Settings' },
       ];
     }
 

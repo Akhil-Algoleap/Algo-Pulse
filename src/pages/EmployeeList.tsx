@@ -7,7 +7,9 @@ import {
   Mail,
   ArrowUpDown,
   Download,
-  Upload
+  Upload,
+  Phone,
+  Hash
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import * as XLSX from 'xlsx';
@@ -241,8 +243,11 @@ export const EmployeeList: React.FC = () => {
             <thead>
               <tr className="bg-slate-50/50 border-b border-slate-100">
                 <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                  <div className="flex items-center gap-2">Employee <ArrowUpDown className="w-3 h-3" /></div>
+                  <div className="flex items-center gap-2">Employee Name <ArrowUpDown className="w-3 h-3" /></div>
                 </th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Emp ID</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Email</th>
+                <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Contact No</th>
                 <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Dept & Role</th>
                 <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Assignment</th>
                 <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Status</th>
@@ -252,14 +257,14 @@ export const EmployeeList: React.FC = () => {
             <tbody className="divide-y divide-slate-50">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center">
+                  <td colSpan={8} className="px-6 py-12 text-center">
                     <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto" />
                     <p className="mt-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Syncing workforce...</p>
                   </td>
                 </tr>
               ) : filteredEmployees.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
+                  <td colSpan={8} className="px-6 py-12 text-center text-slate-400">
                     No records match your filters.
                   </td>
                 </tr>
@@ -273,11 +278,17 @@ export const EmployeeList: React.FC = () => {
                         </div>
                         <div>
                           <p className="font-bold text-slate-900">{emp.employee_name}</p>
-                          <p className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
-                            <Mail className="w-3 h-3" /> {emp.email}
-                          </p>
                         </div>
                       </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-sm font-medium text-slate-600">{emp.employee_id}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-sm font-medium text-slate-600">{emp.email}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-sm font-medium text-slate-600">{emp.phone || 'N/A'}</p>
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-sm font-bold text-slate-700">
@@ -347,6 +358,7 @@ export const EmployeeList: React.FC = () => {
           initialData={editingEmployee || undefined}
           onSubmit={handleSubmit}
           isLoading={isSubmitting}
+          employees={employees}
         />
       </Modal>
     </div>

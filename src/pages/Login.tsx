@@ -31,10 +31,15 @@ export const Login = () => {
       
       if (idStr === 'admin') role = 'Admin';
       else if (idStr === 'manager' || idStr === 'project manager') role = 'Manager';
+      else if (idStr === 'reporting manager') role = 'Reporting Manager';
       else if (idStr === 'employee') role = 'Employee';
+      else if (idStr === 'super admin') role = 'Super Admin';
+      else if (idStr === 'payroll') role = 'Payroll Manager';
+      else if (idStr === 'finance') role = 'Finance';
+      else if (idStr === 'it') role = 'IT Admin';
       
       if (!role) {
-        toast.error('Invalid Employee ID. Use: admin, manager, or employee');
+        toast.error('Invalid Employee ID. Use: admin, super admin, manager, reporting manager, employee, payroll, finance, or it');
         setLoading(false);
         return;
       }

@@ -12,6 +12,7 @@ import { Button, Card, Badge, cn } from '../components/UI';
 import { Modal } from '../components/Modal';
 import { apiService } from '../services/api';
 import { PerformanceRecord, Employee } from '../types';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Performance: React.FC = () => {
   const [records, setRecords] = useState<PerformanceRecord[]>([]);
@@ -20,6 +21,11 @@ export const Performance: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRecordEmployee, setSelectedRecordEmployee] = useState<Employee | null>(null);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const { profile } = useAuth();
+
+  const [isAddingReview, setIsAddingReview] = useState(false);
+  const [newRating, setNewRating] = useState(0);
+  const [newFeedback, setNewFeedback] = useState('');
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -63,6 +69,36 @@ export const Performance: React.FC = () => {
   const handleViewDetails = (employee: Employee) => {
     setSelectedRecordEmployee(employee);
     setIsPreviewModalOpen(true);
+    setIsAddingReview(false);
+    setNewRating(0);
+    setNewFeedback('');
+  };
+
+  const handleSubmitReview = async () => {
+    if (newRating === 0 || !newFeedback.trim()) {
+      toast.error('Please provide a rating and feedback');
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      const res = await apiService.addPerformance({
+        employee_id: selectedRecordEmployee?.id,
+        reviewer_id: profile?.id,
+        rating: newRating,
+        feedback: newFeedback
+      });
+      
+      setRecords([res.data, ...records]);
+      toast.success('Performance review added successfully');
+      setIsAddingReview(false);
+      setNewRating(0);
+      setNewFeedback('');
+    } catch (error) {
+      toast.error('Failed to add review');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const filteredEmployees = employees.filter(emp => 
@@ -206,33 +242,71 @@ export const Performance: React.FC = () => {
 
           <div className="space-y-4">
             <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">Appraisal History</h5>
-            {records.filter(r => r.employee_id === selectedRecordEmployee?.id).length === 0 ? (
-               <div className="py-12 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
-                 <Target className="w-8 h-8 text-slate-200 mx-auto mb-2" />
-                 <p className="text-slate-400 text-sm">No appraisal history available.</p>
-               </div>
-            ) : (
-              records
-                .filter(r => r.employee_id === selectedRecordEmployee?.id)
-                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                .map((record) => (
-                  <div key={record.id} className="relative pl-6 border-l-2 border-primary-100 pb-8 last:pb-0">
-                    <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-white border-2 border-primary-500" />
-                    <div className="flex justify-between items-center mb-3">
-                       <span className="text-xs font-bold text-slate-900 bg-white px-2 py-1 rounded-md border border-slate-100 shadow-sm">{new Date(record.date).toLocaleDateString()}</span>
-                       {renderStars(record.rating)}
-                    </div>
-                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                      <p className="text-sm text-slate-600 italic leading-relaxed font-medium">"{record.feedback}"</p>
-                    </div>
+            
+            {isAddingReview ? (
+              <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Rating</label>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        onClick={() => setNewRating(star)}
+                        className={`p-1 rounded transition-transform hover:scale-110 focus:outline-none ${star <= newRating ? 'text-amber-400' : 'text-slate-300 hover:text-amber-300'}`}
+                      >
+                        <Star className={`w-8 h-8 ${star <= newRating ? 'fill-amber-400' : ''}`} />
+                      </button>
+                    ))}
                   </div>
-                ))
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Feedback & Comments</label>
+                  <textarea
+                    value={newFeedback}
+                    onChange={(e) => setNewFeedback(e.target.value)}
+                    placeholder="Provide constructive feedback..."
+                    className="w-full p-3 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none resize-none"
+                    rows={4}
+                  />
+                </div>
+              </div>
+            ) : (
+              records.filter(r => r.employee_id === selectedRecordEmployee?.id).length === 0 ? (
+                 <div className="py-12 text-center bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                   <Target className="w-8 h-8 text-slate-200 mx-auto mb-2" />
+                   <p className="text-slate-400 text-sm">No appraisal history available.</p>
+                 </div>
+              ) : (
+                records
+                  .filter(r => r.employee_id === selectedRecordEmployee?.id)
+                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                  .map((record) => (
+                    <div key={record.id} className="relative pl-6 border-l-2 border-primary-100 pb-8 last:pb-0">
+                      <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-white border-2 border-primary-500" />
+                      <div className="flex justify-between items-center mb-3">
+                         <span className="text-xs font-bold text-slate-900 bg-white px-2 py-1 rounded-md border border-slate-100 shadow-sm">{new Date(record.date).toLocaleDateString()}</span>
+                         {renderStars(record.rating)}
+                      </div>
+                      <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                        <p className="text-sm text-slate-600 italic leading-relaxed font-medium">"{record.feedback}"</p>
+                      </div>
+                    </div>
+                  ))
+              )
             )}
           </div>
           
           <div className="pt-4 flex gap-3">
-            <Button variant="outline" className="flex-1" onClick={() => setIsPreviewModalOpen(false)}>Close</Button>
-            <Button className="flex-1">Add New Review</Button>
+            <Button variant="outline" className="flex-1" onClick={() => isAddingReview ? setIsAddingReview(false) : setIsPreviewModalOpen(false)}>
+              {isAddingReview ? 'Cancel' : 'Close'}
+            </Button>
+            {(profile?.role === 'Manager' || profile?.role === 'Admin') && (
+              isAddingReview ? (
+                <Button className="flex-1" onClick={handleSubmitReview}>Submit Review</Button>
+              ) : (
+                <Button className="flex-1" onClick={() => setIsAddingReview(true)}>Add New Review</Button>
+              )
+            )}
           </div>
         </div>
       </Modal>
