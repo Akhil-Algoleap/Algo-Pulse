@@ -23,6 +23,7 @@ import { Workflows } from './pages/Workflows';
 import { NotificationsConfig } from './pages/NotificationsConfig';
 import { Security } from './pages/Security';
 import { MasterData } from './pages/MasterData';
+import { IntegrationCenter } from './pages/IntegrationCenter';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Loader } from 'lucide-react';
 
@@ -99,7 +100,7 @@ function App() {
             <Route path="security" element={<Security />} />
             <Route path="audit-logs" element={<PlaceholderPage title="Audit Logs" />} />
             <Route path="master-data" element={<MasterData />} />
-            <Route path="integrations" element={<PlaceholderPage title="Integration Center" />} />
+            <Route path="integrations" element={<IntegrationCenter />} />
 
             {/* Payroll Manager Routes */}
             <Route path="salary-structure" element={<PlaceholderPage title="Salary Structure" />} />
