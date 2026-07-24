@@ -248,6 +248,8 @@ export interface PerformanceRecord {
 export interface Document {
   id: string;
   employee_id: string;
+  emp_name?: string;
+  emp_code?: string;
   name: string;
   type: 'Resume' | 'ID Proof' | 'Offer Letter' | 'Other';
   url: string;
@@ -296,6 +298,33 @@ export interface NotificationTemplate {
   subject_template: string;
   body_template: string;
   channels: ('In-App' | 'Email' | 'Teams' | 'SMS')[];
+}
+
+export interface SecuritySettings {
+  password_policy: {
+    min_length: number;
+    require_uppercase: boolean;
+    require_lowercase: boolean;
+    require_numbers: boolean;
+    require_special: boolean;
+    expiry_days: number;
+  };
+  mfa: {
+    enabled: boolean;
+    enforced_roles: string[];
+  };
+  session: {
+    timeout_minutes: number;
+    allow_concurrent: boolean;
+  };
+  access_control: {
+    ip_whitelist: string[];
+    ip_blacklist: string[];
+  };
+  oauth: {
+    google_enabled: boolean;
+    microsoft_enabled: boolean;
+  };
 }
 
 export interface AuditEvent {

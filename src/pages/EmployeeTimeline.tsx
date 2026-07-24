@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Clock, CheckCircle2, User, FileText, Monitor, LogIn } from 'lucide-react';
-import { Card, Badge } from '../components/UI';
+import { Clock, CheckCircle2, User, FileText, LogIn } from 'lucide-react';
+import { Card } from '../components/UI';
 import { apiService } from '../services/api';
 import { AuditEvent } from '../types';
 

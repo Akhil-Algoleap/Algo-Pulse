@@ -25,7 +25,6 @@ export const Leave: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
-  const [isApplyRegModalOpen, setIsApplyRegModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingActionId, setLoadingActionId] = useState<string | null>(null);
   
@@ -130,7 +129,6 @@ export const Leave: React.FC = () => {
         status: 'Pending'
       });
       toast.success('Regularization requested successfully');
-      setIsApplyRegModalOpen(false);
       setNewRegularization({ date: '', reason: '' });
       fetchData();
     } catch (error) {

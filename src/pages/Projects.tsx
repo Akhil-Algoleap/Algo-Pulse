@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { Project } from '../types';
 import { Card, Button, Badge, cn } from '../components/UI';
 import { Modal } from '../components/Modal';
-import { Briefcase, Plus, Users, Flag, AlertTriangle, FileText, IndianRupee } from 'lucide-react';
+import { Briefcase, Plus, Users, Flag, AlertTriangle, IndianRupee } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export const Projects = () => {

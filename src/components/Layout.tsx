@@ -25,14 +25,12 @@ import {
   Settings,
   Target,
   UserCircle,
-  FileWarning,
   Building,
   Shield,
   ShieldCheck,
   History,
   BarChart,
   Calculator,
-  IndianRupee,
   RefreshCw,
   Percent,
   Gift,
@@ -40,17 +38,16 @@ import {
   CreditCard,
   Plane,
   PieChart,
-  Code,
   Box,
   Key,
   Headphones,
   Database,
   Wrench,
-  MapPin,
   Search,
   User,
   CheckCircle2,
-  Link
+  Link,
+  Download
 } from 'lucide-react';
 import { cn, Button, Badge } from './UI';
 import { useAuth } from '../contexts/AuthContext';
@@ -96,8 +93,8 @@ export const Layout: React.FC = () => {
       try {
         const { data: emps } = await apiService.getEmployees();
         const results = emps
-          .filter(e => e.employee_name.toLowerCase().includes(searchQuery.toLowerCase()) || e.role.toLowerCase().includes(searchQuery.toLowerCase()))
-          .map(e => ({ type: 'Employee', title: e.employee_name, subtitle: e.role, id: e.id, link: `/users/timeline/${e.id}` }));
+          .filter((e: any) => e.employee_name.toLowerCase().includes(searchQuery.toLowerCase()) || e.role.toLowerCase().includes(searchQuery.toLowerCase()))
+          .map((e: any) => ({ type: 'Employee', title: e.employee_name, subtitle: e.role, id: e.id, link: `/users/timeline/${e.id}` }));
         setSearchResults(results);
       } catch (e) {
         console.error(e);
@@ -287,7 +284,8 @@ export const Layout: React.FC = () => {
     ];
   };
 
-  const navItems = getNavItems();
+  type NavItemType = { to?: string; icon: any; label: string; subItems?: { to: string; label: string }[] };
+  const navItems: NavItemType[] = getNavItems();
 
   return (
     <div className="min-h-screen flex bg-slate-50 text-slate-900">
@@ -474,7 +472,7 @@ export const Layout: React.FC = () => {
               <div className="absolute top-12 right-12 w-80 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50">
                 <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
                   <h3 className="font-bold text-slate-900">Notifications</h3>
-                  <Badge variant="primary">{notifications.filter(n => !n.is_read).length} New</Badge>
+                  <Badge variant="default">{notifications.filter(n => !n.is_read).length} New</Badge>
                 </div>
                 <div className="max-h-96 overflow-y-auto">
                   {notifications.length === 0 ? (

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { Card, Button, Badge, cn } from '../components/UI';
-import { CheckCircle2, XCircle, FileText, Briefcase, Calendar, FileType, CheckCircle } from 'lucide-react';
+import { Card, Button, Badge } from '../components/UI';
+import { CheckCircle2, XCircle, FileText, Calendar, FileType, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export const Approvals: React.FC = () => {

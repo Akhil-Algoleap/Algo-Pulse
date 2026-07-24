@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { Project } from '../types';
 import { Card, Badge, cn, Button } from '../components/UI';
 import { 
-  ArrowLeft, Users, Briefcase, Flag, FileText, Clock, AlertTriangle, 
+  ArrowLeft, Users, Flag, FileText, AlertTriangle, 
   IndianRupee, Calendar, CheckCircle, Clock3, AlertCircle 
 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -172,7 +172,7 @@ export const ProjectDetails = () => {
 
         {activeTab === 'Milestones' && (
           <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-slate-200">
-            {project.milestones?.map((ms, i) => (
+            {project.milestones?.map((ms) => (
               <div key={ms.id} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
                 <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
                   {ms.status === 'Achieved' ? <CheckCircle className="w-5 h-5 text-green-500" /> : <Clock3 className="w-5 h-5 text-slate-400" />}

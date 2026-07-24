@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { AppNotification, AuditEvent, OnboardingTask, PayrollDeduction } from '../types';
+import { AppNotification, AuditEvent, OnboardingTask, PayrollDeduction, SecuritySettings } from '../types';
 
 let mockNotifications: AppNotification[] = [];
 let mockAuditLogs: AuditEvent[] = [];
@@ -167,6 +167,43 @@ let mockNotificationTemplates: any[] = [
   }
 ];
 
+let mockSecuritySettings: SecuritySettings = {
+  password_policy: {
+    min_length: 12,
+    require_uppercase: true,
+    require_lowercase: true,
+    require_numbers: true,
+    require_special: true,
+    expiry_days: 90
+  },
+  mfa: {
+    enabled: true,
+    enforced_roles: ['Super Admin', 'Admin', 'Finance', 'HR']
+  },
+  session: {
+    timeout_minutes: 30,
+    allow_concurrent: false
+  },
+  access_control: {
+    ip_whitelist: ['192.168.1.1', '10.0.0.0/24'],
+    ip_blacklist: ['185.xxx.xxx.xxx']
+  },
+  oauth: {
+    google_enabled: true,
+    microsoft_enabled: false
+  }
+};
+
+let mockLoginAttempts = [
+  { id: '1', user: 'admin@algoleap.com', ip: '192.168.1.5', status: 'Success', location: 'Hyderabad, India', timestamp: new Date(Date.now() - 3600000).toISOString() },
+  { id: '2', user: 'finance@algoleap.com', ip: '10.0.0.12', status: 'Failed', location: 'Mumbai, India', timestamp: new Date(Date.now() - 7200000).toISOString() },
+  { id: '3', user: 'unknown', ip: '185.10.10.5', status: 'Blocked', location: 'Unknown', timestamp: new Date(Date.now() - 86400000).toISOString() }
+];
+
+let mockBlockedUsers = [
+  { id: '1', user: 'finance@algoleap.com', reason: 'Multiple failed attempts', blocked_at: new Date(Date.now() - 7200000).toISOString() }
+];
+
 const defaultPermissions = [
   { module: 'Employees', view: true, create: false, edit: false, delete: false, approve: false },
   { module: 'Payroll', view: false, create: false, edit: false, delete: false, approve: false },
@@ -285,6 +322,13 @@ export interface ApiService {
   getPendingApprovals: (role: string) => Promise<{ data: any[] }>;
   processApproval: (id: string, action: 'Approve' | 'Reject') => Promise<{ data: any }>;
   applyResignation: (data: any) => Promise<any>;
+  
+  // Security endpoints
+  getSecuritySettings: () => Promise<{ data: SecuritySettings }>;
+  updateSecuritySettings: (data: Partial<SecuritySettings>) => Promise<{ data: SecuritySettings }>;
+  getLoginAttempts: () => Promise<{ data: any[] }>;
+  getBlockedUsers: () => Promise<{ data: any[] }>;
+  unblockUser: (id: string) => Promise<any>;
 }
 
 export const apiService: ApiService = {
@@ -716,8 +760,7 @@ export const apiService: ApiService = {
       req.status = 'Rejected';
       // Also update the underlying entity if it was a leave
       if (req.request_type === 'Leave') {
-         const leave = mockLeaves.find(l => l.id === req.payload.id);
-         if (leave) leave.status = 'Rejected';
+         apiService.updateLeaveStatus(req.payload.id, 'Rejected').catch(console.error);
       }
       return { data: req };
     }
@@ -734,8 +777,7 @@ export const apiService: ApiService = {
       if (nextStep && (nextStep.role_name === 'Approved' || nextStep.role_name === 'Completed')) {
         req.status = 'Completed';
         if (req.request_type === 'Leave') {
-          const leave = mockLeaves.find(l => l.id === req.payload.id);
-          if (leave) leave.status = 'Approved';
+          apiService.updateLeaveStatus(req.payload.id, 'Approved').catch(console.error);
           
           dispatchNotification('Leave Approved', { 
             EmployeeName: req.employee_id, // in real app, fetch name 
@@ -825,5 +867,29 @@ export const apiService: ApiService = {
       });
     }
     return { data: deduc };
+  },
+  
+  // Security Methods
+  getSecuritySettings: async () => {
+    return { data: mockSecuritySettings };
+  },
+  updateSecuritySettings: async (data: Partial<SecuritySettings>) => {
+    mockSecuritySettings = { ...mockSecuritySettings, ...data };
+    addMockAuditLog({
+      employee_id: 'System',
+      action: 'Security Settings Updated',
+      description: 'Super Admin updated security configurations.'
+    });
+    return { data: mockSecuritySettings };
+  },
+  getLoginAttempts: async () => {
+    return { data: mockLoginAttempts };
+  },
+  getBlockedUsers: async () => {
+    return { data: mockBlockedUsers };
+  },
+  unblockUser: async (id: string) => {
+    mockBlockedUsers = mockBlockedUsers.filter(u => u.id !== id);
+    return { message: 'User unblocked successfully' };
   }
 };

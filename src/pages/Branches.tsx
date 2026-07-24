@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
 import { Branch } from '../types';
 import { Card, Button, Badge } from '../components/UI';
@@ -120,7 +120,7 @@ export const Branches = () => {
                     <Badge variant="outline">{branch.working_hours || 'Standard'}</Badge>
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <Badge variant="secondary">{branch.holidays_count}</Badge>
+                    <Badge variant="outline">{branch.holidays_count}</Badge>
                   </td>
                   <td className="px-6 py-4 text-center">
                     {branch.attendance_device_enabled 

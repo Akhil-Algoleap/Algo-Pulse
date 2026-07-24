@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
 import { Department } from '../types';
 import { Card, Button, Badge } from '../components/UI';
 import { Modal } from '../components/Modal';
-import { Layers, Plus, Users, IndianRupee } from 'lucide-react';
+import { Layers, Plus, IndianRupee } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export const Departments = () => {
@@ -116,7 +116,7 @@ export const Departments = () => {
                     {dept.budget ? `₹${dept.budget.toLocaleString()}` : '-'}
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <Badge variant="secondary">{(dept as any).projects || Math.floor(Math.random() * 5) + 1}</Badge>
+                    <Badge variant="outline">{(dept as any).projects || Math.floor(Math.random() * 5) + 1}</Badge>
                   </td>
                   <td className="px-6 py-4 text-center">
                     <Badge variant="success">Active</Badge>

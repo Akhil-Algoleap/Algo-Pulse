@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
 import { Role, RolePermission } from '../types';
 import { Card, Button, Badge, cn } from '../components/UI';
@@ -104,7 +104,7 @@ export const Roles = () => {
                 )}
               >
                 {role.name}
-                {role.is_custom && <Badge variant="secondary">Custom</Badge>}
+                {role.is_custom && <Badge variant="outline">Custom</Badge>}
               </button>
             ))}
           </div>
@@ -117,7 +117,7 @@ export const Roles = () => {
               <p className="text-sm text-slate-500">Permission Matrix</p>
             </div>
             {selectedRole?.is_custom && (
-              <Badge variant="warning">Custom Role</Badge>
+              <Badge variant="outline" className="text-xs">Custom Role</Badge>
             )}
           </div>
           <div className="flex-1 overflow-y-auto p-6">

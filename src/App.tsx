@@ -21,6 +21,7 @@ import { Departments } from './pages/Departments';
 import { Branches } from './pages/Branches';
 import { Workflows } from './pages/Workflows';
 import { NotificationsConfig } from './pages/NotificationsConfig';
+import { Security } from './pages/Security';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Loader } from 'lucide-react';
 
@@ -94,7 +95,7 @@ function App() {
             <Route path="users/timeline/:id" element={<EmployeeTimeline />} />
             <Route path="roles" element={<Roles />} />
             <Route path="workflows" element={<Workflows />} />
-            <Route path="security" element={<PlaceholderPage title="Security" />} />
+            <Route path="security" element={<Security />} />
             <Route path="audit-logs" element={<PlaceholderPage title="Audit Logs" />} />
             <Route path="master-data" element={<PlaceholderPage title="Master Data" />} />
             <Route path="integrations" element={<PlaceholderPage title="Integration Center" />} />

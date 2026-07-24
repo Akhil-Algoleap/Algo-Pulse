@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
 import { Workflow, WorkflowStep } from '../types';
-import { Card, Button, Badge, cn } from '../components/UI';
+import { Card, Button, Badge } from '../components/UI';
 import { Modal } from '../components/Modal';
-import { GitMerge, Plus, ArrowRight, Trash2, Settings, User } from 'lucide-react';
+import { ArrowRight, Plus, Settings, Trash2, GitMerge } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export const Workflows = () => {

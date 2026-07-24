@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
-import { Card, Button, Badge, Modal } from '../components/UI';
+import { Card, Button } from '../components/UI';
+import { Modal } from '../components/Modal';
 import { Bell, Mail, MessageSquare, Smartphone, Edit2, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { NotificationTemplate } from '../types';
