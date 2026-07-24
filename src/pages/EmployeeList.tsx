@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   Plus, 
   Search, 
@@ -9,7 +10,8 @@ import {
   Download,
   Upload,
   Phone,
-  Hash
+  Hash,
+  History
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import * as XLSX from 'xlsx';
@@ -18,8 +20,11 @@ import { Modal } from '../components/Modal';
 import { EmployeeForm } from '../components/EmployeeForm';
 import { apiService } from '../services/api';
 import { Employee, EmployeeFormData } from '../types';
+import { useAuth } from '../contexts/AuthContext';
 
 export const EmployeeList: React.FC = () => {
+  const { profile } = useAuth();
+  const navigate = useNavigate();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -159,7 +164,15 @@ export const EmployeeList: React.FC = () => {
                          (emp.email || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDept = !deptFilter || (emp.department_id || '').toLowerCase().includes(deptFilter.toLowerCase());
     const matchesStatus = !statusFilter || emp.status === statusFilter;
-    return matchesSearch && matchesDept && matchesStatus;
+    
+    let matchesManager = true;
+    if (profile?.role === 'Manager') {
+      matchesManager = emp.project_manager_id === profile.id;
+    } else if (profile?.role === 'Reporting Manager') {
+      matchesManager = emp.reporting_manager_id === profile.id;
+    }
+    
+    return matchesSearch && matchesDept && matchesStatus && matchesManager;
   });
 
   const getStatusVariant = (status: string) => {
@@ -313,12 +326,24 @@ export const EmployeeList: React.FC = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-1">
-                        <button 
-                          className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                          onClick={() => { setEditingEmployee(emp); setIsModalOpen(true); }}
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
+                        <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => navigate(`/users/timeline/${emp.id}`)}
+                        title="View Timeline"
+                      >
+                        <History className="w-4 h-4 text-slate-500" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => {
+                          setEditingEmployee(emp);
+                          setIsModalOpen(true);
+                        }}
+                      >
+                        <Edit2 className="w-4 h-4 text-blue-500" />
+                      </Button>
                         <button 
                           className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
                           onClick={() => handleDelete(emp.id)}

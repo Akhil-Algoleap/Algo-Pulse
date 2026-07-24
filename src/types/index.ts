@@ -4,6 +4,112 @@ export type UserRole = 'Admin' | 'Manager' | 'Reporting Manager' | 'Employee' | 
 export interface Department {
   id: string;
   department_name: string;
+  department_head_id?: string;
+  budget?: number;
+  cost_center?: string;
+}
+
+export interface Branch {
+  id: string;
+  name: string;
+  address: string;
+  branch_head_id?: string;
+  working_hours: string;
+  holidays_count: number;
+  attendance_device_enabled: boolean;
+  payroll_rules: string;
+}
+
+export interface ProjectTeamMember {
+  id: string;
+  employee_id: string;
+  role: string;
+  allocation: number;
+}
+
+export interface ProjectSprint {
+  id: string;
+  name: string;
+  status: 'Planning' | 'Active' | 'Completed';
+  start_date: string;
+  end_date: string;
+  tasks_count: number;
+}
+
+export interface ProjectMilestone {
+  id: string;
+  title: string;
+  date: string;
+  status: 'Pending' | 'Achieved';
+}
+
+export interface ProjectDocument {
+  id: string;
+  title: string;
+  type: string;
+  size: string;
+  uploaded_by: string;
+  uploaded_at: string;
+}
+
+export interface ProjectTimesheet {
+  id: string;
+  employee_id: string;
+  date: string;
+  hours: number;
+  task: string;
+}
+
+export interface ProjectRisk {
+  id: string;
+  title: string;
+  severity: 'Low' | 'Medium' | 'High';
+  status: 'Open' | 'Mitigated' | 'Closed';
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  status: 'Active' | 'Completed';
+  budget: number;
+  team_members_count: number;
+  milestones_count: number;
+  risks_count: number;
+  
+  // Detailed nested data for ProjectDetails page
+  team_members?: ProjectTeamMember[];
+  sprints?: ProjectSprint[];
+  milestones?: ProjectMilestone[];
+  documents?: ProjectDocument[];
+  timesheets?: ProjectTimesheet[];
+  risks?: ProjectRisk[];
+}
+
+export interface WorkflowStep {
+  id: string;
+  workflow_id: string;
+  step_order: number;
+  role_name: string; // e.g. "Employee", "Reporting Manager", "HR"
+}
+
+export interface Workflow {
+  id: string;
+  name: string;
+  description: string;
+  trigger_event: string;
+  status: 'Active' | 'Inactive';
+  steps: WorkflowStep[];
+}
+
+export interface ApprovalRequest {
+  id: string;
+  workflow_id: string;
+  employee_id: string;
+  request_type: string; // e.g. 'Leave', 'Resignation', 'Onboarding'
+  payload: any; // e.g. { start_date, end_date, reason }
+  current_step_order: number;
+  status: 'Pending' | 'Approved' | 'Rejected' | 'Completed';
+  applied_at: string;
 }
 
 export interface Designation {
@@ -41,6 +147,22 @@ export interface Employee {
 }
 
 export interface EmployeeFormData extends Omit<Employee, 'id'> {}
+
+export interface RolePermission {
+  module: string;
+  view: boolean;
+  create: boolean;
+  edit: boolean;
+  delete: boolean;
+  approve: boolean;
+}
+
+export interface Role {
+  id: string;
+  name: string;
+  is_custom: boolean;
+  permissions: RolePermission[];
+}
 
 // --- New Types ---
 
@@ -156,4 +278,47 @@ export interface Lookups {
   clients: Client[];
   workplaces: Workplace[];
   employees: Pick<Employee, 'id' | 'employee_name'>[];
+}
+
+export interface AppNotification {
+  id: string;
+  recipient_role?: string;
+  recipient_id?: string;
+  title: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+export interface NotificationTemplate {
+  id: string;
+  type: string;
+  subject_template: string;
+  body_template: string;
+  channels: ('In-App' | 'Email' | 'Teams' | 'SMS')[];
+}
+
+export interface AuditEvent {
+  id: string;
+  employee_id: string;
+  action: string;
+  description: string;
+  created_at: string;
+}
+
+export interface OnboardingTask {
+  id: string;
+  employee_id: string;
+  task_name: string;
+  is_completed: boolean;
+  completed_at?: string;
+}
+
+export interface PayrollDeduction {
+  id: string;
+  employee_id: string;
+  reason: string;
+  amount: number;
+  status: 'Pending' | 'Processed';
+  created_at: string;
 }

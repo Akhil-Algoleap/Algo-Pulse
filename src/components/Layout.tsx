@@ -46,16 +46,76 @@ import {
   Headphones,
   Database,
   Wrench,
-  MapPin
+  MapPin,
+  Search,
+  User,
+  CheckCircle2,
+  Link
 } from 'lucide-react';
-import { cn, Button } from './UI';
+import { cn, Button, Badge } from './UI';
 import { useAuth } from '../contexts/AuthContext';
+import { apiService } from '../services/api';
+import { AppNotification } from '../types';
 
 export const Layout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const [expandedMenu, setExpandedMenu] = React.useState<string | null>(null);
+  const [isNotifOpen, setIsNotifOpen] = React.useState(false);
+  const [notifications, setNotifications] = React.useState<AppNotification[]>([]);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [searchResults, setSearchResults] = React.useState<any[]>([]);
+  const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (profile) {
+      fetchNotifications();
+      // Poll every 30s for demo purposes
+      const interval = setInterval(fetchNotifications, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [profile]);
+
+  const fetchNotifications = async () => {
+    try {
+      const { data } = await apiService.getNotifications(profile?.role, profile?.id);
+      setNotifications(data || []);
+    } catch (error) {
+      console.error('Failed to fetch notifications', error);
+    }
+  };
+
+  React.useEffect(() => {
+    const handleSearch = async () => {
+      if (searchQuery.length < 2) {
+        setSearchResults([]);
+        return;
+      }
+      // Simple mock fuzzy search across employees (in a real app, this would hit a global search endpoint)
+      try {
+        const { data: emps } = await apiService.getEmployees();
+        const results = emps
+          .filter(e => e.employee_name.toLowerCase().includes(searchQuery.toLowerCase()) || e.role.toLowerCase().includes(searchQuery.toLowerCase()))
+          .map(e => ({ type: 'Employee', title: e.employee_name, subtitle: e.role, id: e.id, link: `/users/timeline/${e.id}` }));
+        setSearchResults(results);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    
+    const timeoutId = setTimeout(handleSearch, 300);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  const handleMarkAsRead = async (id: string) => {
+    try {
+      await apiService.markNotificationAsRead(id);
+      fetchNotifications();
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleLogout = async () => {
     await signOut();
@@ -81,18 +141,29 @@ export const Layout: React.FC = () => {
     if (role === 'Super Admin') {
       return [
         { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-        { to: '/organization', icon: Building, label: 'Organization' },
+        { 
+          icon: Building, 
+          label: 'Organization',
+          subItems: [
+            { to: '/organization/company', label: 'Company' },
+            { to: '/organization/business-units', label: 'Business Units' },
+            { to: '/organization/branches', label: 'Branches' },
+            { to: '/organization/departments', label: 'Departments' },
+            { to: '/organization/designations', label: 'Designations' },
+            { to: '/organization/holiday-calendar', label: 'Holiday Calendar' },
+          ]
+        },
         { to: '/users', icon: Users, label: 'Users' },
         { to: '/roles', icon: Shield, label: 'Roles & Permissions' },
-        { to: '/departments', icon: Layers, label: 'Departments' },
-        { to: '/branches', icon: MapPin, label: 'Branches' },
         { to: '/projects', icon: Briefcase, label: 'Projects' },
         { to: '/workflows', icon: GitBranch, label: 'Workflow Engine' },
         { to: '/notifications', icon: Bell, label: 'Notifications' },
         { to: '/security', icon: ShieldCheck, label: 'Security' },
-        { to: '/audit-logs', icon: History, label: 'Audit Logs' },
         { to: '/reports', icon: BarChart, label: 'Reports' },
-        { to: '/settings', icon: Settings, label: 'Settings' },
+        { to: '/audit-logs', icon: History, label: 'Audit Logs' },
+        { to: '/master-data', icon: Database, label: 'Master Data' },
+        { to: '/integrations', icon: Link, label: 'Integration Center' },
+        { to: '/settings', icon: Settings, label: 'System Settings' },
       ];
     }
 
@@ -345,11 +416,98 @@ export const Layout: React.FC = () => {
             <Menu className="w-6 h-6" />
           </button>
 
-          <div className="flex-1 flex justify-end items-center gap-3">
-            <Button variant="ghost" size="sm" className="relative p-2 rounded-full text-slate-400 hover:text-primary-600">
+          <div className="flex-1 max-w-xl px-4 relative hidden md:block">
+            <div className="relative group">
+              <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors" />
+              <input 
+                type="text" 
+                placeholder="Search employees, assets, or tasks..." 
+                className="w-full bg-slate-100/50 hover:bg-slate-100 focus:bg-white border border-transparent focus:border-primary-200 focus:ring-4 focus:ring-primary-500/10 rounded-xl pl-10 pr-4 py-2 text-sm transition-all outline-none"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setIsSearchOpen(true)}
+                onBlur={() => setTimeout(() => setIsSearchOpen(false), 200)}
+              />
+            </div>
+            
+            {isSearchOpen && searchQuery.length >= 2 && (
+              <div className="absolute top-12 left-4 right-4 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50">
+                <div className="max-h-80 overflow-y-auto p-2">
+                  {searchResults.length === 0 ? (
+                    <div className="p-4 text-center text-slate-500 text-sm">No results found</div>
+                  ) : (
+                    searchResults.map((result, i) => (
+                      <div 
+                        key={i} 
+                        className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors"
+                        onClick={() => navigate(result.link)}
+                      >
+                        <div className="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center text-primary-600 shrink-0">
+                          {result.type === 'Employee' ? <User className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />}
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-slate-900">{result.title}</p>
+                          <p className="text-xs text-slate-500">{result.type} • {result.subtitle}</p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-end items-center gap-3 ml-auto">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="relative p-2 rounded-full text-slate-400 hover:text-primary-600"
+              onClick={() => setIsNotifOpen(!isNotifOpen)}
+            >
               <Bell className="w-5 h-5" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
+              {notifications.filter(n => !n.is_read).length > 0 && (
+                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
+              )}
             </Button>
+            
+            {isNotifOpen && (
+              <div className="absolute top-12 right-12 w-80 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden z-50">
+                <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                  <h3 className="font-bold text-slate-900">Notifications</h3>
+                  <Badge variant="primary">{notifications.filter(n => !n.is_read).length} New</Badge>
+                </div>
+                <div className="max-h-96 overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <div className="p-8 text-center text-slate-500">
+                      <Bell className="w-8 h-8 mx-auto mb-2 opacity-20" />
+                      <p>No notifications yet</p>
+                    </div>
+                  ) : (
+                    notifications.map(notif => (
+                      <div 
+                        key={notif.id} 
+                        className={cn(
+                          "p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer",
+                          !notif.is_read ? "bg-blue-50/50" : ""
+                        )}
+                        onClick={() => handleMarkAsRead(notif.id)}
+                      >
+                        <div className="flex justify-between items-start mb-1">
+                          <p className={cn("text-sm", !notif.is_read ? "font-bold text-slate-900" : "font-medium text-slate-700")}>
+                            {notif.title}
+                          </p>
+                          {!notif.is_read && <span className="w-2 h-2 rounded-full bg-blue-500 mt-1" />}
+                        </div>
+                        <p className="text-xs text-slate-500 line-clamp-2">{notif.message}</p>
+                        <p className="text-[10px] text-slate-400 mt-2">
+                          {new Date(notif.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
             
             <div className="flex items-center gap-3 pl-3 border-l border-slate-100">
               <div className="text-right hidden sm:block">

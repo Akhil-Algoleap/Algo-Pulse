@@ -11,9 +11,16 @@ import { Documents } from './pages/Documents';
 import { Settings } from './pages/Settings';
 import { Login } from './pages/Login';
 import { Projects } from './pages/Projects';
+import { ProjectDetails } from './pages/ProjectDetails';
 import { Approvals } from './pages/Approvals';
 import { Reports } from './pages/Reports';
 import { Kudos } from './pages/Kudos';
+import { EmployeeTimeline } from './pages/EmployeeTimeline';
+import { Roles } from './pages/Roles';
+import { Departments } from './pages/Departments';
+import { Branches } from './pages/Branches';
+import { Workflows } from './pages/Workflows';
+import { NotificationsConfig } from './pages/NotificationsConfig';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Loader } from 'lucide-react';
 
@@ -58,6 +65,7 @@ function App() {
             <Route path="attendance" element={<Attendance />} />
             <Route path="performance" element={<Performance />} />
             <Route path="projects" element={<Projects />} />
+            <Route path="projects/:id" element={<ProjectDetails />} />
             <Route path="approvals" element={<Approvals />} />
             <Route path="reports" element={<Reports />} />
             <Route path="documents" element={<Documents />} />
@@ -65,7 +73,7 @@ function App() {
             <Route path="regularization" element={<PlaceholderPage title="Regularization Requests" />} />
             <Route path="employee-profiles" element={<PlaceholderPage title="Employee Profiles" />} />
             <Route path="goals" element={<PlaceholderPage title="Goals & KPIs" />} />
-            <Route path="notifications" element={<PlaceholderPage title="Notifications" />} />
+            <Route path="notifications" element={<NotificationsConfig />} />
             <Route path="engage" element={<PlaceholderPage title="Engage" />} />
             <Route path="my-worklife/kudos" element={<Kudos />} />
             <Route path="my-worklife/feedback" element={<PlaceholderPage title="Feedback" />} />
@@ -76,14 +84,20 @@ function App() {
             <Route path="workflow-delegates" element={<PlaceholderPage title="Workflow Delegates" />} />
             
             {/* Super Admin Routes */}
-            <Route path="organization" element={<PlaceholderPage title="Organization" />} />
-            <Route path="users" element={<PlaceholderPage title="Users" />} />
-            <Route path="roles" element={<PlaceholderPage title="Roles & Permissions" />} />
-            <Route path="departments" element={<PlaceholderPage title="Departments" />} />
-            <Route path="branches" element={<PlaceholderPage title="Branches" />} />
-            <Route path="workflows" element={<PlaceholderPage title="Workflow Engine" />} />
+            <Route path="organization/company" element={<PlaceholderPage title="Company" />} />
+            <Route path="organization/business-units" element={<PlaceholderPage title="Business Units" />} />
+            <Route path="organization/branches" element={<Branches />} />
+            <Route path="organization/departments" element={<Departments />} />
+            <Route path="organization/designations" element={<PlaceholderPage title="Designations" />} />
+            <Route path="organization/holiday-calendar" element={<PlaceholderPage title="Holiday Calendar" />} />
+            <Route path="users" element={<EmployeeList />} />
+            <Route path="users/timeline/:id" element={<EmployeeTimeline />} />
+            <Route path="roles" element={<Roles />} />
+            <Route path="workflows" element={<Workflows />} />
             <Route path="security" element={<PlaceholderPage title="Security" />} />
             <Route path="audit-logs" element={<PlaceholderPage title="Audit Logs" />} />
+            <Route path="master-data" element={<PlaceholderPage title="Master Data" />} />
+            <Route path="integrations" element={<PlaceholderPage title="Integration Center" />} />
 
             {/* Payroll Manager Routes */}
             <Route path="salary-structure" element={<PlaceholderPage title="Salary Structure" />} />

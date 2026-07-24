@@ -23,7 +23,7 @@ import {
 } from 'recharts';
 import { Card, cn, Badge, Button } from '../components/UI';
 import { apiService } from '../services/api';
-import { Employee, Department, Client, LeaveRequest } from '../types';
+import { Employee, Department, Client, LeaveRequest, OnboardingTask, PayrollDeduction } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
 export const Dashboard: React.FC = () => {
@@ -32,21 +32,27 @@ export const Dashboard: React.FC = () => {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [leaves, setLeaves] = useState<LeaveRequest[]>([]);
+  const [onboardingTasks, setOnboardingTasks] = useState<OnboardingTask[]>([]);
+  const [deductions, setDeductions] = useState<PayrollDeduction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [empRes, deptRes, clientRes, leaveRes] = await Promise.all([
+        const [empRes, deptRes, clientRes, leaveRes, tasksRes, deducRes] = await Promise.all([
           apiService.getEmployees(),
           apiService.getDepartments(),
           apiService.getClients(),
-          apiService.getLeaves()
+          apiService.getLeaves(),
+          apiService.getOnboardingTasks(),
+          apiService.getPayrollDeductions()
         ]);
         setEmployees(empRes.data);
         setDepartments(deptRes.data);
         setClients(clientRes.data);
         setLeaves(leaveRes.data);
+        setOnboardingTasks(tasksRes.data);
+        setDeductions(deducRes.data);
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {
@@ -172,6 +178,40 @@ export const Dashboard: React.FC = () => {
             <span className="text-3xl font-black text-slate-800">3</span>
           </Card>
         </div>
+
+        <div className="mt-8">
+          <h2 className="text-xl font-bold text-slate-900 mb-4">Pending Leave Deductions</h2>
+          {deductions.filter(d => d.status === 'Pending').length === 0 ? (
+            <Card className="p-8 border-none shadow-sm text-center">
+              <p className="text-slate-500">No pending deductions to process.</p>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {deductions.filter(d => d.status === 'Pending').map(d => {
+                const emp = employees.find(e => e.id === d.employee_id);
+                return (
+                  <Card key={d.id} className="p-6 border-none shadow-sm flex justify-between items-center bg-rose-50/50">
+                    <div>
+                      <h3 className="font-bold text-lg text-slate-900">{emp?.employee_name || 'Unknown'}</h3>
+                      <p className="text-sm text-slate-500">{d.reason}</p>
+                      <p className="text-sm font-bold text-rose-500 mt-1">Deduct ₹{d.amount}</p>
+                    </div>
+                    <Button 
+                      variant="primary" 
+                      onClick={async () => {
+                        await apiService.processPayrollDeduction(d.id);
+                        const res = await apiService.getPayrollDeductions();
+                        setDeductions(res.data);
+                      }}
+                    >
+                      Process
+                    </Button>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     );
   }
@@ -250,6 +290,45 @@ export const Dashboard: React.FC = () => {
             </div>
             <span className="text-4xl font-black text-purple-600">8</span>
           </Card>
+        </div>
+
+        <div className="mt-8">
+          <h2 className="text-xl font-bold text-slate-900 mb-4">Pending Employee Setup</h2>
+          {onboardingTasks.filter(t => !t.is_completed).length === 0 ? (
+            <Card className="p-8 border-none shadow-sm text-center">
+              <p className="text-slate-500">No pending setups at the moment.</p>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from(new Set(onboardingTasks.filter(t => !t.is_completed).map(t => t.employee_id))).map(empId => {
+                const emp = employees.find(e => e.id === empId);
+                const tasks = onboardingTasks.filter(t => t.employee_id === empId && !t.is_completed);
+                return (
+                  <Card key={empId} className="p-6 border-none shadow-sm">
+                    <h3 className="font-bold text-lg text-slate-900 mb-2">{emp?.employee_name || 'Unknown Employee'}</h3>
+                    <p className="text-sm text-slate-500 mb-4">{emp?.role}</p>
+                    <div className="space-y-3">
+                      {tasks.map(task => (
+                        <label key={task.id} className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            className="w-4 h-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500"
+                            onChange={async () => {
+                              await apiService.completeOnboardingTask(task.id);
+                              // Refresh tasks
+                              const res = await apiService.getOnboardingTasks();
+                              setOnboardingTasks(res.data);
+                            }}
+                          />
+                          <span className="text-sm text-slate-700">{task.task_name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     );
