@@ -3,6 +3,8 @@ import { Toaster } from 'react-hot-toast';
 import { Layout } from './components/Layout';
 import { Dashboard } from './pages/Dashboard';
 import { EmployeeList } from './pages/EmployeeList';
+import { EmployeeProfile } from './pages/EmployeeProfile';
+import { Onboarding } from './pages/Onboarding';
 import { Assets } from './pages/Assets';
 import { Leave } from './pages/Leave';
 import { Attendance } from './pages/Attendance';
@@ -63,6 +65,7 @@ function App() {
           }>
             <Route index element={<Dashboard />} />
             <Route path="employees" element={<EmployeeList />} />
+            <Route path="employees/:id" element={<EmployeeProfile />} />
             <Route path="assets" element={<Assets />} />
             <Route path="leave" element={<Leave />} />
             <Route path="attendance" element={<Attendance />} />
@@ -128,6 +131,13 @@ function App() {
             <Route path="access-requests" element={<PlaceholderPage title="Access Requests" />} />
             <Route path="service-desk" element={<PlaceholderPage title="Service Desk" />} />
             <Route path="repairs" element={<PlaceholderPage title="Repairs" />} />
+            
+            {/* HR Admin Specific Routes */}
+            <Route path="recruitment" element={<PlaceholderPage title="Recruitment" />} />
+            <Route path="onboarding" element={<Onboarding />} />
+            <Route path="training" element={<PlaceholderPage title="Training" />} />
+            <Route path="offboarding" element={<PlaceholderPage title="Offboarding" />} />
+            <Route path="payroll" element={<PlaceholderPage title="Payroll Dashboard" />} />
             
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

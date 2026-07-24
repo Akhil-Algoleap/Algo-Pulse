@@ -5,21 +5,30 @@ import {
   Calendar as CalendarIcon,
   Filter,
   Download,
-  User,
   Fingerprint,
   RefreshCw,
   Activity,
-  Zap
+  Zap,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+  Briefcase,
+  Home,
+  Check
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { Button, Card, Badge, Input } from '../components/UI';
+import { Button, Card, Badge, Input, cn } from '../components/UI';
 import { apiService } from '../services/api';
 import { Attendance as AttendanceType, Employee } from '../types';
 import { formatDate, formatTime } from '../utils/dateUtils';
 import { useAuth } from '../contexts/AuthContext';
 
+type Tab = 'daily' | 'monthly' | 'regularization' | 'shifts' | 'holidays' | 'overtime';
+
 export const Attendance: React.FC = () => {
   const { profile } = useAuth();
+  const [activeTab, setActiveTab] = useState<Tab>('daily');
+  
   const [logs, setLogs] = useState<AttendanceType[]>([]);
   const [filteredLogs, setFilteredLogs] = useState<AttendanceType[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -46,7 +55,6 @@ export const Attendance: React.FC = () => {
       
       // Role-based filtering
       if (profile?.role === 'Employee') {
-        // filter by employee_id matching profile id (assuming api doesn't do it)
         rawData = rawData.filter((log: any) => log.employee_id === profile.id);
       }
       
@@ -145,31 +153,23 @@ export const Attendance: React.FC = () => {
     toast.success('Exporting attendance report...');
   };
 
-  // Dynamic Statistics Calculations
-  const logsWithHours = logs.filter(l => l.total_hours && Number(l.total_hours) > 0);
-  const avgHoursVal = logsWithHours.length > 0
-    ? (logsWithHours.reduce((acc, l) => acc + Number(l.total_hours || 0), 0) / logsWithHours.length).toFixed(1)
-    : '0.0';
-
-  const todayStr = new Date().toISOString().split('T')[0];
-  const todayLogs = logs.filter(l => l.date === todayStr);
-  const totalTodayCount = todayLogs.length;
-  const onTimeTodayCount = todayLogs.filter(l => l.status === 'Present').length;
-  const onTimePercentage = totalTodayCount > 0 
-    ? Math.round((onTimeTodayCount / totalTodayCount) * 100) + '%'
-    : (logs.length > 0 ? Math.round((logs.filter(l => l.status === 'Present').length / logs.length) * 100) + '%' : '100%');
-
-  const lateArrivalsCount = todayLogs.length > 0
-    ? todayLogs.filter(l => l.status === 'Late').length
-    : logs.filter(l => l.status === 'Late').length;
+  // Static KPI Dashboard Mock Data
+  const kpiData = [
+    { label: 'Present', value: 142, icon: CheckCircle2, color: 'text-emerald-600', bg: 'bg-emerald-100' },
+    { label: 'Absent', value: 8, icon: XCircle, color: 'text-rose-600', bg: 'bg-rose-100' },
+    { label: 'Late', value: 15, icon: AlertCircle, color: 'text-amber-600', bg: 'bg-amber-100' },
+    { label: 'Half Day', value: 3, icon: Clock, color: 'text-orange-600', bg: 'bg-orange-100' },
+    { label: 'Leave', value: 12, icon: Briefcase, color: 'text-purple-600', bg: 'bg-purple-100' },
+    { label: 'WFH', value: 25, icon: Home, color: 'text-blue-600', bg: 'bg-blue-100' },
+  ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-12">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            {profile?.role === 'Employee' ? 'My Attendance' : 'Attendance Management'}
+            Attendance Dashboard
             {isAdmin && (
               <span className="inline-flex items-center text-xs font-normal px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
                 <Zap className="w-3 h-3 mr-1 fill-emerald-500 text-emerald-500" />
@@ -177,10 +177,9 @@ export const Attendance: React.FC = () => {
               </span>
             )}
           </h1>
-          <p className="text-slate-500">Monitor employee work hours and daily biometric logs</p>
+          <p className="text-slate-500">Monitor and manage employee attendance operations</p>
         </div>
         <div className="flex items-center gap-3">
-          {/* Live Sync Toggle - Only for Admin */}
           {isAdmin && (
             <button
               onClick={() => {
@@ -199,226 +198,295 @@ export const Attendance: React.FC = () => {
               <span>Live Sync {isLiveSync ? '(5s)' : 'Off'}</span>
             </button>
           )}
-
-          {(isAdmin || isManager) && (
-            <Button variant="outline" onClick={handleExport}>
-              <Download className="w-4 h-4 mr-2" />
-              Export CSV
-            </Button>
-          )}
+          <Button variant="outline" onClick={handleExport}>
+            <Download className="w-4 h-4 mr-2" />
+            Export CSV
+          </Button>
         </div>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="p-6 bg-gradient-to-br from-primary-500 to-primary-600 text-white border-none shadow-lg shadow-primary-100">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-white/20 rounded-lg">
-              <Clock className="w-6 h-6 text-white" />
+      {/* 6 KPI Cards Dashboard */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        {kpiData.map((kpi, index) => (
+          <Card key={index} className="border-none shadow-sm flex flex-col items-center justify-center p-4 py-6 gap-2 hover:shadow-md transition-shadow">
+            <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", kpi.bg, kpi.color)}>
+              <kpi.icon className="w-5 h-5" />
             </div>
-            <Badge className="bg-white/20 text-white border-none">Calculated</Badge>
-          </div>
-          <p className="text-primary-100 text-sm font-medium uppercase tracking-wider">Average Hours</p>
-          <h3 className="text-3xl font-bold">{avgHoursVal}h</h3>
-        </Card>
-        
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-green-50 rounded-lg text-green-600">
-              <User className="w-6 h-6" />
+            <div className="text-center">
+              <p className="text-2xl font-black text-slate-900 leading-none">{kpi.value}</p>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">{kpi.label}</p>
             </div>
-            <Badge variant="success">Active</Badge>
-          </div>
-          <p className="text-slate-500 text-sm font-medium uppercase tracking-wider">On Time Today</p>
-          <h3 className="text-3xl font-bold text-slate-900">{onTimePercentage}</h3>
-        </Card>
-
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-amber-50 rounded-lg text-amber-600">
-              <Clock className="w-6 h-6" />
-            </div>
-            <Badge variant="warning">Cutoff: 9:30 AM</Badge>
-          </div>
-          <p className="text-slate-500 text-sm font-medium uppercase tracking-wider">Late Arrivals</p>
-          <h3 className="text-3xl font-bold text-slate-900">{lateArrivalsCount}</h3>
-        </Card>
+          </Card>
+        ))}
       </div>
 
-      {/* eSSL Biometric Device Simulator Widget - Admin Only */}
-      {isAdmin && (
-        <Card className="p-5 border-slate-200 bg-slate-900 text-white shadow-xl relative overflow-hidden">
-          <div className="absolute right-0 top-0 translate-x-4 -translate-y-4 w-48 h-48 bg-primary-500/10 rounded-full blur-2xl pointer-events-none" />
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <Fingerprint className="w-5 h-5 text-primary-400 animate-pulse" />
-                <h2 className="text-lg font-bold text-white tracking-wide">eSSL Biometric Device Simulator</h2>
-              </div>
-              <p className="text-xs text-slate-400">
-                Simulate hardware biometric card/finger punches directly to <code className="text-primary-300 font-mono bg-slate-800 px-1.5 py-0.5 rounded">/api/essl</code>. First swipe clocks IN (before/after 9:30 AM), second swipe clocks OUT.
-              </p>
-            </div>
+      {/* Tabs */}
+      <div className="border-b border-slate-200">
+        <nav className="flex space-x-8 overflow-x-auto pb-1" aria-label="Tabs">
+          {[
+            { id: 'daily', label: 'Daily Attendance' },
+            { id: 'monthly', label: 'Monthly Attendance' },
+            { id: 'regularization', label: 'Attendance Regularization' },
+            { id: 'shifts', label: 'Shift Management' },
+            { id: 'holidays', label: 'Holiday Calendar' },
+            { id: 'overtime', label: 'Overtime' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as Tab)}
+              className={cn(
+                "whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors",
+                activeTab === tab.id
+                  ? "border-primary-500 text-primary-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+              )}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+      </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex flex-col">
-                <label className="text-[11px] text-slate-400 mb-1 font-medium">Select Employee</label>
-                <select
-                  value={selectedEmpCode}
-                  onChange={(e) => setSelectedEmpCode(e.target.value)}
-                  className="bg-slate-800 text-white border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500 min-w-[200px]"
-                >
-                  {employees.map((emp) => (
-                    <option key={emp.id} value={emp.employee_id || emp.id}>
-                      {emp.employee_name} ({emp.employee_id || `ID:${emp.id}`})
-                    </option>
-                  ))}
-                  {!employees.some(e => e.employee_id === 'EMP123') && (
-                    <option value="EMP123">Jagan Mohan (EMP123)</option>
-                  )}
-                  <option value="EMP999">Test User (EMP999)</option>
-                </select>
-              </div>
-
-              <div className="flex flex-col">
-                <label className="text-[11px] text-slate-400 mb-1 font-medium font-mono">Custom Time (Optional)</label>
-                <input
-                  type="time"
-                  value={customTime}
-                  onChange={(e) => setCustomTime(e.target.value)}
-                  placeholder="Now"
-                  className="bg-slate-800 text-white border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500"
-                />
-              </div>
-
-              <div className="flex flex-col justify-end pt-5">
-                <Button
-                  onClick={handleSimulateSwipe}
-                  disabled={isSimulating}
-                  className="bg-primary-500 hover:bg-primary-600 text-white border-none shadow-md shadow-primary-500/30 flex items-center gap-2"
-                >
-                  <Activity className={`w-4 h-4 ${isSimulating ? 'animate-spin' : ''}`} />
-                  {isSimulating ? 'Processing...' : 'Simulate Swipe'}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </Card>
-      )}
-
-      {/* Filters & Table */}
-      <Card className="overflow-hidden border-slate-200">
-        <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-          <div className="flex flex-col md:flex-row gap-4">
-            {(isAdmin || isManager) && (
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input
-                  placeholder="Search by employee name or ID..."
-                  className="pl-10"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            )}
-            <div className="flex gap-4">
-              <div className="relative">
-                <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input
-                  type="date"
-                  className="pl-10 min-w-[180px]"
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                />
-              </div>
-              <Button variant="outline" onClick={() => { setSearchTerm(''); setDateFilter(''); }}>
-                <Filter className="w-4 h-4 mr-2" />
-                Reset Filters
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-slate-50/50 border-b border-slate-100">
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Employee</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Clock In</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Clock Out</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Duration</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
-                      Loading logs...
+      {/* Tab Content */}
+      <div className="mt-6">
+        {activeTab === 'daily' && (
+          <div className="space-y-6">
+            {/* eSSL Biometric Device Simulator Widget - Admin Only */}
+            {isAdmin && (
+              <Card className="p-5 border-slate-200 bg-slate-900 text-white shadow-xl relative overflow-hidden">
+                <div className="absolute right-0 top-0 translate-x-4 -translate-y-4 w-48 h-48 bg-primary-500/10 rounded-full blur-2xl pointer-events-none" />
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Fingerprint className="w-5 h-5 text-primary-400 animate-pulse" />
+                      <h2 className="text-lg font-bold text-white tracking-wide">eSSL Biometric Device Simulator</h2>
                     </div>
-                  </td>
-                </tr>
-              ) : filteredLogs.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
-                    No attendance logs found matching your filters.
-                  </td>
-                </tr>
-              ) : (
-                filteredLogs.map((log) => (
-                  <tr key={log.id} className="hover:bg-slate-50/80 transition-colors group">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-primary-50 text-primary-600 flex items-center justify-center font-bold text-xs">
-                          {(log.employee_name || 'E').split(' ').map(n => n[0]).join('')}
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold text-slate-900">{log.employee_name || 'Employee'}</p>
-                          <p className="text-xs text-slate-500 font-mono">{log.employee_id_code || log.employee_id}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-600">{formatDate(log.date)}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 text-sm text-slate-600">
-                        <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                        {formatTime(log.clock_in)}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-600">
-                      {log.clock_out ? (
-                        <div className="flex items-center gap-2 text-sm text-slate-600">
-                          <div className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                          {formatTime(log.clock_out)}
-                        </div>
-                      ) : (
-                        <span className="text-slate-400 italic font-light">Ongoing</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-mono text-slate-600">
-                      {log.total_hours ? `${log.total_hours}h` : '---'}
-                    </td>
-                    <td className="px-6 py-4">
-                      <Badge 
-                        variant={
-                          log.status === 'Present' ? 'success' : 
-                          log.status === 'Late' ? 'warning' : 'danger'
-                        }
-                        className="font-medium"
+                    <p className="text-xs text-slate-400">
+                      Simulate hardware biometric punches. First swipe clocks IN, second swipe clocks OUT.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex flex-col">
+                      <label className="text-[11px] text-slate-400 mb-1 font-medium">Select Employee</label>
+                      <select
+                        value={selectedEmpCode}
+                        onChange={(e) => setSelectedEmpCode(e.target.value)}
+                        className="bg-slate-800 text-white border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500 min-w-[200px]"
                       >
-                        {log.status}
-                      </Badge>
+                        {employees.map((emp) => (
+                          <option key={emp.id} value={emp.employee_id || emp.id}>
+                            {emp.employee_name} ({emp.employee_id || `ID:${emp.id}`})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label className="text-[11px] text-slate-400 mb-1 font-medium font-mono">Custom Time</label>
+                      <input
+                        type="time"
+                        value={customTime}
+                        onChange={(e) => setCustomTime(e.target.value)}
+                        placeholder="Now"
+                        className="bg-slate-800 text-white border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500"
+                      />
+                    </div>
+
+                    <div className="flex flex-col justify-end pt-5">
+                      <Button
+                        onClick={handleSimulateSwipe}
+                        disabled={isSimulating}
+                        className="bg-primary-500 hover:bg-primary-600 text-white border-none shadow-md shadow-primary-500/30 flex items-center gap-2"
+                      >
+                        <Activity className={`w-4 h-4 ${isSimulating ? 'animate-spin' : ''}`} />
+                        {isSimulating ? 'Processing...' : 'Simulate Swipe'}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            {/* Filters & Table */}
+            <Card className="overflow-hidden border-slate-200">
+              <div className="p-6 border-b border-slate-100 bg-slate-50/50">
+                <div className="flex flex-col md:flex-row gap-4">
+                  {(isAdmin || isManager) && (
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input
+                        placeholder="Search by employee name or ID..."
+                        className="pl-10"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
+                  )}
+                  <div className="flex gap-4">
+                    <div className="relative">
+                      <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input
+                        type="date"
+                        className="pl-10 min-w-[180px]"
+                        value={dateFilter}
+                        onChange={(e) => setDateFilter(e.target.value)}
+                      />
+                    </div>
+                    <Button variant="outline" onClick={() => { setSearchTerm(''); setDateFilter(''); }}>
+                      <Filter className="w-4 h-4 mr-2" />
+                      Reset Filters
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="bg-slate-50/50 border-b border-slate-100">
+                      <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Employee</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Date</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Clock In</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Clock Out</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Duration</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {isLoading ? (
+                      <tr>
+                        <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                          <div className="flex flex-col items-center gap-2">
+                            <div className="w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+                            Loading logs...
+                          </div>
+                        </td>
+                      </tr>
+                    ) : filteredLogs.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                          No attendance logs found matching your filters.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredLogs.map((log) => (
+                        <tr key={log.id} className="hover:bg-slate-50/80 transition-colors group">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-lg bg-primary-50 text-primary-600 flex items-center justify-center font-bold text-xs">
+                                {(log.employee_name || 'E').split(' ').map((n: string) => n[0]).join('')}
+                              </div>
+                              <div>
+                                <p className="text-sm font-semibold text-slate-900">{log.employee_name || 'Employee'}</p>
+                                <p className="text-xs text-slate-500 font-mono">{log.employee_id_code || log.employee_id}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-slate-600">{formatDate(log.date)}</td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2 text-sm text-slate-600">
+                              <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                              {formatTime(log.clock_in)}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-slate-600">
+                            {log.clock_out ? (
+                              <div className="flex items-center gap-2 text-sm text-slate-600">
+                                <div className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                                {formatTime(log.clock_out)}
+                              </div>
+                            ) : (
+                              <span className="text-slate-400 italic font-light">Ongoing</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-sm font-mono text-slate-600">
+                            {log.total_hours ? `${log.total_hours}h` : '---'}
+                          </td>
+                          <td className="px-6 py-4">
+                            <Badge 
+                              variant={
+                                log.status === 'Present' ? 'success' : 
+                                log.status === 'Late' ? 'warning' : 'danger'
+                              }
+                              className="font-medium"
+                            >
+                              {log.status}
+                            </Badge>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* Mock Tabs for Admin Modules */}
+        {activeTab === 'monthly' && (
+          <Card className="p-12 text-center flex flex-col items-center justify-center min-h-[400px]">
+            <CalendarIcon className="w-16 h-16 text-slate-300 mb-4" />
+            <h2 className="text-xl font-bold text-slate-700">Monthly Attendance Grid</h2>
+            <p className="text-slate-500 mt-2 max-w-md">This view will provide a dense, Excel-like grid showing present/absent statuses for all employees over the entire month.</p>
+          </Card>
+        )}
+
+        {activeTab === 'regularization' && (
+          <Card className="overflow-hidden border-slate-200">
+             <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-slate-50">
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500">Employee</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500">Date</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500">Reason</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500">Requested Time</th>
+                    <th className="px-6 py-4 text-xs font-semibold text-slate-500">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  <tr className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-4 font-bold text-slate-900">John Doe</td>
+                    <td className="px-6 py-4 text-slate-600">24 Oct 2023</td>
+                    <td className="px-6 py-4 text-slate-600">Forgot to punch out, working late.</td>
+                    <td className="px-6 py-4 text-slate-600">09:00 AM - 07:30 PM</td>
+                    <td className="px-6 py-4 flex gap-2">
+                      <Button variant="outline" size="sm" className="text-emerald-600 border-emerald-200 bg-emerald-50"><Check className="w-4 h-4" /></Button>
+                      <Button variant="outline" size="sm" className="text-rose-600 border-rose-200 bg-rose-50"><XCircle className="w-4 h-4" /></Button>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </Card>
+                </tbody>
+             </table>
+          </Card>
+        )}
+
+        {activeTab === 'shifts' && (
+          <Card className="p-12 text-center flex flex-col items-center justify-center min-h-[400px]">
+            <Clock className="w-16 h-16 text-slate-300 mb-4" />
+            <h2 className="text-xl font-bold text-slate-700">Shift Management</h2>
+            <p className="text-slate-500 mt-2 max-w-md">Assign Morning, Evening, and Night shifts to employees or groups. Automate roster rotation based on department rules.</p>
+            <Button variant="primary" className="mt-6">Create New Shift</Button>
+          </Card>
+        )}
+
+        {activeTab === 'holidays' && (
+          <Card className="p-12 text-center flex flex-col items-center justify-center min-h-[400px]">
+            <Home className="w-16 h-16 text-slate-300 mb-4" />
+            <h2 className="text-xl font-bold text-slate-700">Holiday Calendar</h2>
+            <p className="text-slate-500 mt-2 max-w-md">Define regional and global company holidays for the current fiscal year.</p>
+            <Button variant="primary" className="mt-6">Add Holiday</Button>
+          </Card>
+        )}
+
+        {activeTab === 'overtime' && (
+          <Card className="p-12 text-center flex flex-col items-center justify-center min-h-[400px]">
+            <Activity className="w-16 h-16 text-slate-300 mb-4" />
+            <h2 className="text-xl font-bold text-slate-700">Overtime Tracking</h2>
+            <p className="text-slate-500 mt-2 max-w-md">Automatically calculate accrued overtime based on total hours recorded against shift expectations, ready for payroll processing.</p>
+          </Card>
+        )}
+      </div>
     </div>
   );
 };

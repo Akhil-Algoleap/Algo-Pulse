@@ -126,12 +126,19 @@ export const Layout: React.FC = () => {
       return [
         { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
         { to: '/employees', icon: Users, label: 'Employees' },
-        { to: '/assets', icon: Laptop, label: 'Assets' },
-        { to: '/leave', icon: Calendar, label: 'Leaves' },
+        { to: '/recruitment', icon: Search, label: 'Recruitment' },
+        { to: '/onboarding', icon: Briefcase, label: 'Onboarding' },
         { to: '/attendance', icon: Clock, label: 'Attendance' },
+        { to: '/leave', icon: Calendar, label: 'Leave Management' },
         { to: '/performance', icon: TrendingUp, label: 'Performance' },
+        { to: '/payroll', icon: Banknote, label: 'Payroll' },
         { to: '/documents', icon: FileText, label: 'Documents' },
-        { to: '/settings', icon: Bell, label: 'Settings' },
+        { to: '/assets', icon: Laptop, label: 'Assets' },
+        { to: '/training', icon: Layers, label: 'Training' },
+        { to: '/offboarding', icon: LogOut, label: 'Offboarding' },
+        { to: '/reports', icon: BarChart, label: 'Reports' },
+        { to: '/notifications', icon: Bell, label: 'Notifications' },
+        { to: '/settings', icon: Settings, label: 'Settings' },
       ];
     }
     

@@ -156,6 +156,30 @@ export const EmployeeList: React.FC = () => {
     XLSX.writeFile(wb, 'Employee_Import_Template.xlsx');
   };
 
+  const exportData = () => {
+    if (filteredEmployees.length === 0) {
+      toast.error('No records to export');
+      return;
+    }
+    const exportData = filteredEmployees.map(emp => ({
+      'Employee ID': emp.employee_id,
+      'Name': emp.employee_name,
+      'Email': emp.email,
+      'Phone': emp.phone,
+      'Joining Date': emp.joining_date,
+      'Department': emp.department_id,
+      'Designation': emp.designation_id,
+      'Client': emp.client_id,
+      'Workplace': emp.workplace_id,
+      'Status': emp.status
+    }));
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Employees');
+    XLSX.writeFile(wb, 'Employee_Export.xlsx');
+    toast.success('Data exported successfully');
+  };
+
   const filteredEmployees = employees.filter(emp => {
     const matchesSearch = (emp.employee_name || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
                          (emp.email || '').toLowerCase().includes(searchTerm.toLowerCase());
@@ -196,6 +220,10 @@ export const EmployeeList: React.FC = () => {
             accept=".xlsx, .xls, .csv" 
             onChange={handleImport}
           />
+          <Button variant="outline" className="flex items-center gap-2" onClick={exportData}>
+            <Download className="w-4 h-4" />
+            Export
+          </Button>
           <Button variant="outline" className="flex items-center gap-2" onClick={downloadTemplate}>
             <Download className="w-4 h-4" />
             Template
@@ -280,7 +308,15 @@ export const EmployeeList: React.FC = () => {
                 </tr>
               ) : (
                 filteredEmployees.map((emp) => (
-                  <tr key={emp.id} className="hover:bg-slate-50/50 transition-colors group">
+                  <tr 
+                    key={emp.id} 
+                    className="hover:bg-slate-50/50 transition-colors group cursor-pointer"
+                    onClick={(e) => {
+                      // Prevent navigation if clicking on actions
+                      if ((e.target as HTMLElement).closest('button')) return;
+                      navigate(`/employees/${emp.id}`);
+                    }}
+                  >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 font-black group-hover:bg-primary-50 group-hover:text-primary-600 transition-colors">
@@ -323,18 +359,22 @@ export const EmployeeList: React.FC = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-1">
-                        <Button 
+                      <Button 
                         variant="ghost" 
                         size="sm" 
-                        onClick={() => navigate(`/users/timeline/${emp.id}`)}
-                        title="View Timeline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/employees/${emp.id}`);
+                        }}
+                        title="View Profile"
                       >
                         <History className="w-4 h-4 text-slate-500" />
                       </Button>
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setEditingEmployee(emp);
                           setIsModalOpen(true);
                         }}
@@ -343,7 +383,10 @@ export const EmployeeList: React.FC = () => {
                       </Button>
                         <button 
                           className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
-                          onClick={() => handleDelete(emp.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(emp.id);
+                          }}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

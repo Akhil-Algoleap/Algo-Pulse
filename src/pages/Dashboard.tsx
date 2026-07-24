@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { 
   Users, 
-  Building2, 
   Briefcase,
-  Globe,
   UserCheck,
   Calendar,
   FileText,
-  CheckSquare
+  CheckSquare,
+  UserPlus,
+  Search,
+  Banknote,
+  Clock,
+  Plus,
+  Megaphone
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -19,18 +23,22 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell
+  Cell,
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  Legend
 } from 'recharts';
 import { Card, cn, Badge, Button } from '../components/UI';
 import { apiService } from '../services/api';
-import { Employee, Department, Client, LeaveRequest, OnboardingTask, PayrollDeduction } from '../types';
+import { Employee, Department, LeaveRequest, OnboardingTask, PayrollDeduction } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
 export const Dashboard: React.FC = () => {
   const { profile } = useAuth();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
-  const [clients, setClients] = useState<Client[]>([]);
   const [leaves, setLeaves] = useState<LeaveRequest[]>([]);
   const [onboardingTasks, setOnboardingTasks] = useState<OnboardingTask[]>([]);
   const [deductions, setDeductions] = useState<PayrollDeduction[]>([]);
@@ -39,17 +47,15 @@ export const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [empRes, deptRes, clientRes, leaveRes, tasksRes, deducRes] = await Promise.all([
+        const [empRes, deptRes, leaveRes, tasksRes, deducRes] = await Promise.all([
           apiService.getEmployees(),
           apiService.getDepartments(),
-          apiService.getClients(),
           apiService.getLeaves(),
           apiService.getOnboardingTasks(),
           apiService.getPayrollDeductions()
         ]);
         setEmployees(empRes.data);
         setDepartments(deptRes.data);
-        setClients(clientRes.data);
         setLeaves(leaveRes.data);
         setOnboardingTasks(tasksRes.data);
         setDeductions(deducRes.data);
@@ -61,8 +67,6 @@ export const Dashboard: React.FC = () => {
     };
     if (profile) fetchData();
   }, [profile]);
-
-  const COLORS = ['#16a34a', '#22c55e', '#4ade80', '#86efac', '#bbf7d0'];
 
   if (isLoading) {
     return (
@@ -529,12 +533,62 @@ export const Dashboard: React.FC = () => {
     );
   }
 
-  // --- ADMIN DASHBOARD ---
+  // --- HR ADMIN DASHBOARD ---
   const stats = [
-    { label: 'Total Employees', value: employees.length, icon: Users, color: 'bg-primary-600' },
-    { label: 'Active Staff', value: employees.filter(e => e.status === 'Active').length, icon: UserCheck, color: 'bg-emerald-600' },
-    { label: 'Clients', value: clients.length, icon: Briefcase, color: 'bg-emerald-600' },
-    { label: 'Departments', value: departments.length, icon: Building2, color: 'bg-green-600' },
+    { label: 'Total Employees', value: employees.length, icon: Users, color: 'bg-blue-600' },
+    { label: 'Today\'s Attendance', value: '94%', icon: Clock, color: 'bg-emerald-600' },
+    { label: 'New Joiners', value: 8, icon: UserPlus, color: 'bg-purple-600' },
+    { label: 'Employees On Leave', value: leaves.filter(l => l.status === 'Approved').length, icon: Calendar, color: 'bg-orange-500' },
+    { label: 'Pending Approvals', value: 15, icon: CheckSquare, color: 'bg-rose-500' },
+    { label: 'Pending Documents', value: 22, icon: FileText, color: 'bg-amber-500' },
+    { label: 'Open Positions', value: 5, icon: Search, color: 'bg-cyan-600' },
+    { label: 'Pending Payroll', value: deductions.filter(d => d.status === 'Pending').length, icon: Banknote, color: 'bg-lime-600' },
+  ];
+
+  const quickActions = [
+    { label: 'Add Employee', icon: Plus, color: 'bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700' },
+    { label: 'Start Onboarding', icon: Briefcase, color: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700' },
+    { label: 'Create Announcement', icon: Megaphone, color: 'bg-purple-50 text-purple-600 hover:bg-purple-100 hover:text-purple-700' },
+    { label: 'Generate Payroll', icon: Banknote, color: 'bg-orange-50 text-orange-600 hover:bg-orange-100 hover:text-orange-700' },
+  ];
+
+  // Mock data for new charts
+  const attendanceTrendData = [
+    { name: 'Mon', present: 95, leave: 5 },
+    { name: 'Tue', present: 92, leave: 8 },
+    { name: 'Wed', present: 96, leave: 4 },
+    { name: 'Thu', present: 93, leave: 7 },
+    { name: 'Fri', present: 88, leave: 12 },
+  ];
+
+  const monthlyHiringData = [
+    { name: 'Jan', hires: 12 },
+    { name: 'Feb', hires: 19 },
+    { name: 'Mar', hires: 15 },
+    { name: 'Apr', hires: 22 },
+    { name: 'May', hires: 18 },
+    { name: 'Jun', hires: 25 },
+  ];
+
+  const growthData = [
+    { name: 'Jan', count: 400 },
+    { name: 'Feb', count: 419 },
+    { name: 'Mar', count: 434 },
+    { name: 'Apr', count: 456 },
+    { name: 'May', count: 474 },
+    { name: 'Jun', count: 499 },
+  ];
+
+  const attritionData = [
+    { name: 'Voluntary', value: 15 },
+    { name: 'Involuntary', value: 4 },
+    { name: 'Retirement', value: 2 },
+  ];
+
+  const leaveAnalysisData = [
+    { name: 'Sick', value: 45 },
+    { name: 'Casual', value: 30 },
+    { name: 'Paid', value: 25 },
   ];
 
   const deptData = departments.map(dept => ({
@@ -542,104 +596,167 @@ export const Dashboard: React.FC = () => {
     count: employees.filter(e => e.department_id === dept.id).length
   }));
 
-  const clientData = clients.map(client => ({
-    name: client.client_name,
-    value: employees.filter(e => e.client_id === client.id).length
-  }));
-
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Organization Overview</h1>
-        <p className="text-slate-500 text-lg">Real-time workforce analytics and distribution</p>
+    <div className="space-y-8 pb-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Admin Dashboard</h1>
+          <p className="text-slate-500 text-lg">Comprehensive HR & Workforce Analytics</p>
+        </div>
+        <div className="flex gap-3 overflow-x-auto pb-2 md:pb-0">
+           {quickActions.map((action, i) => (
+             <Button key={i} variant="primary" className={cn("whitespace-nowrap flex items-center gap-2 border-none shadow-sm", action.color)}>
+               <action.icon className="w-4 h-4" />
+               {action.label}
+             </Button>
+           ))}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {stats.map((stat, i) => (
           <Card key={i} className="relative overflow-hidden group border-none shadow-md hover:shadow-xl transition-all duration-300">
-            <div className="flex items-center gap-5">
-              <div className={cn("p-4 rounded-2xl text-white shadow-inner", stat.color)}>
-                <stat.icon className="w-7 h-7" />
+            <div className="flex items-center gap-4">
+              <div className={cn("p-4 rounded-xl text-white shadow-inner", stat.color)}>
+                <stat.icon className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">{stat.label}</p>
-                <p className="text-3xl font-black text-slate-900">{stat.value}</p>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">{stat.label}</p>
+                <p className="text-2xl font-black text-slate-900">{stat.value}</p>
               </div>
-            </div>
-            <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110 duration-500">
-               <stat.icon className="w-24 h-24" />
             </div>
           </Card>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card className="h-[450px] flex flex-col border-none shadow-sm">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-xl font-bold text-slate-900">Employees by Department</h3>
-            <Badge variant="default">Distribution</Badge>
+        
+        {/* Chart 1: Attendance Trend */}
+        <Card className="h-[400px] flex flex-col border-none shadow-sm p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-slate-900">Attendance Trend</h3>
+            <Badge variant="default">This Week</Badge>
           </div>
           <div className="flex-1 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={deptData}>
+              <LineChart data={attendanceTrendData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
                 <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
-                <Tooltip 
-                  cursor={{fill: '#f8fafc'}}
-                  contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)'}}
-                />
-                <Bar dataKey="count" fill="#16a34a" radius={[8, 8, 0, 0]} barSize={50} />
+                <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
+                <Line type="monotone" dataKey="present" name="Present %" stroke="#10b981" strokeWidth={3} dot={{r: 4}} activeDot={{r: 6}} />
+                <Line type="monotone" dataKey="leave" name="Leave %" stroke="#f59e0b" strokeWidth={3} dot={{r: 4}} activeDot={{r: 6}} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        {/* Chart 2: Employee Growth */}
+        <Card className="h-[400px] flex flex-col border-none shadow-sm p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-slate-900">Employee Growth</h3>
+            <Badge variant="default">YTD</Badge>
+          </div>
+          <div className="flex-1 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={growthData}>
+                <defs>
+                  <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
+                <Tooltip contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
+                <Area type="monotone" dataKey="count" name="Headcount" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorCount)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        {/* Chart 3: Monthly Hiring */}
+        <Card className="h-[400px] flex flex-col border-none shadow-sm p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-slate-900">Monthly Hiring</h3>
+            <Badge variant="default">6 Months</Badge>
+          </div>
+          <div className="flex-1 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={monthlyHiringData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
+                <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
+                <Bar dataKey="hires" name="New Hires" fill="#8b5cf6" radius={[6, 6, 0, 0]} barSize={40} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </Card>
 
-        <Card className="h-[450px] flex flex-col border-none shadow-sm">
-          <div className="flex items-center justify-between mb-8">
-            <h3 className="text-xl font-bold text-slate-900">Employees by Client</h3>
-            <div className="p-2 bg-primary-50 rounded-lg text-primary-600">
-               <Globe className="w-5 h-5" />
-            </div>
+        {/* Chart 4: Department-wise Headcount */}
+        <Card className="h-[400px] flex flex-col border-none shadow-sm p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-slate-900">Department Headcount</h3>
+            <Badge variant="default">Current</Badge>
           </div>
-          <div className="flex-1 w-full flex items-center justify-center relative">
+          <div className="flex-1 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={clientData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={100}
-                  outerRadius={140}
-                  paddingAngle={8}
-                  dataKey="value"
-                >
-                  {clientData.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} strokeWidth={0} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)'}}
-                />
-              </PieChart>
+              <BarChart data={deptData} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                <XAxis type="number" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} />
+                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12}} width={100} />
+                <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
+                <Bar dataKey="count" name="Employees" fill="#0ea5e9" radius={[0, 6, 6, 0]} barSize={24} />
+              </BarChart>
             </ResponsiveContainer>
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <p className="text-4xl font-black text-slate-900">{employees.length}</p>
-              <p className="text-sm font-bold text-slate-400 uppercase">Total</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4 mt-6">
-            {clientData.map((c, i) => (
-              <div key={i} className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors">
-                <div className="w-3 h-3 rounded-full shadow-sm" style={{backgroundColor: COLORS[i % COLORS.length]}} />
-                <div className="flex-1 min-w-0">
-                   <p className="text-xs font-bold text-slate-700 truncate">{c.name}</p>
-                   <p className="text-[10px] text-slate-400 font-bold uppercase">{c.value} Employees</p>
-                </div>
-              </div>
-            ))}
           </div>
         </Card>
+
+        {/* Chart 5: Attrition Breakdown */}
+        <Card className="h-[400px] flex flex-col border-none shadow-sm p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-slate-900">Attrition Breakdown</h3>
+            <Badge variant="default">YTD</Badge>
+          </div>
+          <div className="flex-1 w-full flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={attritionData} cx="50%" cy="50%" innerRadius={80} outerRadius={120} paddingAngle={5} dataKey="value">
+                  <Cell fill="#f43f5e" />
+                  <Cell fill="#f97316" />
+                  <Cell fill="#94a3b8" />
+                </Pie>
+                <Tooltip contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
+                <Legend verticalAlign="bottom" height={36} iconType="circle" />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        {/* Chart 6: Leave Analysis */}
+        <Card className="h-[400px] flex flex-col border-none shadow-sm p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-slate-900">Leave Analysis</h3>
+            <Badge variant="default">This Month</Badge>
+          </div>
+          <div className="flex-1 w-full flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={leaveAnalysisData} cx="50%" cy="50%" outerRadius={120} paddingAngle={2} dataKey="value" label>
+                  <Cell fill="#3b82f6" />
+                  <Cell fill="#10b981" />
+                  <Cell fill="#8b5cf6" />
+                </Pie>
+                <Tooltip contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
+                <Legend verticalAlign="bottom" height={36} iconType="circle" />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
       </div>
     </div>
   );
