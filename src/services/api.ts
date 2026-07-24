@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { AppNotification, AuditEvent, OnboardingTask, PayrollDeduction, SecuritySettings } from '../types';
+import { AppNotification, AuditEvent, OnboardingTask, PayrollDeduction, SecuritySettings, MasterDataCategory, MasterDataItem } from '../types';
 
 let mockNotifications: AppNotification[] = [];
 let mockAuditLogs: AuditEvent[] = [];
@@ -329,6 +329,10 @@ export interface ApiService {
   getLoginAttempts: () => Promise<{ data: any[] }>;
   getBlockedUsers: () => Promise<{ data: any[] }>;
   unblockUser: (id: string) => Promise<any>;
+  getMasterData: (category: MasterDataCategory) => Promise<{ data: MasterDataItem[] }>;
+  addMasterData: (item: Omit<MasterDataItem, 'id'>) => Promise<{ data: MasterDataItem }>;
+  updateMasterData: (id: string, item: Partial<MasterDataItem>) => Promise<{ data: MasterDataItem | undefined }>;
+  deleteMasterData: (id: string) => Promise<any>;
 }
 
 export const apiService: ApiService = {
@@ -891,5 +895,51 @@ export const apiService: ApiService = {
   unblockUser: async (id: string) => {
     mockBlockedUsers = mockBlockedUsers.filter(u => u.id !== id);
     return { message: 'User unblocked successfully' };
+  },
+
+  // Master Data
+  getMasterData: async (category: MasterDataCategory) => {
+    return { data: mockMasterData.filter(d => d.category === category) };
+  },
+  addMasterData: async (item: Omit<MasterDataItem, 'id'>) => {
+    const newItem = {
+      ...item,
+      id: `md_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`
+    };
+    mockMasterData.push(newItem);
+    addMockAuditLog({
+      employee_id: 'System',
+      action: `Master Data Added (${item.category})`,
+      description: `Added ${item.name} to ${item.category}`
+    });
+    return { data: newItem };
+  },
+  updateMasterData: async (id: string, item: Partial<MasterDataItem>) => {
+    mockMasterData = mockMasterData.map(d => d.id === id ? { ...d, ...item } : d);
+    addMockAuditLog({
+      employee_id: 'System',
+      action: 'Master Data Updated',
+      description: `Updated master data record ${id}`
+    });
+    return { data: mockMasterData.find(d => d.id === id) };
+  },
+  deleteMasterData: async (id: string) => {
+    mockMasterData = mockMasterData.filter(d => d.id !== id);
+    addMockAuditLog({
+      employee_id: 'System',
+      action: 'Master Data Deleted',
+      description: `Deleted master data record ${id}`
+    });
+    return { message: 'Deleted successfully' };
   }
 };
+
+let mockMasterData: MasterDataItem[] = [
+  { id: 'md1', category: 'Designations', name: 'Software Engineer', description: 'Core development role', status: 'Active' },
+  { id: 'md2', category: 'Designations', name: 'Senior Software Engineer', description: 'Advanced development role', status: 'Active' },
+  { id: 'md3', category: 'Employment Types', name: 'Full-Time', description: 'Permanent full-time', status: 'Active' },
+  { id: 'md4', category: 'Employment Types', name: 'Contractor', description: 'Contractual basis', status: 'Active' },
+  { id: 'md5', category: 'Skills', name: 'React', description: 'Frontend Library', status: 'Active' },
+  { id: 'md6', category: 'Skills', name: 'Node.js', description: 'Backend Framework', status: 'Active' },
+  { id: 'md7', category: 'Locations', name: 'Hyderabad', description: 'Main Office', status: 'Active' }
+];

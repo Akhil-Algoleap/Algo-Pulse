@@ -351,3 +351,23 @@ export interface PayrollDeduction {
   status: 'Pending' | 'Processed';
   created_at: string;
 }
+
+export type MasterDataCategory = 
+  | 'Designations' 
+  | 'Job Grades' 
+  | 'Employment Types' 
+  | 'Skills' 
+  | 'Certifications' 
+  | 'Leave Types' 
+  | 'Shift Types' 
+  | 'Locations' 
+  | 'Nationalities' 
+  | 'Document Types';
+
+export interface MasterDataItem {
+  id: string;
+  category: MasterDataCategory;
+  name: string;
+  description?: string;
+  status: 'Active' | 'Inactive';
+}
