@@ -1,260 +1,421 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Card, Button } from '../components/UI';
 import { 
-  Cloud,
-  Settings as SettingsIcon, 
-  Building2, 
-  Briefcase, 
-  Globe, 
-  Users2,
-  Plus,
-  Save,
-  CheckCircle2,
+  Settings as SettingsIcon,
+  Mail,
+  MessageSquare,
+  Image as ImageIcon,
+  Hash,
+  Database,
+  HardDrive,
+  ToggleRight,
+  Save
 } from 'lucide-react';
-import { toast } from 'react-hot-toast';
-import { Button, Card, Input, Badge } from '../components/UI';
-import { apiService } from '../services/api';
+import toast from 'react-hot-toast';
+
+type Tab = 'general' | 'email' | 'sms' | 'branding' | 'numbering' | 'backup' | 'storage' | 'features';
+
+const TABS: { id: Tab; label: string; icon: any }[] = [
+  { id: 'general', label: 'General Settings', icon: SettingsIcon },
+  { id: 'email', label: 'Email Configuration', icon: Mail },
+  { id: 'sms', label: 'SMS Configuration', icon: MessageSquare },
+  { id: 'branding', label: 'Company Branding', icon: ImageIcon },
+  { id: 'numbering', label: 'Number Series', icon: Hash },
+  { id: 'backup', label: 'Backup Settings', icon: Database },
+  { id: 'storage', label: 'Storage Settings', icon: HardDrive },
+  { id: 'features', label: 'Feature Flags', icon: ToggleRight }
+];
 
 export const Settings: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'lookups' | 'organization' | 'sync'>('lookups');
-  const [lookups, setLookups] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  
-  // New Item State
-  const [newItem, setNewItem] = useState({
-    type: 'departments',
-    name: ''
-  });
+  const [activeTab, setActiveTab] = useState<Tab>('general');
+  const [isSaving, setIsSaving] = useState(false);
 
-  const fetchLookups = async () => {
-    try {
-      const data = await apiService.getLookups();
-      setLookups(data);
-    } catch (err) {
-      toast.error('Failed to load settings');
-    }
+  // Mock State for Settings Forms
+  const [general, setGeneral] = useState({ companyName: 'AlgoLeap', timezone: 'UTC+5:30', currency: 'INR', dateFormat: 'DD/MM/YYYY' });
+  const [email, setEmail] = useState({ host: 'smtp.sendgrid.net', port: '587', user: 'apikey', sender: 'no-reply@algoleap.com' });
+  const [sms, setSms] = useState({ gateway: 'https://api.twilio.com', apiKey: '****', senderId: 'ALGO' });
+  const [branding, setBranding] = useState({ primaryColor: '#2563eb', secondaryColor: '#1e40af', logoUrl: '/logo.png' });
+  const [numbering, setNumbering] = useState({ empPrefix: 'EMP-', empStart: '1000', invPrefix: 'INV-' });
+  const [backup, setBackup] = useState({ enabled: true, frequency: 'Daily', location: 'AWS S3' });
+  const [storage, setStorage] = useState({ provider: 'AWS S3', bucket: 'algopulse-assets', maxFileSize: '50' });
+  const [features, setFeatures] = useState({ payroll: true, performance: true, recruitment: false });
+
+  const handleSave = () => {
+    setIsSaving(true);
+    // Simulate API Call
+    setTimeout(() => {
+      setIsSaving(false);
+      toast.success(`${TABS.find(t => t.id === activeTab)?.label} saved successfully`);
+    }, 800);
   };
-
-  useEffect(() => {
-    fetchLookups();
-  }, []);
-
-  const handleAddLookup = async () => {
-    if (!newItem.name) return toast.error('Please enter a name');
-    setIsLoading(true);
-    try {
-      if (newItem.type === 'departments') await apiService.createDepartment({ department_name: newItem.name });
-      if (newItem.type === 'designations') await apiService.createDesignation({ designation_name: newItem.name });
-      if (newItem.type === 'clients') await apiService.createClient({ client_name: newItem.name });
-      if (newItem.type === 'workplaces') await apiService.createWorkplace({ workplace_name: newItem.name });
-      
-      toast.success('Successfully updated category');
-      setNewItem({ ...newItem, name: '' });
-      fetchLookups();
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Failed to save');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const tabs = [
-    { id: 'lookups', label: 'Categories & Lookups', icon: Briefcase },
-    { id: 'organization', label: 'Organization Profile', icon: Building2 },
-    { id: 'sync', label: 'Cloud Sync Status', icon: Cloud },
-  ];
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-            <SettingsIcon className="w-6 h-6 text-primary-600" />
-            System Settings
-          </h1>
-          <p className="text-slate-500 font-medium">Configure global HR parameters and cloud synchronization</p>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900">System Settings</h1>
+        <p className="text-slate-500">Configure core application behaviors and integrations</p>
       </div>
 
-      <div className="flex gap-2 p-1.5 bg-white rounded-2xl border border-slate-100 shadow-sm w-fit">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${
-              activeTab === tab.id 
-                ? 'bg-primary-600 text-white shadow-lg shadow-primary-100' 
-                : 'text-slate-500 hover:bg-slate-50'
-            }`}
-          >
-            <tab.icon className="w-4 h-4" />
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {activeTab === 'lookups' && (
-          <>
-            {/* Add New Category */}
-            <Card className="lg:col-span-1 border-none shadow-xl bg-gradient-to-br from-primary-600 to-primary-800 text-white">
-              <h3 className="text-lg font-black mb-6 flex items-center gap-2">
-                <Plus className="w-5 h-5" />
-                Add New Category
-              </h3>
-              <div className="space-y-5">
-                <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-primary-100 mb-2">Category Type</label>
-                  <select 
-                    className="w-full bg-white/10 border border-white/20 rounded-2xl px-4 py-3 text-sm font-bold outline-none focus:bg-white/20 transition-all text-white"
-                    value={newItem.type}
-                    onChange={(e) => setNewItem({...newItem, type: e.target.value})}
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Sidebar Navigation */}
+        <div className="w-full md:w-64 flex-shrink-0">
+          <Card className="p-2 sticky top-6">
+            <div className="space-y-1">
+              {TABS.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                      isActive 
+                        ? 'bg-primary-50 text-primary-700' 
+                        : 'text-slate-600 hover:bg-slate-50'
+                    }`}
                   >
-                    <option value="departments" className="text-slate-900">Department</option>
-                    <option value="designations" className="text-slate-900">Designation</option>
-                    <option value="clients" className="text-slate-900">Client</option>
-                    <option value="workplaces" className="text-slate-900">Workplace</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-primary-100 mb-2">Display Name</label>
-                  <input 
-                    type="text"
-                    className="w-full bg-white/10 border border-white/20 rounded-2xl px-4 py-3 text-sm font-bold outline-none placeholder:text-white/40 focus:bg-white/20 transition-all"
-                    placeholder="e.g. Data Science"
-                    value={newItem.name}
-                    onChange={(e) => setNewItem({...newItem, name: e.target.value})}
-                  />
-                </div>
-                <Button 
-                  onClick={handleAddLookup}
-                  isLoading={isLoading}
-                  className="w-full py-4 bg-white text-primary-700 hover:bg-slate-50 rounded-2xl font-black shadow-lg"
-                >
-                  Save Category
-                </Button>
-              </div>
-            </Card>
-
-            {/* Current Lookups List */}
-            <div className="lg:col-span-2 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {[
-                  { title: 'Departments', key: 'departments', icon: Users2, label: 'department_name' },
-                  { title: 'Designations', key: 'designations', icon: Briefcase, label: 'designation_name' },
-                  { title: 'Clients', key: 'clients', icon: Globe, label: 'client_name' },
-                  { title: 'Workplaces', key: 'workplaces', icon: Building2, label: 'workplace_name' }
-                ].map((cat) => (
-                  <Card key={cat.key} className="border-slate-100 shadow-sm overflow-hidden p-0">
-                    <div className="p-4 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
-                      <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                        <cat.icon className="w-4 h-4 text-primary-600" />
-                        {cat.title}
-                      </h4>
-                      <Badge className="bg-primary-50 text-primary-600 border-none text-[10px]">{lookups?.[cat.key]?.length || 0}</Badge>
-                    </div>
-                    <div className="max-h-48 overflow-y-auto p-2 space-y-1">
-                      {lookups?.[cat.key]?.map((item: any) => (
-                        <div key={item.id} className="px-3 py-2 rounded-lg hover:bg-slate-50 text-xs font-bold text-slate-600 flex items-center justify-between group">
-                          {item[cat.label]}
-                          <CheckCircle2 className="w-3 h-3 text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
-                      ))}
-                    </div>
-                  </Card>
-                ))}
-              </div>
+                    <Icon className={`w-5 h-5 ${isActive ? 'text-primary-600' : 'text-slate-400'}`} />
+                    {tab.label}
+                  </button>
+                );
+              })}
             </div>
-          </>
-        )}
+          </Card>
+        </div>
 
-        {activeTab === 'organization' && (
-          <Card className="lg:col-span-2 border-slate-100 shadow-sm">
-             <div className="space-y-6">
-                <div className="flex items-center gap-6">
-                  <div className="w-24 h-24 rounded-3xl bg-slate-100 flex items-center justify-center border-2 border-dashed border-slate-200">
-                    <Building2 className="w-8 h-8 text-slate-300" />
+        {/* Settings Content Area */}
+        <div className="flex-1 min-w-0">
+          <Card>
+            <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                {(() => {
+                  const Icon = TABS.find(t => t.id === activeTab)?.icon || SettingsIcon;
+                  return <Icon className="w-6 h-6 text-primary-600" />;
+                })()}
+                <h2 className="text-lg font-semibold text-slate-900">
+                  {TABS.find(t => t.id === activeTab)?.label}
+                </h2>
+              </div>
+              <Button onClick={handleSave} isLoading={isSaving} className="flex items-center gap-2">
+                <Save className="w-4 h-4" />
+                Save Changes
+              </Button>
+            </div>
+
+            <div className="p-6">
+              {activeTab === 'general' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Company Name</label>
+                    <input 
+                      type="text" 
+                      value={general.companyName}
+                      onChange={e => setGeneral({...general, companyName: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" 
+                    />
                   </div>
-                  <div className="space-y-2">
-                    <Button variant="outline" size="sm">Change Logo</Button>
-                    <p className="text-[10px] text-slate-400 font-medium">Recommended: 400x400px, PNG or SVG</p>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Timezone</label>
+                    <select 
+                      value={general.timezone}
+                      onChange={e => setGeneral({...general, timezone: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white"
+                    >
+                      <option value="UTC">UTC</option>
+                      <option value="UTC+5:30">UTC+5:30 (IST)</option>
+                      <option value="UTC-5">UTC-5 (EST)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Currency</label>
+                    <select 
+                      value={general.currency}
+                      onChange={e => setGeneral({...general, currency: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white"
+                    >
+                      <option value="USD">USD ($)</option>
+                      <option value="INR">INR (₹)</option>
+                      <option value="EUR">EUR (€)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Date Format</label>
+                    <select 
+                      value={general.dateFormat}
+                      onChange={e => setGeneral({...general, dateFormat: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white"
+                    >
+                      <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                      <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                      <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                    </select>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              )}
+
+              {activeTab === 'email' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Company Name</label>
-                    <Input defaultValue="AlgoLeap Technologies" />
+                    <label className="block text-sm font-medium text-slate-700 mb-1">SMTP Host</label>
+                    <input 
+                      type="text" 
+                      value={email.host}
+                      onChange={e => setEmail({...email, host: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" 
+                    />
                   </div>
                   <div>
-                    <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Business Email</label>
-                    <Input defaultValue="admin@algoleap.com" />
+                    <label className="block text-sm font-medium text-slate-700 mb-1">SMTP Port</label>
+                    <input 
+                      type="text" 
+                      value={email.port}
+                      onChange={e => setEmail({...email, port: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">SMTP Username</label>
+                    <input 
+                      type="text" 
+                      value={email.user}
+                      onChange={e => setEmail({...email, user: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Sender Email</label>
+                    <input 
+                      type="email" 
+                      value={email.sender}
+                      onChange={e => setEmail({...email, sender: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" 
+                    />
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'sms' && (
+                <div className="grid grid-cols-1 gap-6 max-w-xl">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Gateway URL</label>
+                    <input 
+                      type="text" 
+                      value={sms.gateway}
+                      onChange={e => setSms({...sms, gateway: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">API Key</label>
+                    <input 
+                      type="password" 
+                      value={sms.apiKey}
+                      onChange={e => setSms({...sms, apiKey: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Sender ID</label>
+                    <input 
+                      type="text" 
+                      value={sms.senderId}
+                      onChange={e => setSms({...sms, senderId: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" 
+                    />
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'branding' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Primary Color</label>
+                    <div className="flex gap-3">
+                      <input 
+                        type="color" 
+                        value={branding.primaryColor}
+                        onChange={e => setBranding({...branding, primaryColor: e.target.value})}
+                        className="h-10 w-10 border-0 p-0" 
+                      />
+                      <input 
+                        type="text" 
+                        value={branding.primaryColor}
+                        onChange={e => setBranding({...branding, primaryColor: e.target.value})}
+                        className="flex-1 px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none uppercase" 
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Secondary Color</label>
+                    <div className="flex gap-3">
+                      <input 
+                        type="color" 
+                        value={branding.secondaryColor}
+                        onChange={e => setBranding({...branding, secondaryColor: e.target.value})}
+                        className="h-10 w-10 border-0 p-0" 
+                      />
+                      <input 
+                        type="text" 
+                        value={branding.secondaryColor}
+                        onChange={e => setBranding({...branding, secondaryColor: e.target.value})}
+                        className="flex-1 px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none uppercase" 
+                      />
+                    </div>
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">HQ Address</label>
-                    <Input defaultValue="Innovation Hub, Tech Park, Suite 402" />
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Company Logo URL</label>
+                    <input 
+                      type="text" 
+                      value={branding.logoUrl}
+                      onChange={e => setBranding({...branding, logoUrl: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" 
+                    />
                   </div>
                 </div>
-                <Button className="w-fit flex items-center gap-2">
-                  <Save className="w-4 h-4" />
-                  Update Profile
-                </Button>
-             </div>
-          </Card>
-        )}
+              )}
 
-        {activeTab === 'sync' && (
-          <Card className="lg:col-span-2 border-slate-100 shadow-sm overflow-hidden p-0">
-             <div className="p-8 bg-emerald-50/50 flex items-center gap-6 border-b border-emerald-100">
-                <div className="w-16 h-16 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-100">
-                   <Cloud className="w-8 h-8" />
+              {activeTab === 'numbering' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Employee ID Prefix</label>
+                    <input 
+                      type="text" 
+                      value={numbering.empPrefix}
+                      onChange={e => setNumbering({...numbering, empPrefix: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Employee Starting Number</label>
+                    <input 
+                      type="number" 
+                      value={numbering.empStart}
+                      onChange={e => setNumbering({...numbering, empStart: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Invoice Prefix</label>
+                    <input 
+                      type="text" 
+                      value={numbering.invPrefix}
+                      onChange={e => setNumbering({...numbering, invPrefix: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" 
+                    />
+                  </div>
                 </div>
-                <div>
-                   <h3 className="text-xl font-black text-slate-900">OneDrive Real-time Sync</h3>
-                   <p className="text-emerald-700 text-sm font-bold flex items-center gap-1">
-                      <CheckCircle2 className="w-4 h-4" />
-                      Status: Active & Connected
-                   </p>
+              )}
+
+              {activeTab === 'backup' && (
+                <div className="grid grid-cols-1 gap-6 max-w-xl">
+                  <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-xl">
+                    <div>
+                      <h4 className="font-semibold text-slate-900">Automated Backups</h4>
+                      <p className="text-sm text-slate-500">Run scheduled database backups</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        className="sr-only peer"
+                        checked={backup.enabled}
+                        onChange={(e) => setBackup({...backup, enabled: e.target.checked})}
+                      />
+                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                    </label>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Backup Frequency</label>
+                    <select 
+                      value={backup.frequency}
+                      onChange={e => setBackup({...backup, frequency: e.target.value})}
+                      disabled={!backup.enabled}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white disabled:opacity-50"
+                    >
+                      <option>Daily</option>
+                      <option>Weekly</option>
+                      <option>Monthly</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Backup Location</label>
+                    <select 
+                      value={backup.location}
+                      onChange={e => setBackup({...backup, location: e.target.value})}
+                      disabled={!backup.enabled}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white disabled:opacity-50"
+                    >
+                      <option>AWS S3</option>
+                      <option>Google Cloud Storage</option>
+                      <option>Local Server</option>
+                    </select>
+                  </div>
                 </div>
-             </div>
-             <div className="p-8 space-y-6">
-                <div className="space-y-4">
-                   <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Active Database</h4>
-                   <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                         <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
-                            <Briefcase className="w-4 h-4" />
-                         </div>
-                         <div>
-                            <p className="text-sm font-bold text-slate-900">database.xlsx</p>
-                            <p className="text-[10px] text-slate-400 font-medium">Path: /AlgoLeap/Documents/Algo Pulse/</p>
-                         </div>
+              )}
+
+              {activeTab === 'storage' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Storage Provider</label>
+                    <select 
+                      value={storage.provider}
+                      onChange={e => setStorage({...storage, provider: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white"
+                    >
+                      <option>AWS S3</option>
+                      <option>Google Cloud Storage</option>
+                      <option>Azure Blob Storage</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Bucket / Container Name</label>
+                    <input 
+                      type="text" 
+                      value={storage.bucket}
+                      onChange={e => setStorage({...storage, bucket: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" 
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Max Upload File Size (MB)</label>
+                    <input 
+                      type="number" 
+                      value={storage.maxFileSize}
+                      onChange={e => setStorage({...storage, maxFileSize: e.target.value})}
+                      className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none" 
+                    />
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'features' && (
+                <div className="grid grid-cols-1 gap-4 max-w-2xl">
+                  {[
+                    { id: 'payroll', label: 'Payroll Module', description: 'Enable salary structures, processing, and payslips.', state: features.payroll },
+                    { id: 'performance', label: 'Performance Module', description: 'Enable reviews, OKRs, and continuous feedback.', state: features.performance },
+                    { id: 'recruitment', label: 'Recruitment Module (Beta)', description: 'Enable ATS tracking, interviews, and job postings.', state: features.recruitment }
+                  ].map((feat) => (
+                    <div key={feat.id} className="flex items-start justify-between p-4 bg-slate-50 border border-slate-100 rounded-xl">
+                      <div>
+                        <h4 className="font-semibold text-slate-900">{feat.label}</h4>
+                        <p className="text-sm text-slate-500">{feat.description}</p>
                       </div>
-                      <div className="flex items-center gap-3">
-                         <Button 
-                           variant="outline" 
-                           size="sm" 
-                           className="text-[10px] bg-white border-slate-200"
-                           onClick={() => window.open(import.meta.env.VITE_ONEDRIVE_VIEW_LINK || 'https://onedrive.live.com', '_blank')}
-                         >
-                            View Live Excel
-                         </Button>
-                         <Badge variant="success" className="bg-emerald-50 text-emerald-600 border-none">Synced 2m ago</Badge>
-                      </div>
-                   </div>
+                      <label className="relative inline-flex items-center cursor-pointer mt-1">
+                        <input 
+                          type="checkbox" 
+                          className="sr-only peer"
+                          checked={feat.state}
+                          onChange={(e) => setFeatures({...features, [feat.id]: e.target.checked})}
+                        />
+                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                      </label>
+                    </div>
+                  ))}
                 </div>
-                
-                <div className="p-6 rounded-3xl bg-slate-900 text-white space-y-4">
-                   <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-black">Admin Access Control</h4>
-                      <Badge className="bg-primary-500 text-white border-none">Super Admin Only</Badge>
-                   </div>
-                   <p className="text-xs text-slate-400 leading-relaxed font-medium">
-                      The Excel backend is locked during write operations to prevent data corruption. 
-                      Ensure Microsoft Excel is closed when performing bulk administrative updates.
-                   </p>
-                </div>
-             </div>
+              )}
+
+            </div>
           </Card>
-        )}
+        </div>
       </div>
     </div>
   );
