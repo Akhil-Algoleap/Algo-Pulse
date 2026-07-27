@@ -371,3 +371,19 @@ export interface MasterDataItem {
   description?: string;
   status: 'Active' | 'Inactive';
 }
+
+export type TaskStatus = 'To Do' | 'In Progress' | 'Blocked' | 'Testing' | 'Completed';
+
+export interface ProjectTask {
+  id: string;
+  name: string;
+  description: string;
+  priority: 'High' | 'Medium' | 'Low';
+  story_points: number;
+  assigned_employee_id: string;
+  assigned_employee_name: string;
+  due_date: string;
+  status: TaskStatus;
+  attachments_count: number;
+  comments_count: number;
+}

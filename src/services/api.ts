@@ -1,7 +1,18 @@
 import { supabase } from '../lib/supabase';
 import { AppNotification, AuditEvent, OnboardingTask, PayrollDeduction, SecuritySettings, MasterDataCategory, MasterDataItem } from '../types';
 
-let mockNotifications: AppNotification[] = [];
+let mockNotifications: AppNotification[] = [
+  { id: 'n1', recipient_role: 'Project Manager', title: 'New Task Assigned', message: 'You have been assigned to review UI wireframes.', is_read: false, created_at: new Date().toISOString() },
+  { id: 'n2', recipient_role: 'Project Manager', title: 'Task Completed', message: 'Database setup task has been completed by John.', is_read: false, created_at: new Date(Date.now() - 3600000).toISOString() },
+  { id: 'n3', recipient_role: 'Project Manager', title: 'Sprint Started', message: 'Sprint 2 has officially started today.', is_read: false, created_at: new Date(Date.now() - 7200000).toISOString() },
+  { id: 'n4', recipient_role: 'Project Manager', title: 'Sprint Ending', message: 'Sprint 1 is ending in 2 days. Please review pending tasks.', is_read: false, created_at: new Date(Date.now() - 86400000).toISOString() },
+  { id: 'n5', recipient_role: 'Project Manager', title: 'Leave Request', message: 'Sarah has requested leave for next week.', is_read: false, created_at: new Date(Date.now() - 172800000).toISOString() },
+  { id: 'n6', recipient_role: 'Project Manager', title: 'Project Delay', message: 'Client API specs are delayed, affecting Milestone 2.', is_read: false, created_at: new Date(Date.now() - 259200000).toISOString() },
+  { id: 'n7', recipient_role: 'Project Manager', title: 'Risk Added', message: 'A high severity risk "Resource Shortage" was logged.', is_read: false, created_at: new Date(Date.now() - 345600000).toISOString() },
+  { id: 'n8', recipient_role: 'Project Manager', title: 'Timesheet Submitted', message: 'Akhil submitted timesheet for Week 28.', is_read: false, created_at: new Date(Date.now() - 432000000).toISOString() },
+  { id: 'n9', recipient_role: 'Project Manager', title: 'Resource Added', message: 'Priya has been allocated to HRMS project.', is_read: false, created_at: new Date(Date.now() - 518400000).toISOString() },
+  { id: 'n10', recipient_role: 'Project Manager', title: 'Client Deadline', message: 'Reminder: Beta Launch deliverable is due tomorrow.', is_read: false, created_at: new Date(Date.now() - 604800000).toISOString() }
+];
 let mockAuditLogs: AuditEvent[] = [];
 let mockOnboardingTasks: OnboardingTask[] = [];
 let mockPayrollDeductions: PayrollDeduction[] = [];

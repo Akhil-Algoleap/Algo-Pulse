@@ -16,7 +16,16 @@ import {
   AlertTriangle,
   Percent,
   Rocket,
-  ShieldAlert
+  ShieldAlert,
+  TrendingUp,
+  Plane,
+  Receipt,
+  CreditCard,
+  PieChart as PieChartIcon,
+  BarChart as BarChartIcon,
+  RefreshCw,
+  Calculator,
+  Download,
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -370,114 +379,447 @@ export const Dashboard: React.FC = () => {
 
   // --- PAYROLL MANAGER DASHBOARD ---
   if (profile?.role === 'Payroll Manager') {
+    const monthlyPayrollCostData = [
+      { month: 'Jan', cost: 110 }, { month: 'Feb', cost: 112 },
+      { month: 'Mar', cost: 115 }, { month: 'Apr', cost: 118 },
+      { month: 'May', cost: 120 }, { month: 'Jun', cost: 125 }
+    ];
+    
+    const salaryDistributionData = [
+      { category: 'Base Pay', amount: 80, color: '#3b82f6' },
+      { category: 'Allowances', amount: 12, color: '#10b981' },
+      { category: 'Bonuses', amount: 5, color: '#f59e0b' },
+      { category: 'Overtime', amount: 3, color: '#8b5cf6' }
+    ];
+    
+    const overtimeCostData = [
+      { month: 'Jan', cost: 2.1 }, { month: 'Feb', cost: 2.5 },
+      { month: 'Mar', cost: 2.3 }, { month: 'Apr', cost: 3.0 },
+      { month: 'May', cost: 2.8 }, { month: 'Jun', cost: 3.5 }
+    ];
+    
+    const taxDeductionTrendData = [
+      { month: 'Jan', tax: 15 }, { month: 'Feb', tax: 15.2 },
+      { month: 'Mar', tax: 15.5 }, { month: 'Apr', tax: 16 },
+      { month: 'May', tax: 16.2 }, { month: 'Jun', tax: 17 }
+    ];
+    
+    const departmentPayrollCostData = [
+      { name: 'Engineering', cost: 45 }, { name: 'Sales', cost: 25 },
+      { name: 'Marketing', cost: 15 }, { name: 'Operations', cost: 20 },
+      { name: 'HR', cost: 10 }
+    ];
+    
+    const bonusDistributionData = [
+      { type: 'Performance', amount: 60, color: '#10b981' },
+      { type: 'Retention', amount: 20, color: '#3b82f6' },
+      { type: 'Joining', amount: 15, color: '#f59e0b' },
+      { type: 'Referral', amount: 5, color: '#ec4899' }
+    ];
+
     return (
       <div className="space-y-8">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Payroll Manager Dashboard</h1>
-          <p className="text-slate-500 text-lg">Payroll Month: July 2026</p>
+        <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Payroll Manager Dashboard</h1>
+            <p className="text-slate-500 text-lg">Payroll Month: July 2026</p>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-2">
+            <Button size="sm" className="bg-primary-600 hover:bg-primary-700 text-white gap-2"><RefreshCw className="w-4 h-4" /> Process Payroll</Button>
+            <Button size="sm" variant="outline" className="gap-2"><FileText className="w-4 h-4" /> Generate Payslips</Button>
+            <Button size="sm" variant="outline" className="gap-2"><Calculator className="w-4 h-4" /> Calculate Tax</Button>
+            <Button size="sm" variant="outline" className="gap-2"><TrendingUp className="w-4 h-4" /> Approve Salary Revision</Button>
+            <Button size="sm" variant="outline" className="gap-2"><Download className="w-4 h-4" /> Generate Bank File</Button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card className="p-4 border-none shadow-sm bg-white flex flex-col justify-between">
+             <p className="text-xs font-bold text-slate-400 uppercase mb-2">Total Employees</p>
+             <div className="flex items-end justify-between">
+               <p className="text-3xl font-black text-slate-800">550</p>
+               <Users className="w-5 h-5 text-blue-300 mb-1" />
+             </div>
+          </Card>
+          <Card className="p-4 border-none shadow-sm bg-white flex flex-col justify-between">
+             <p className="text-xs font-bold text-slate-400 uppercase mb-2">Payroll Ready</p>
+             <div className="flex items-end justify-between">
+               <p className="text-3xl font-black text-emerald-500">480</p>
+               <CheckCircle2 className="w-5 h-5 text-emerald-300 mb-1" />
+             </div>
+          </Card>
+          <Card className="p-4 border-none shadow-sm bg-white flex flex-col justify-between">
+             <p className="text-xs font-bold text-slate-400 uppercase mb-2">Payroll Processed</p>
+             <div className="flex items-end justify-between">
+               <p className="text-3xl font-black text-indigo-500">30</p>
+               <RefreshCw className="w-5 h-5 text-indigo-300 mb-1" />
+             </div>
+          </Card>
+          <Card className="p-4 border-none shadow-sm bg-white flex flex-col justify-between">
+             <p className="text-xs font-bold text-slate-400 uppercase mb-2">Payroll Pending</p>
+             <div className="flex items-end justify-between">
+               <p className="text-3xl font-black text-amber-500">40</p>
+               <AlertTriangle className="w-5 h-5 text-amber-300 mb-1" />
+             </div>
+          </Card>
+          
+          <Card className="p-4 border-none shadow-sm bg-white flex flex-col justify-between">
+             <p className="text-xs font-bold text-slate-400 uppercase mb-2">Salary Revisions</p>
+             <div className="flex items-end justify-between">
+               <p className="text-3xl font-black text-purple-500">8</p>
+               <TrendingUp className="w-5 h-5 text-purple-300 mb-1" />
+             </div>
+          </Card>
+          <Card className="p-4 border-none shadow-sm bg-white flex flex-col justify-between">
+             <p className="text-xs font-bold text-slate-400 uppercase mb-2">Overtime Hours</p>
+             <div className="flex items-end justify-between">
+               <p className="text-3xl font-black text-rose-500">320</p>
+               <Clock className="w-5 h-5 text-rose-300 mb-1" />
+             </div>
+          </Card>
+          <Card className="p-4 border-none shadow-sm bg-white flex flex-col justify-between">
+             <p className="text-xs font-bold text-slate-400 uppercase mb-2">Tax Pending</p>
+             <div className="flex items-end justify-between">
+               <p className="text-3xl font-black text-orange-500">5</p>
+               <Percent className="w-5 h-5 text-orange-300 mb-1" />
+             </div>
+          </Card>
+          <Card className="p-4 border-none shadow-sm bg-white flex flex-col justify-between">
+             <p className="text-xs font-bold text-slate-400 uppercase mb-2">Payroll Cost</p>
+             <div className="flex items-end justify-between">
+               <p className="text-3xl font-black text-slate-800">₹1.25Cr</p>
+               <Banknote className="w-5 h-5 text-slate-300 mb-1" />
+             </div>
+          </Card>
+        </div>
+
+        {/* Charts Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="p-6 border-none shadow-md bg-white">
-             <p className="text-sm font-bold text-slate-400 uppercase mb-2">Total Employees</p>
-             <p className="text-4xl font-black text-slate-900">550</p>
+            <h3 className="text-lg font-bold text-slate-800 mb-4">Monthly Payroll Cost (in Lakhs)</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={monthlyPayrollCostData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Area type="monotone" dataKey="cost" fill="#d1fae5" stroke="#10b981" strokeWidth={3} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </Card>
-          <Card className="p-6 border-none shadow-md bg-amber-50">
-             <p className="text-sm font-bold text-amber-600 uppercase mb-2">Payroll Pending</p>
-             <p className="text-4xl font-black text-amber-700">28</p>
+          
+          <Card className="p-6 border-none shadow-md bg-white">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">Salary Distribution</h3>
+            <div className="h-64 flex flex-col items-center">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={salaryDistributionData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="amount" nameKey="category">
+                    {salaryDistributionData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Legend verticalAlign="bottom" height={36} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </Card>
-          <Card className="p-6 border-none shadow-md bg-emerald-50">
-             <p className="text-sm font-bold text-emerald-600 uppercase mb-2">Payroll Processed</p>
-             <p className="text-4xl font-black text-emerald-700">522</p>
+          
+          <Card className="p-6 border-none shadow-md bg-white">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">Overtime Cost (in Lakhs)</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={overtimeCostData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Bar dataKey="cost" fill="#f43f5e" radius={[4, 4, 0, 0]} name="Overtime Cost" maxBarSize={40} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </Card>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-          <Card className="p-6 border-none shadow-sm flex items-center justify-between">
-            <div>
-              <p className="font-bold text-slate-900 text-lg">Pending Salary Revision</p>
-              <p className="text-sm text-slate-500">Requires review</p>
+          <Card className="p-6 border-none shadow-md bg-white">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">Tax Deduction Trend (in Lakhs)</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={taxDeductionTrendData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Line type="monotone" dataKey="tax" stroke="#f59e0b" strokeWidth={3} name="Tax Deductions" dot={{r: 4}} activeDot={{r: 6}} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
-            <span className="text-3xl font-black text-slate-800">6</span>
           </Card>
-          <Card className="p-6 border-none shadow-sm flex items-center justify-between">
-            <div>
-              <p className="font-bold text-slate-900 text-lg">Pending Bonus Approval</p>
-              <p className="text-sm text-slate-500">Requires review</p>
+          
+          <Card className="p-6 border-none shadow-md bg-white">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">Department-wise Payroll Cost (in Lakhs)</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={departmentPayrollCostData} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                  <XAxis type="number" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 'bold'}} width={80} />
+                  <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Bar dataKey="cost" name="Cost" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={20} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-            <span className="text-3xl font-black text-slate-800">3</span>
           </Card>
-        </div>
 
-        <div className="mt-8">
-          <h2 className="text-xl font-bold text-slate-900 mb-4">Pending Leave Deductions</h2>
-          {deductions.filter(d => d.status === 'Pending').length === 0 ? (
-            <Card className="p-8 border-none shadow-sm text-center">
-              <p className="text-slate-500">No pending deductions to process.</p>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {deductions.filter(d => d.status === 'Pending').map(d => {
-                const emp = employees.find(e => e.id === d.employee_id);
-                return (
-                  <Card key={d.id} className="p-6 border-none shadow-sm flex justify-between items-center bg-rose-50/50">
-                    <div>
-                      <h3 className="font-bold text-lg text-slate-900">{emp?.employee_name || 'Unknown'}</h3>
-                      <p className="text-sm text-slate-500">{d.reason}</p>
-                      <p className="text-sm font-bold text-rose-500 mt-1">Deduct ₹{d.amount}</p>
-                    </div>
-                    <Button 
-                      variant="primary" 
-                      onClick={async () => {
-                        await apiService.processPayrollDeduction(d.id);
-                        const res = await apiService.getPayrollDeductions();
-                        setDeductions(res.data);
-                      }}
-                    >
-                      Process
-                    </Button>
-                  </Card>
-                );
-              })}
+          <Card className="p-6 border-none shadow-md bg-white">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">Bonus Distribution</h3>
+            <div className="h-64 flex flex-col items-center">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={bonusDistributionData} cx="50%" cy="50%" innerRadius={0} outerRadius={80} dataKey="amount" nameKey="type">
+                    {bonusDistributionData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Legend verticalAlign="bottom" height={36} />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
-          )}
+          </Card>
         </div>
       </div>
     );
   }
 
   // --- FINANCE DASHBOARD ---
+  // --- FINANCE DASHBOARD ---
   if (profile?.role === 'Finance') {
+    const departmentBudgets = [
+      { name: 'Engineering', allocated: 50, consumed: 42 },
+      { name: 'Marketing', allocated: 20, consumed: 18 },
+      { name: 'Sales', allocated: 30, consumed: 15 },
+      { name: 'HR', allocated: 10, consumed: 8 },
+      { name: 'Operations', allocated: 25, consumed: 21 },
+    ];
+    
+    const monthlyExpensesData = [
+      { month: 'Jan', amount: 15 },
+      { month: 'Feb', amount: 18 },
+      { month: 'Mar', amount: 16 },
+      { month: 'Apr', amount: 20 },
+      { month: 'May', amount: 17 },
+      { month: 'Jun', amount: 19 },
+    ];
+    
+    const payrollCostTrendData = [
+      { month: 'Jan', cost: 110 },
+      { month: 'Feb', cost: 112 },
+      { month: 'Mar', cost: 115 },
+      { month: 'Apr', cost: 118 },
+      { month: 'May', cost: 120 },
+      { month: 'Jun', cost: 125 },
+    ];
+    
+    const travelExpensesData = [
+      { category: 'Flights', amount: 45, color: '#3b82f6' },
+      { category: 'Hotels', amount: 30, color: '#10b981' },
+      { category: 'Meals', amount: 15, color: '#f59e0b' },
+      { category: 'Transit', amount: 10, color: '#8b5cf6' },
+    ];
+    
+    const vendorPaymentsData = [
+      { month: 'Jan', payments: 5 },
+      { month: 'Feb', payments: 7 },
+      { month: 'Mar', payments: 6 },
+      { month: 'Apr', payments: 8 },
+      { month: 'May', payments: 5 },
+      { month: 'Jun', payments: 9 },
+    ];
+
+    const budgetVsActualData = [
+      { category: 'Q1', budget: 100, actual: 95 },
+      { category: 'Q2', budget: 120, actual: 125 },
+      { category: 'Q3', budget: 110, actual: 105 },
+      { category: 'Q4', budget: 130, actual: 120 },
+    ];
+
     return (
       <div className="space-y-8">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Finance Dashboard</h1>
-          <p className="text-slate-500 text-lg">Expense and Budget Tracking</p>
+        <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Finance Dashboard</h1>
+            <p className="text-slate-500 text-lg">Financial Overview, Approvals & Budgets</p>
+          </div>
+          
+          {/* Quick Actions */}
+          <div className="flex flex-wrap items-center gap-2">
+            <Button size="sm" className="bg-primary-600 hover:bg-primary-700 text-white gap-2"><CheckSquare className="w-4 h-4" /> Approve Payroll</Button>
+            <Button size="sm" variant="outline" className="gap-2"><Receipt className="w-4 h-4" /> Approve Expense</Button>
+            <Button size="sm" variant="outline" className="gap-2"><FileText className="w-4 h-4" /> Approve Purchase Request</Button>
+            <Button size="sm" variant="outline" className="gap-2"><BarChartIcon className="w-4 h-4" /> Generate Financial Report</Button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="p-6 border-none shadow-md bg-white">
-             <p className="text-sm font-bold text-slate-400 uppercase mb-2">Pending Claims</p>
-             <p className="text-4xl font-black text-rose-500">14</p>
+        {/* KPI Cards (8 items) */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card className="p-4 border-none shadow-sm bg-white flex flex-col justify-between">
+             <p className="text-xs font-bold text-slate-400 uppercase mb-2">Payroll Cost</p>
+             <div className="flex items-end justify-between">
+               <p className="text-3xl font-black text-slate-800">₹1.25Cr</p>
+               <Banknote className="w-5 h-5 text-slate-300 mb-1" />
+             </div>
           </Card>
-          <Card className="p-6 border-none shadow-md bg-white">
-             <p className="text-sm font-bold text-slate-400 uppercase mb-2">Pending Budget Approval</p>
-             <p className="text-4xl font-black text-amber-500">5</p>
+          <Card className="p-4 border-none shadow-sm bg-white flex flex-col justify-between">
+             <p className="text-xs font-bold text-slate-400 uppercase mb-2">Approved Expenses</p>
+             <div className="flex items-end justify-between">
+               <p className="text-3xl font-black text-slate-800">₹8.4L</p>
+               <CheckCircle2 className="w-5 h-5 text-emerald-300 mb-1" />
+             </div>
           </Card>
-          <Card className="p-6 border-none shadow-md bg-white">
-             <p className="text-sm font-bold text-slate-400 uppercase mb-2">Travel Claims</p>
-             <p className="text-4xl font-black text-blue-500">8</p>
+          <Card className="p-4 border-none shadow-sm bg-white flex flex-col justify-between">
+             <p className="text-xs font-bold text-slate-400 uppercase mb-2">Pending Claims</p>
+             <div className="flex items-end justify-between">
+               <p className="text-3xl font-black text-amber-500">24</p>
+               <AlertTriangle className="w-5 h-5 text-amber-300 mb-1" />
+             </div>
+          </Card>
+          <Card className="p-4 border-none shadow-sm bg-white flex flex-col justify-between">
+             <p className="text-xs font-bold text-slate-400 uppercase mb-2">Budget Utilization</p>
+             <div className="flex items-end justify-between">
+               <p className="text-3xl font-black text-indigo-500">68%</p>
+               <PieChartIcon className="w-5 h-5 text-indigo-300 mb-1" />
+             </div>
+          </Card>
+          
+          <Card className="p-4 border-none shadow-sm bg-white flex flex-col justify-between">
+             <p className="text-xs font-bold text-slate-400 uppercase mb-2">Vendor Payments</p>
+             <div className="flex items-end justify-between">
+               <p className="text-3xl font-black text-purple-500">15</p>
+               <CreditCard className="w-5 h-5 text-purple-300 mb-1" />
+             </div>
+          </Card>
+          <Card className="p-4 border-none shadow-sm bg-white flex flex-col justify-between">
+             <p className="text-xs font-bold text-slate-400 uppercase mb-2">Pending Approvals</p>
+             <div className="flex items-end justify-between">
+               <p className="text-3xl font-black text-rose-500">12</p>
+               <CheckSquare className="w-5 h-5 text-rose-300 mb-1" />
+             </div>
+          </Card>
+          <Card className="p-4 border-none shadow-sm bg-white flex flex-col justify-between">
+             <p className="text-xs font-bold text-slate-400 uppercase mb-2">Travel Claims</p>
+             <div className="flex items-end justify-between">
+               <p className="text-3xl font-black text-blue-500">8</p>
+               <Plane className="w-5 h-5 text-blue-300 mb-1" />
+             </div>
+          </Card>
+          <Card className="p-4 border-none shadow-sm bg-white flex flex-col justify-between">
+             <p className="text-xs font-bold text-slate-400 uppercase mb-2">Monthly Spend</p>
+             <div className="flex items-end justify-between">
+               <p className="text-3xl font-black text-slate-800">₹18.4L</p>
+               <TrendingUp className="w-5 h-5 text-slate-300 mb-1" />
+             </div>
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-          <Card className="p-8 border-none shadow-sm bg-slate-900 text-white">
-             <p className="text-sm font-bold text-slate-400 uppercase mb-2">Total Payroll Cost</p>
-             <p className="text-4xl font-black text-white">₹1.25 Crore</p>
+        {/* Charts Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card className="p-6 border-none shadow-md bg-white">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">Monthly Expenses (in Lakhs)</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={monthlyExpensesData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Area type="monotone" dataKey="amount" fill="#bfdbfe" stroke="#3b82f6" strokeWidth={3} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </Card>
-          <Card className="p-8 border-none shadow-sm bg-emerald-900 text-white">
-             <p className="text-sm font-bold text-emerald-400 uppercase mb-2">Total Expenses</p>
-             <p className="text-4xl font-black text-white">₹18 Lakhs</p>
+          
+          <Card className="p-6 border-none shadow-md bg-white">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">Department-wise Budget (in Lakhs)</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={departmentBudgets}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Legend />
+                  <Bar dataKey="allocated" name="Allocated" fill="#cbd5e1" radius={[4, 4, 0, 0]} maxBarSize={30} />
+                  <Bar dataKey="consumed" name="Consumed" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={30} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+          
+          <Card className="p-6 border-none shadow-md bg-white">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">Payroll Cost Trend (in Lakhs)</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={payrollCostTrendData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <YAxis domain={['auto', 'auto']} axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Line type="monotone" dataKey="cost" stroke="#10b981" strokeWidth={3} name="Payroll Cost" dot={{r: 4}} activeDot={{r: 6}} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+          
+          <Card className="p-6 border-none shadow-md bg-white">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">Travel Expenses Breakdown</h3>
+            <div className="h-64 flex flex-col items-center">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={travelExpensesData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="amount" nameKey="category">
+                    {travelExpensesData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Legend verticalAlign="bottom" height={36} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+          
+          <Card className="p-6 border-none shadow-md bg-white">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">Vendor Payments (in Lakhs)</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={vendorPaymentsData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Bar dataKey="payments" fill="#8b5cf6" radius={[4, 4, 0, 0]} name="Payments" maxBarSize={40} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+          
+          <Card className="p-6 border-none shadow-md bg-white">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">Budget vs Actual (in Lakhs)</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={budgetVsActualData} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                  <XAxis type="number" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <YAxis type="category" dataKey="category" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 'bold'}} width={60} />
+                  <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Legend />
+                  <Bar dataKey="budget" name="Budget" fill="#94a3b8" radius={[0, 4, 4, 0]} barSize={20} />
+                  <Bar dataKey="actual" name="Actual" fill="#f59e0b" radius={[0, 4, 4, 0]} barSize={20} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </Card>
         </div>
       </div>
@@ -642,6 +984,139 @@ export const Dashboard: React.FC = () => {
               </div>
             </div>
             <span className="text-2xl font-black text-slate-900">5</span>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // --- PAYROLL MANAGER DASHBOARD ---
+  if (profile?.role === 'Payroll Manager') {
+    return (
+      <div className="space-y-8">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Payroll Manager Dashboard</h1>
+          <p className="text-slate-500 text-lg">Payroll Processing & Compliance Overview</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <Card className="p-4 border-none shadow-sm flex flex-col justify-center">
+             <p className="text-xs font-bold text-slate-400 uppercase">Payroll Month</p>
+             <p className="text-xl font-black text-slate-900 mt-1">July 2026</p>
+          </Card>
+          <Card className="p-4 border-none shadow-sm flex flex-col justify-center">
+             <p className="text-xs font-bold text-slate-400 uppercase">Employees to Process</p>
+             <p className="text-xl font-black text-blue-600 mt-1">520</p>
+          </Card>
+          <Card className="p-4 border-none shadow-sm flex flex-col justify-center">
+             <p className="text-xs font-bold text-slate-400 uppercase">Payroll Completed</p>
+             <p className="text-xl font-black text-emerald-600 mt-1">480</p>
+          </Card>
+          <Card className="p-4 border-none shadow-sm flex flex-col justify-center">
+             <p className="text-xs font-bold text-slate-400 uppercase">Pending Payroll</p>
+             <p className="text-xl font-black text-amber-600 mt-1">40</p>
+          </Card>
+          <Card className="p-4 border-none shadow-sm flex flex-col justify-center">
+             <p className="text-xs font-bold text-slate-400 uppercase">Payroll Errors</p>
+             <p className="text-xl font-black text-rose-600 mt-1">2</p>
+          </Card>
+          
+          <Card className="p-4 border-none shadow-sm flex flex-col justify-center">
+             <p className="text-xs font-bold text-slate-400 uppercase">Salary Revisions</p>
+             <p className="text-xl font-black text-indigo-600 mt-1">8</p>
+          </Card>
+          <Card className="p-4 border-none shadow-sm flex flex-col justify-center">
+             <p className="text-xs font-bold text-slate-400 uppercase">Pending Loans</p>
+             <p className="text-xl font-black text-slate-700 mt-1">12</p>
+          </Card>
+          <Card className="p-4 border-none shadow-sm flex flex-col justify-center">
+             <p className="text-xs font-bold text-slate-400 uppercase">Pending Reimbursements</p>
+             <p className="text-xl font-black text-slate-700 mt-1">15</p>
+          </Card>
+          <Card className="p-4 border-none shadow-sm flex flex-col justify-center">
+             <p className="text-xs font-bold text-slate-400 uppercase">Tax Calculations Pending</p>
+             <p className="text-xl font-black text-amber-600 mt-1">5</p>
+          </Card>
+          <Card className="p-4 border-none shadow-sm flex flex-col justify-center">
+             <p className="text-xs font-bold text-slate-400 uppercase">Overtime Requests</p>
+             <p className="text-xl font-black text-blue-600 mt-1">18</p>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card className="p-6 border-none shadow-sm bg-white">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-2 bg-blue-50 rounded-lg text-blue-600"><Clock className="w-5 h-5"/></div>
+              <h3 className="text-lg font-bold text-slate-900">Daily Responsibilities</h3>
+            </div>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-slate-300 mt-0.5 flex-shrink-0" />
+                <span className="text-slate-700">Monitor attendance synchronization (eSSL)</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-slate-300 mt-0.5 flex-shrink-0" />
+                <span className="text-slate-700">Review salary changes</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-slate-300 mt-0.5 flex-shrink-0" />
+                <span className="text-slate-700">Process reimbursements</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-slate-300 mt-0.5 flex-shrink-0" />
+                <span className="text-slate-700">Validate overtime approvals</span>
+              </li>
+            </ul>
+          </Card>
+
+          <Card className="p-6 border-none shadow-sm bg-white">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-2 bg-purple-50 rounded-lg text-purple-600"><Calendar className="w-5 h-5"/></div>
+              <h3 className="text-lg font-bold text-slate-900">Weekly Responsibilities</h3>
+            </div>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-slate-300 mt-0.5 flex-shrink-0" />
+                <span className="text-slate-700">Review pending payroll changes</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-slate-300 mt-0.5 flex-shrink-0" />
+                <span className="text-slate-700">Verify employee salary updates</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-slate-300 mt-0.5 flex-shrink-0" />
+                <span className="text-slate-700">Resolve payroll discrepancies</span>
+              </li>
+            </ul>
+          </Card>
+
+          <Card className="p-6 border-none shadow-sm bg-white">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600"><CheckSquare className="w-5 h-5"/></div>
+              <h3 className="text-lg font-bold text-slate-900">Monthly Responsibilities</h3>
+            </div>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-slate-300 mt-0.5 flex-shrink-0" />
+                <span className="text-slate-700 font-medium">Process payroll</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-slate-300 mt-0.5 flex-shrink-0" />
+                <span className="text-slate-700">Generate payslips</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-slate-300 mt-0.5 flex-shrink-0" />
+                <span className="text-slate-700">Submit payroll to Finance</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-slate-300 mt-0.5 flex-shrink-0" />
+                <span className="text-slate-700">Generate statutory reports</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-slate-300 mt-0.5 flex-shrink-0" />
+                <span className="text-slate-700 font-medium text-emerald-600">Close payroll cycle</span>
+              </li>
+            </ul>
           </Card>
         </div>
       </div>

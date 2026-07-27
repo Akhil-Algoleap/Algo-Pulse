@@ -18,6 +18,8 @@ import {
   Radio,
   Grid,
   ClipboardList,
+  Plane,
+  ShoppingCart,
   Banknote,
   Info,
   Layers,
@@ -47,7 +49,9 @@ import {
   User,
   CheckCircle2,
   Link,
-  Download
+  Download,
+  Wallet,
+  FileCheck
 } from 'lucide-react';
 import { cn, Button, Badge } from './UI';
 import { useAuth } from '../contexts/AuthContext';
@@ -174,29 +178,38 @@ export const Layout: React.FC = () => {
     if (role === 'Payroll Manager') {
       return [
         { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-        { to: '/salary-structure', icon: Calculator, label: 'Salary Structure' },
         { to: '/payroll-processing', icon: RefreshCw, label: 'Payroll Processing' },
-        { to: '/payslips', icon: FileText, label: 'Payslips' },
-        { to: '/tax', icon: Percent, label: 'Tax' },
-        { to: '/bonuses', icon: Gift, label: 'Bonuses' },
+        { to: '/salary-structure', icon: Calculator, label: 'Salary Structure' },
+        { to: '/employee-salary', icon: Wallet, label: 'Employee Salary' },
+        { to: '/attendance-leave', icon: Calendar, label: 'Attendance & Leave' },
+        { to: '/overtime', icon: Clock, label: 'Overtime' },
+        { to: '/bonuses', icon: Gift, label: 'Bonuses & Incentives' },
+        { to: '/loans', icon: CreditCard, label: 'Loans & Advances' },
         { to: '/reimbursements', icon: Receipt, label: 'Reimbursements' },
-        { to: '/salary-revision', icon: TrendingUp, label: 'Salary Revision' },
-        { to: '/loans', icon: CreditCard, label: 'Loans' },
+        { to: '/tax', icon: Percent, label: 'Tax Management' },
+        { to: '/compliance', icon: FileCheck, label: 'Statutory Compliance' },
+        { to: '/payslips', icon: FileText, label: 'Payslips' },
         { to: '/reports', icon: BarChart, label: 'Reports' },
-        { to: '/bank-export', icon: Download, label: 'Bank Export' },
+        { to: '/notifications', icon: Bell, label: 'Notifications' },
+        { to: '/settings', icon: Settings, label: 'Settings' }
       ];
     }
 
     if (role === 'Finance') {
       return [
         { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-        { to: '/expense-claims', icon: Receipt, label: 'Expense Claims' },
+        { to: '/payroll-approval', icon: CheckSquare, label: 'Payroll Approvals' },
+        { to: '/expense-management', icon: Receipt, label: 'Expense Management' },
         { to: '/travel-claims', icon: Plane, label: 'Travel Claims' },
-        { to: '/payroll-approval', icon: CheckSquare, label: 'Payroll Approval' },
-        { to: '/budget', icon: PieChart, label: 'Budget' },
-        { to: '/invoices', icon: FileText, label: 'Invoices' },
+        { to: '/purchase-requests', icon: FileText, label: 'Purchase Requests' },
         { to: '/vendor-payments', icon: CreditCard, label: 'Vendor Payments' },
-        { to: '/finance-reports', icon: BarChart, label: 'Finance Reports' },
+        { to: '/budget-management', icon: PieChart, label: 'Budget Management' },
+        { to: '/reimbursements', icon: Banknote, label: 'Reimbursements' },
+        { to: '/invoices', icon: FileText, label: 'Invoices' },
+        { to: '/finance-reports', icon: BarChart, label: 'Financial Reports' },
+        { to: '/audit', icon: History, label: 'Audit' },
+        { to: '/notifications', icon: Bell, label: 'Notifications' },
+        { to: '/settings', icon: Settings, label: 'Settings' },
       ];
     }
 
@@ -207,6 +220,7 @@ export const Layout: React.FC = () => {
         { to: '/employee-accounts', icon: UserCircle, label: 'Employee Accounts' },
         { to: '/software', icon: Box, label: 'Software' },
         { to: '/access-requests', icon: Key, label: 'Access Requests' },
+        { to: '/asset-receipts', icon: ShoppingCart, label: 'Asset Receipts' },
         { to: '/service-desk', icon: Headphones, label: 'Service Desk' },
         { to: '/repairs', icon: Wrench, label: 'Repairs' },
         { to: '/reports', icon: BarChart, label: 'Reports' },
@@ -249,6 +263,9 @@ export const Layout: React.FC = () => {
         { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
         { to: '/projects', icon: Briefcase, label: 'Projects' },
         { to: '/employees', icon: Users, label: 'My Team' },
+        { to: '/team-travel', label: 'Team Travel', icon: Plane },
+        { to: '/team-purchases', label: 'Team Purchases', icon: ShoppingCart },
+        { to: '/team-reimbursements', label: 'Team Reimbursements', icon: Banknote },
         { to: '/sprint-board', icon: Grid, label: 'Sprint Board' },
         { to: '/tasks', icon: CheckSquare, label: 'Tasks' },
         { to: '/resource-allocation', icon: PieChart, label: 'Resource Allocation' },
@@ -285,7 +302,9 @@ export const Layout: React.FC = () => {
         icon: Banknote, 
         label: 'Salary',
         subItems: [
-          { to: '/salary', label: 'Payslips' }
+          { to: '/salary', label: 'Payslips' },
+          { to: '/my-expenses', label: 'Expense Claims' },
+          { to: '/my-travel', label: 'Travel Claims' }
         ]
       },
       { 
@@ -304,7 +323,15 @@ export const Layout: React.FC = () => {
       },
       { to: '/documents', icon: FileText, label: 'Document Center' },
       { to: '/helpdesk', icon: Info, label: 'Helpdesk' },
-      { to: '/request-hub', icon: Layers, label: 'Request Hub' },
+      { 
+        icon: Layers, 
+        label: 'Request Hub',
+        subItems: [
+          { to: '/request-hub', label: 'Hub Overview' },
+          { to: '/my-purchases', label: 'Purchase Requests' },
+          { to: '/my-reimbursements', label: 'Reimbursements' }
+        ]
+      },
       { to: '/workflow-delegates', icon: GitBranch, label: 'Workflow Delegates' },
     ];
   };

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Card, Button, cn } from '../components/UI';
 import { Modal } from '../components/Modal';
-import { BarChart, Filter, Download, FileText, FileSpreadsheet, FileIcon, Settings, ChevronRight, CheckSquare, Calendar, Banknote, TrendingUp, Users, Laptop } from 'lucide-react';
+import { BarChart, Filter, Download, FileText, FileSpreadsheet, FileIcon, Settings, ChevronRight, CheckSquare, Calendar, Banknote, TrendingUp, Users, Laptop, Briefcase } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Reports: React.FC = () => {
+  const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState<'standard' | 'custom'>('standard');
   const [selectedReport, setSelectedReport] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
@@ -14,7 +16,24 @@ export const Reports: React.FC = () => {
   const [builderColumns, setBuilderColumns] = useState<string[]>([]);
   const [builderDateRange, setBuilderDateRange] = useState('Last 30 Days');
 
-  const categories = [
+  const pmCategories = [
+    {
+      title: 'Project Reports',
+      icon: <Briefcase className="w-5 h-5 text-blue-500" />,
+      reports: [
+        'Project Progress',
+        'Sprint Velocity',
+        'Burndown Chart',
+        'Team Utilization',
+        'Timesheet Summary',
+        'Resource Allocation',
+        'Task Completion',
+        'Defect Summary'
+      ]
+    }
+  ];
+
+  const adminCategories = [
     {
       title: 'Employee Reports',
       icon: <Users className="w-5 h-5 text-blue-500" />,
@@ -51,6 +70,8 @@ export const Reports: React.FC = () => {
       reports: ['Asset Inventory', 'Assets by Department', 'Repair Logs']
     }
   ];
+
+  const categories = profile?.role === 'Project Manager' ? pmCategories : adminCategories;
 
   const dataSourceOptions = {
     employees: ['Employee ID', 'Name', 'Department', 'Designation', 'Join Date', 'Status', 'Location'],

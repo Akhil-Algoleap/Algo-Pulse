@@ -13,6 +13,11 @@ import { Documents } from './pages/Documents';
 import { Settings } from './pages/Settings';
 import { PlaceholderPage } from './pages/PlaceholderPage';
 import { SprintBoard } from './pages/SprintBoard';
+import { Tasks } from './pages/Tasks';
+import { ResourceAllocation } from './pages/ResourceAllocation';
+import { Timesheets } from './pages/Timesheets';
+import { ProjectCalendar } from './pages/ProjectCalendar';
+import { ProjectRisks } from './pages/ProjectRisks';
 import { Login } from './pages/Login';
 import { Projects } from './pages/Projects';
 import { ProjectDetails } from './pages/ProjectDetails';
@@ -28,6 +33,29 @@ import { NotificationsConfig } from './pages/NotificationsConfig';
 import { Security } from './pages/Security';
 import { MasterData } from './pages/MasterData';
 import { IntegrationCenter } from './pages/IntegrationCenter';
+import { PayrollApproval } from './pages/PayrollApproval';
+import { ExpenseManagement } from './pages/ExpenseManagement';
+import { TravelClaims } from './pages/TravelClaims';
+import { PurchaseRequests } from './pages/PurchaseRequests';
+import { VendorPayments } from './pages/VendorPayments';
+import { BudgetManagement } from './pages/BudgetManagement';
+import { Reimbursements } from './pages/Reimbursements';
+import { Invoices } from './pages/Invoices';
+import { FinanceReports } from './pages/FinanceReports';
+import { PayrollProcessing } from './pages/PayrollProcessing';
+import { SalaryStructure } from './pages/SalaryStructure';
+import { EmployeeSalary } from './pages/EmployeeSalary';
+import { PayrollAttendance } from './pages/PayrollAttendance';
+import { PayrollOvertime } from './pages/PayrollOvertime';
+import { PayrollBonuses } from './pages/PayrollBonuses';
+import { PayrollLoans } from './pages/PayrollLoans';
+import { PayrollTax } from './pages/PayrollTax';
+import { PayrollCompliance } from './pages/PayrollCompliance';
+import { PayrollPayslips } from './pages/PayrollPayslips';
+import { PayrollReimbursements } from './pages/PayrollReimbursements';
+import { PayrollReports } from './pages/PayrollReports';
+import { Audit } from './pages/Audit';
+import { Notifications } from './pages/Notifications';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Loader } from 'lucide-react';
 
@@ -108,30 +136,38 @@ function App() {
             <Route path="integrations" element={<IntegrationCenter />} />
 
             {/* Payroll Manager Routes */}
-            <Route path="salary-structure" element={<PlaceholderPage title="Salary Structure" />} />
-            <Route path="payroll-processing" element={<PlaceholderPage title="Payroll Processing" />} />
-            <Route path="payslips" element={<PlaceholderPage title="Payslips" />} />
-            <Route path="tax" element={<PlaceholderPage title="Tax" />} />
-            <Route path="bonuses" element={<PlaceholderPage title="Bonuses" />} />
-            <Route path="reimbursements" element={<PlaceholderPage title="Reimbursements" />} />
-            <Route path="salary-revision" element={<PlaceholderPage title="Salary Revision" />} />
-            <Route path="loans" element={<PlaceholderPage title="Loans" />} />
-            <Route path="bank-export" element={<PlaceholderPage title="Bank Export" />} />
+            <Route path="payroll-processing" element={<PayrollProcessing />} />
+            <Route path="salary-structure" element={<SalaryStructure />} />
+            <Route path="employee-salary" element={<EmployeeSalary />} />
+            <Route path="attendance-leave" element={<PayrollAttendance />} />
+            <Route path="overtime" element={<PayrollOvertime />} />
+            <Route path="bonuses" element={<PayrollBonuses />} />
+            <Route path="loans" element={<PayrollLoans />} />
+            <Route path="reimbursements" element={<PayrollReimbursements />} />
+            <Route path="tax-management" element={<PayrollTax />} />
+            <Route path="statutory-compliance" element={<PayrollCompliance />} />
+            <Route path="payslips" element={<PayrollPayslips />} />
+            <Route path="reports" element={<PayrollReports />} />
 
             {/* Finance Routes */}
-            <Route path="expense-claims" element={<PlaceholderPage title="Expense Claims" />} />
-            <Route path="travel-claims" element={<PlaceholderPage title="Travel Claims" />} />
-            <Route path="payroll-approval" element={<PlaceholderPage title="Payroll Approval" />} />
-            <Route path="budget" element={<PlaceholderPage title="Budget" />} />
-            <Route path="invoices" element={<PlaceholderPage title="Invoices" />} />
-            <Route path="vendor-payments" element={<PlaceholderPage title="Vendor Payments" />} />
-            <Route path="finance-reports" element={<PlaceholderPage title="Finance Reports" />} />
+            <Route path="payroll-approval" element={<PayrollApproval />} />
+            <Route path="expense-management" element={<ExpenseManagement />} />
+            <Route path="travel-claims" element={<TravelClaims />} />
+            <Route path="purchase-requests" element={<PurchaseRequests />} />
+            <Route path="vendor-payments" element={<VendorPayments />} />
+            <Route path="budget-management" element={<BudgetManagement />} />
+            <Route path="reimbursements" element={<Reimbursements />} />
+            <Route path="invoices" element={<Invoices />} />
+            <Route path="finance-reports" element={<FinanceReports />} />
+            <Route path="audit" element={<Audit />} />
+            <Route path="notifications" element={<Notifications />} />
 
             {/* IT Admin Routes */}
-            <Route path="employee-accounts" element={<PlaceholderPage title="Employee Accounts" />} />
-            <Route path="software" element={<PlaceholderPage title="Software" />} />
-            <Route path="access-requests" element={<PlaceholderPage title="Access Requests" />} />
-            <Route path="service-desk" element={<PlaceholderPage title="Service Desk" />} />
+            <Route path="hardware" element={<PlaceholderPage title="Hardware Assets" />} />
+            <Route path="software" element={<PlaceholderPage title="Software Licenses" />} />
+            <Route path="network" element={<PlaceholderPage title="Network Status" />} />
+            <Route path="access" element={<PlaceholderPage title="Access Management" />} />
+            <Route path="asset-receipts" element={<PurchaseRequests />} />
             <Route path="repairs" element={<PlaceholderPage title="Repairs" />} />
             
             {/* HR Admin Specific Routes */}
@@ -139,15 +175,23 @@ function App() {
             <Route path="onboarding" element={<Onboarding />} />
             <Route path="training" element={<PlaceholderPage title="Training" />} />
             <Route path="offboarding" element={<PlaceholderPage title="Offboarding" />} />
-            <Route path="payroll" element={<PlaceholderPage title="Payroll Dashboard" />} />
+            <Route path="payslips" element={<PlaceholderPage title="Payslips" />} />
+            <Route path="my-expenses" element={<ExpenseManagement />} />
+            <Route path="my-travel" element={<TravelClaims />} />
+            <Route path="my-purchases" element={<PurchaseRequests />} />
+            <Route path="my-reimbursements" element={<Reimbursements />} />
             
             {/* Project Manager Routes */}
             <Route path="sprint-board" element={<SprintBoard />} />
-            <Route path="tasks" element={<PlaceholderPage title="Tasks" />} />
-            <Route path="resource-allocation" element={<PlaceholderPage title="Resource Allocation" />} />
-            <Route path="timesheets" element={<PlaceholderPage title="Timesheets" />} />
-            <Route path="project-calendar" element={<PlaceholderPage title="Project Calendar" />} />
-            <Route path="project-risks" element={<PlaceholderPage title="Project Risks" />} />
+            <Route path="tasks" element={<Tasks />} />
+            <Route path="team-travel" element={<TravelClaims />} />
+            <Route path="team-purchases" element={<PurchaseRequests />} />
+            <Route path="team-reimbursements" element={<Reimbursements />} />
+            <Route path="resource-allocation" element={<ResourceAllocation />} />
+            <Route path="timesheets" element={<Timesheets />} />
+            <Route path="project-calendar" element={<ProjectCalendar />} />
+            <Route path="project-risks" element={<ProjectRisks />} />
+            <Route path="notifications" element={<Notifications />} />
             
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
