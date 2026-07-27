@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  BarChart, 
   Download, 
-  FileText,
   Users,
   Briefcase,
   TrendingUp,

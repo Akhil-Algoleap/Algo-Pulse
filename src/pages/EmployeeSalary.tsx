@@ -6,6 +6,7 @@ import {
   TrendingUp,
   ArrowUpCircle,
   PlusCircle,
+  MinusCircle,
   X,
   Banknote,
   History,
@@ -267,7 +268,7 @@ export const EmployeeSalary: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {['June 2026', 'May 2026', 'April 2026', 'March 2026'].map((month, idx) => (
+                      {['June 2026', 'May 2026', 'April 2026', 'March 2026'].map((month) => (
                         <tr key={month} className="hover:bg-slate-50/50 transition-colors">
                           <td className="p-4 font-medium text-slate-900">{month}</td>
                           <td className="p-4 text-sm text-slate-700">{selectedEmployee.currency}{selectedEmployee.salary.toLocaleString()}</td>

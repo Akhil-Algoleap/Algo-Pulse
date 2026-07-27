@@ -147,7 +147,7 @@ export const SalaryStructure: React.FC = () => {
                 <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center">
                   <Calculator className="w-6 h-6 text-primary-600" />
                 </div>
-                <Badge variant="primary" className="bg-primary-50 text-primary-700">{template.assigned} Assigned</Badge>
+                <Badge variant="default">{template.assigned} Assigned</Badge>
               </div>
               <h3 className="font-bold text-slate-900 text-lg mb-1">{template.name}</h3>
               <p className="text-sm text-slate-500 mb-6">{template.components} configured components</p>

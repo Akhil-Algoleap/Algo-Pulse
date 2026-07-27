@@ -6,7 +6,7 @@ import { Card, Badge, cn, Button } from '../components/UI';
 import { 
   ArrowLeft, Users, Flag, FileText, AlertTriangle, 
   IndianRupee, Calendar, CheckCircle, Clock3, AlertCircle,
-  Edit, XCircle, Archive, History, BarChart2, CheckSquare
+  Edit, XCircle, Archive, History, CheckSquare
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 

@@ -46,9 +46,9 @@ export const PayrollApproval: React.FC = () => {
       case 'Approved':
         return <Badge variant="success">Approved</Badge>;
       case 'Rejected':
-        return <Badge variant="error">Rejected</Badge>;
+        return <Badge variant="danger">Rejected</Badge>;
       case 'Released':
-        return <Badge variant="primary">Salary Released</Badge>;
+        return <Badge variant="default">Salary Released</Badge>;
       default:
         return <Badge variant="default">{status}</Badge>;
     }

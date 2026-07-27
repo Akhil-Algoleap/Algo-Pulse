@@ -155,7 +155,7 @@ export const PayrollLoans: React.FC = () => {
                   <td className="p-4 text-sm text-slate-600 text-center">{l.nextEmiDate}</td>
                   <td className="p-4 text-center">
                     <Badge variant={
-                      l.status === 'Active' ? 'primary' :
+                      l.status === 'Active' ? 'default' :
                       l.status === 'Settled' ? 'success' : 'warning'
                     } className="text-xs">
                       {l.status}

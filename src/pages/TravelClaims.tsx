@@ -7,7 +7,6 @@ import {
   Check, 
   X, 
   FileText,
-  Calendar,
   DollarSign,
   Globe,
   MapPin,
@@ -95,7 +94,7 @@ export const TravelClaims: React.FC = () => {
     
     if (isFinance) return matchesSearch;
     if (isManager) return matchesSearch; // In real app, filter by reporting team
-    return matchesSearch && c.employeeName === (profile?.employeeName || 'Akhil');
+    return matchesSearch && c.employeeName === (profile?.employee_name || 'Akhil');
   });
 
   // Calculate KPIs
@@ -117,7 +116,7 @@ export const TravelClaims: React.FC = () => {
       case 'Payment Released':
         return <Badge variant="success">Payment Released</Badge>;
       case 'Rejected':
-        return <Badge variant="error">Rejected</Badge>;
+        return <Badge variant="danger">Rejected</Badge>;
     }
   };
 
@@ -127,7 +126,7 @@ export const TravelClaims: React.FC = () => {
     
     const claim: TravelClaim = {
       id: Math.random().toString(),
-      employeeName: profile?.employeeName || 'Akhil',
+      employeeName: profile?.employee_name || 'Akhil',
       type: newClaim.type as 'Domestic' | 'International',
       destination: newClaim.destination,
       amount: parseFloat(newClaim.amount),
@@ -139,7 +138,7 @@ export const TravelClaims: React.FC = () => {
     
     const updated = [claim, ...claims];
     setClaims(updated);
-    globalTravelClaims = updated;
+    globalTravelClaims = updated as TravelClaim[];
     
     setIsSubmitModalOpen(false);
     setNewClaim({ type: 'Domestic', destination: '', amount: '', date: '', purpose: '' });
@@ -173,8 +172,8 @@ export const TravelClaims: React.FC = () => {
       return c;
     });
     
-    setClaims(updated);
-    globalTravelClaims = updated;
+    setClaims(updated as TravelClaim[]);
+    globalTravelClaims = updated as TravelClaim[];
     
     setIsActionModalOpen(false);
     toast.success(`Claim ${actionType.toLowerCase()}d successfully`);

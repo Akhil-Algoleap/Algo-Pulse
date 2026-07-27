@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { 
   FileText, 
   Search, 
-  Filter, 
   Plus, 
   Download,
   ArrowUpRight,
@@ -61,7 +60,7 @@ export const Invoices: React.FC = () => {
     switch (status) {
       case 'Pending': return <Badge variant="warning" className="bg-amber-100 text-amber-700"><Clock className="w-3 h-3 inline mr-1" />Pending</Badge>;
       case 'Paid': return <Badge variant="success"><CheckCircle2 className="w-3 h-3 inline mr-1" />Paid</Badge>;
-      case 'Overdue': return <Badge variant="error" className="bg-rose-100 text-rose-700">Overdue</Badge>;
+      case 'Overdue': return <Badge variant="danger" className="bg-rose-100 text-rose-700">Overdue</Badge>;
     }
   };
 

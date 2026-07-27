@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { 
   History, 
   Search, 
-  Filter, 
   User, 
   Calendar,
   Building2,

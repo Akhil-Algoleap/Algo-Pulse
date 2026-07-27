@@ -18,7 +18,6 @@ import {
   Radio,
   Grid,
   ClipboardList,
-  Plane,
   ShoppingCart,
   Banknote,
   Info,
@@ -38,7 +37,6 @@ import {
   Gift,
   Receipt,
   CreditCard,
-  Plane,
   PieChart,
   Box,
   Key,
@@ -49,9 +47,9 @@ import {
   User,
   CheckCircle2,
   Link,
-  Download,
   Wallet,
-  FileCheck
+  FileCheck,
+  Plane
 } from 'lucide-react';
 import { cn, Button, Badge } from './UI';
 import { useAuth } from '../contexts/AuthContext';

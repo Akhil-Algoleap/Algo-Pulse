@@ -127,7 +127,7 @@ export const PayrollProcessing: React.FC = () => {
           <div>
             <p className="text-sm font-bold text-slate-400 uppercase mb-1">Status</p>
             <Badge 
-              variant={payrollStatus === 'Submitted' ? 'success' : payrollStatus === 'Locked' ? 'warning' : 'primary'}
+              variant={payrollStatus === 'Submitted' ? 'success' : payrollStatus === 'Locked' ? 'warning' : 'default'}
               className="text-sm px-3 py-1 mt-1"
             >
               {payrollStatus}
@@ -226,7 +226,7 @@ export const PayrollProcessing: React.FC = () => {
                   <td className="p-4 text-center">
                     <Badge variant={
                       emp.status === 'Calculated' ? 'success' :
-                      emp.status === 'Locked' ? 'primary' :
+                      emp.status === 'Locked' ? 'default' :
                       emp.status === 'Pending' ? 'warning' : 'danger'
                     } className="text-xs">
                       {emp.status}

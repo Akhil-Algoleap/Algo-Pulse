@@ -11,12 +11,14 @@ import {
   ToggleRight,
   Save,
   CheckSquare,
-  Bell
+  Bell,
+  FileText,
+  CreditCard
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 
-type Tab = 'general' | 'email' | 'sms' | 'branding' | 'numbering' | 'backup' | 'storage' | 'features' | 'projectConfig' | 'taskSettings' | 'notificationPrefs' | 'financeConfig' | 'financePolicies' | 'financeApprovals' | 'financeBanking' | 'payrollCycle' | 'complianceConfig' | 'overtimeRules';
+type Tab = 'general' | 'email' | 'sms' | 'branding' | 'numbering' | 'backup' | 'storage' | 'features' | 'projectConfig' | 'taskSettings' | 'notificationPrefs' | 'financeConfig' | 'financePolicies' | 'financeApprovals' | 'financeBanking' | 'payrollCycle' | 'complianceConfig' | 'overtimeRules' | 'salaryComponents' | 'taxSlabs' | 'bonusRules';
 
 const ADMIN_TABS: { id: Tab; label: string; icon: any }[] = [
   { id: 'general', label: 'General Settings', icon: SettingsIcon },
@@ -84,9 +86,12 @@ export const Settings: React.FC = () => {
   const [financeBanking, setFinanceBanking] = useState({ paymentMethods: 'Bank Transfer, Stripe, PayPal', bankAccount: 'Chase Business ****8812' });
 
   // Mock State for Payroll Settings
-  const [payrollCycle, setPayrollCycle] = useState({ cutoffDay: '25', payDay: '1', defaultWorkingHours: '8' });
-  const [complianceConfig, setComplianceConfig] = useState({ pfPercentage: '12', esiPercentage: '1.75', taxRegime: 'New' });
-  const [overtimeRules, setOvertimeRules] = useState({ otMultiplier: '1.5', maxOtHours: '20', deductLop: true });
+  const [payrollCycle, setPayrollCycle] = useState({
+    cutoffDay: '25',
+    payDay: '1',
+    defaultWorkingHours: '8'
+  });
+    const [overtimeRules, setOvertimeRules] = useState({ otMultiplier: '1.5', maxOtHours: '20', deductLop: true });
 
   const handleSave = () => {
     setIsSaving(true);
@@ -725,7 +730,6 @@ export const Settings: React.FC = () => {
                     </div>
                   </div>
                 )}
-              </div>
               </div>
             </Card>
           )}

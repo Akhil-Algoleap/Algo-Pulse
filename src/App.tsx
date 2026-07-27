@@ -11,7 +11,7 @@ import { Attendance } from './pages/Attendance';
 import { Performance } from './pages/Performance';
 import { Documents } from './pages/Documents';
 import { Settings } from './pages/Settings';
-import { PlaceholderPage } from './pages/PlaceholderPage';
+
 import { SprintBoard } from './pages/SprintBoard';
 import { Tasks } from './pages/Tasks';
 import { ResourceAllocation } from './pages/ResourceAllocation';

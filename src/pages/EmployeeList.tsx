@@ -284,7 +284,7 @@ export const EmployeeList: React.FC = () => {
             <Download className="w-4 h-4" />
             Template
           </Button>
-          <Button variant="secondary" className="flex items-center gap-2" onClick={() => fileInputRef.current?.click()} disabled={isImporting}>
+          <Button variant="primary" className="flex items-center gap-2" onClick={() => fileInputRef.current?.click()} disabled={isImporting}>
             <Upload className="w-4 h-4" />
             {isImporting ? 'Importing...' : 'Bulk Import'}
           </Button>

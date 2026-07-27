@@ -13,7 +13,7 @@ import { toast } from 'react-hot-toast';
 import { Button, Select, Badge, Card, Input, cn } from '../components/UI';
 import { Modal } from '../components/Modal';
 import { apiService } from '../services/api';
-import { Employee, Project } from '../types';
+import { Employee } from '../types';
 
 interface Allocation {
   id: string;

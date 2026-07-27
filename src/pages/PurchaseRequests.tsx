@@ -107,17 +107,17 @@ export const PurchaseRequests: React.FC = () => {
     if (isFinance) return matchesSearch;
     if (isManager) return matchesSearch; // In real app, filter by reporting team
     if (isIT) return matchesSearch && (r.status === 'IT Receiving' || r.status === 'Completed');
-    return matchesSearch && r.requestor === (profile?.employeeName || 'Akhil');
+    return matchesSearch && r.requestor === (profile?.employee_name || 'Akhil');
   });
 
   const getStatusBadge = (status: PurchaseRequest['status']) => {
     switch (status) {
       case 'Manager Pending': return <Badge variant="warning">Manager Pending</Badge>;
       case 'Finance Pending': return <Badge variant="warning" className="bg-orange-100 text-orange-700 border-orange-200">Finance Pending</Badge>;
-      case 'Purchasing': return <Badge variant="primary" className="bg-blue-100 text-blue-700">Procurement</Badge>;
+      case 'Purchasing': return <Badge variant="default" className="bg-blue-100 text-blue-700">Procurement</Badge>;
       case 'IT Receiving': return <Badge variant="warning" className="bg-purple-100 text-purple-700">IT Receiving</Badge>;
       case 'Completed': return <Badge variant="success">Completed</Badge>;
-      case 'Rejected': return <Badge variant="error">Rejected</Badge>;
+      case 'Rejected': return <Badge variant="danger">Rejected</Badge>;
     }
   };
 
@@ -127,7 +127,7 @@ export const PurchaseRequests: React.FC = () => {
     
     const req: PurchaseRequest = {
       id: Math.random().toString(),
-      requestor: profile?.employeeName || 'Akhil',
+      requestor: profile?.employee_name || 'Akhil',
       department: 'Engineering', // Mock department
       item: newReq.item,
       category: newReq.category as any,
@@ -139,8 +139,8 @@ export const PurchaseRequests: React.FC = () => {
     };
     
     const updated = [req, ...requests];
-    setRequests(updated);
-    globalPurchaseRequests = updated;
+    setRequests(updated as PurchaseRequest[]);
+    globalPurchaseRequests = updated as PurchaseRequest[];
     
     setIsSubmitModalOpen(false);
     setNewReq({ item: '', category: 'Hardware', quantity: 1, amount: '', justification: '' });
@@ -177,8 +177,8 @@ export const PurchaseRequests: React.FC = () => {
       return r;
     });
     
-    setRequests(updated);
-    globalPurchaseRequests = updated;
+    setRequests(updated as PurchaseRequest[]);
+    globalPurchaseRequests = updated as PurchaseRequest[];
     
     setIsActionModalOpen(false);
     toast.success(`Request updated successfully`);

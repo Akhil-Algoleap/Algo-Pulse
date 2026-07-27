@@ -160,7 +160,7 @@ export const PayrollPayslips: React.FC = () => {
                   <td className="p-4 text-center">
                     <Badge variant={
                       p.status === 'Pending' ? 'warning' :
-                      p.status === 'Generated' ? 'primary' : 'success'
+                      p.status === 'Generated' ? 'default' : 'success'
                     } className="text-xs">
                       {p.status}
                     </Badge>

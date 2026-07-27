@@ -135,7 +135,7 @@ export const PayrollAttendance: React.FC = () => {
                   <td className="p-4 text-sm text-slate-600 text-center">{emp.halfDays > 0 ? emp.halfDays : '-'}</td>
                   <td className="p-4 text-sm font-bold text-amber-600 text-center">{emp.lateDeductions > 0 ? emp.lateDeductions : '-'}</td>
                   <td className="p-4 text-center">
-                    <Badge variant={emp.holidayMultiplier > 1 ? 'primary' : 'secondary'} className="text-xs">
+                    <Badge variant={emp.holidayMultiplier > 1 ? 'default' : 'default'} className="text-xs">
                       {emp.holidayMultiplier}x
                     </Badge>
                   </td>

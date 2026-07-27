@@ -71,7 +71,7 @@ export const Reimbursements: React.FC = () => {
                           r.category.toLowerCase().includes(searchTerm.toLowerCase());
     
     if (isFinance || isManager) return matchesSearch;
-    return matchesSearch && r.employeeName === (profile?.employeeName || 'Akhil');
+    return matchesSearch && r.employeeName === (profile?.employee_name || 'Akhil');
   });
 
   const getStatusBadge = (status: Reimbursement['status']) => {
@@ -79,7 +79,7 @@ export const Reimbursements: React.FC = () => {
       case 'Manager Pending': return <Badge variant="warning">Manager Pending</Badge>;
       case 'Finance Pending': return <Badge variant="warning" className="bg-orange-100 text-orange-700">Finance Pending</Badge>;
       case 'Payment Released': return <Badge variant="success">Released</Badge>;
-      case 'Rejected': return <Badge variant="error">Rejected</Badge>;
+      case 'Rejected': return <Badge variant="danger">Rejected</Badge>;
     }
   };
 
@@ -89,7 +89,7 @@ export const Reimbursements: React.FC = () => {
     
     const reimb: Reimbursement = {
       id: Math.random().toString(),
-      employeeName: profile?.employeeName || 'Akhil',
+      employeeName: profile?.employee_name || 'Akhil',
       category: newReimb.category as any,
       amount: parseFloat(newReimb.amount),
       date: newReimb.date,
@@ -99,7 +99,7 @@ export const Reimbursements: React.FC = () => {
     
     const updated = [reimb, ...reimbursements];
     setReimbursements(updated);
-    globalReimbursements = updated;
+    globalReimbursements = updated as Reimbursement[];
     
     setIsSubmitModalOpen(false);
     setNewReimb({ category: 'Internet', amount: '', date: '', description: '' });
@@ -131,8 +131,8 @@ export const Reimbursements: React.FC = () => {
       return r;
     });
     
-    setReimbursements(updated);
-    globalReimbursements = updated;
+    setReimbursements(updated as Reimbursement[]);
+    globalReimbursements = updated as Reimbursement[];
     
     setIsActionModalOpen(false);
     toast.success(`Request ${actionType.toLowerCase()}d successfully`);

@@ -50,7 +50,7 @@ export const VendorPayments: React.FC = () => {
       case 'Pending Approval':
         return <Badge variant="warning" className="bg-orange-100 text-orange-700 border-orange-200"><AlertCircle className="w-3 h-3 mr-1 inline" /> Pending Approval</Badge>;
       case 'Scheduled':
-        return <Badge variant="primary" className="bg-blue-100 text-blue-700"><Clock className="w-3 h-3 mr-1 inline" /> Scheduled</Badge>;
+        return <Badge variant="default" className="bg-blue-100 text-blue-700"><Clock className="w-3 h-3 mr-1 inline" /> Scheduled</Badge>;
       case 'Paid':
         return <Badge variant="success"><CheckCircle2 className="w-3 h-3 mr-1 inline" /> Paid</Badge>;
     }
@@ -81,7 +81,7 @@ export const VendorPayments: React.FC = () => {
         if (idx !== -1) updated[idx].status = 'Scheduled'; // Approving schedules it immediately for demo
     }
 
-    setPayments(updated);
+    setPayments(updated as VendorPayment[]);
     setIsActionModalOpen(false);
     toast.success(`Payment ${actionType.toLowerCase()}d successfully`);
   };

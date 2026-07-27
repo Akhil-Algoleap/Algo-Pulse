@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Card, Badge, Button, cn } from '../components/UI';
-import { MoreHorizontal, Plus, Clock, MessageSquare, Paperclip, CheckCircle2 } from 'lucide-react';
+import { Badge, cn } from '../components/UI';
+import { MoreHorizontal, Plus, CheckCircle2 } from 'lucide-react';
 
 type TaskStatus = 'Backlog' | 'To Do' | 'In Progress' | 'Code Review' | 'Testing' | 'Done';
 

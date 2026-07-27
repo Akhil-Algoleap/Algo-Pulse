@@ -4,7 +4,6 @@ import {
   Filter,
   FileText,
   Calculator,
-  RefreshCw,
   Percent,
   AlertTriangle,
   Download,
@@ -165,7 +164,7 @@ export const PayrollTax: React.FC = () => {
                   <td className="p-4 text-center">
                     <Badge variant={
                       t.status === 'Verified' ? 'success' :
-                      t.status === 'No Declarations' ? 'secondary' : 'warning'
+                      t.status === 'No Declarations' ? 'default' : 'warning'
                     } className="text-xs">
                       {t.status}
                     </Badge>
@@ -203,7 +202,7 @@ export const PayrollTax: React.FC = () => {
                   <p className="text-sm text-slate-500">{selectedEmp.id}</p>
                </div>
                <div className="ml-auto flex items-center gap-2">
-                  <Badge variant="primary">{selectedEmp.regime} Regime</Badge>
+                  <Badge variant="default">{selectedEmp.regime} Regime</Badge>
                </div>
             </div>
 

@@ -1,5 +1,5 @@
 export type EmployeeStatus = 'Active' | 'Inactive' | 'Resigned';
-export type UserRole = 'Admin' | 'Manager' | 'Reporting Manager' | 'Employee' | 'Super Admin' | 'Payroll Manager' | 'Finance' | 'IT Admin';
+export type UserRole = 'Admin' | 'Manager' | 'Reporting Manager' | 'Employee' | 'Super Admin' | 'Payroll Manager' | 'Finance' | 'IT Admin' | 'Project Manager';
 
 export interface Department {
   id: string;

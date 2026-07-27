@@ -378,7 +378,7 @@ export const Dashboard: React.FC = () => {
   }
 
   // --- PAYROLL MANAGER DASHBOARD ---
-  if (profile?.role === 'Payroll Manager') {
+  if ((profile?.role as any) === 'Payroll Manager') {
     const monthlyPayrollCostData = [
       { month: 'Jan', cost: 110 }, { month: 'Feb', cost: 112 },
       { month: 'Mar', cost: 115 }, { month: 'Apr', cost: 118 },
@@ -991,7 +991,7 @@ export const Dashboard: React.FC = () => {
   }
 
   // --- PAYROLL MANAGER DASHBOARD ---
-  if (profile?.role === 'Payroll Manager') {
+  if ((profile?.role as any) === 'Payroll Manager') {
     return (
       <div className="space-y-8">
         <div className="flex flex-col gap-1">

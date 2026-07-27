@@ -9,7 +9,7 @@ import {
   Calendar as CalendarIcon
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { Button, Select, Badge, Card, Input, cn } from '../components/UI';
+import { Button, Select, Badge, Card, Input } from '../components/UI';
 import { Modal } from '../components/Modal';
 import { apiService } from '../services/api';
 import { Employee, ProjectTask, TaskStatus } from '../types';
@@ -178,7 +178,7 @@ export const Tasks: React.FC = () => {
   const getStatusColor = (status: TaskStatus) => {
     switch (status) {
       case 'To Do': return 'default';
-      case 'In Progress': return 'primary';
+      case 'In Progress': return 'default';
       case 'Blocked': return 'danger';
       case 'Testing': return 'warning';
       case 'Completed': return 'success';

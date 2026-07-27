@@ -61,7 +61,7 @@ export const ExpenseManagement: React.FC = () => {
                           e.category.toLowerCase().includes(searchTerm.toLowerCase());
     
     // If not Finance, only show their own (Mocking 'Akhil' as current user for demo if not finance)
-    const isOwner = isFinance ? true : e.employeeName === (profile?.employeeName || 'Akhil');
+    const isOwner = isFinance ? true : e.employeeName === (profile?.employee_name || 'Akhil');
     return matchesSearch && isOwner;
   });
 
@@ -72,7 +72,7 @@ export const ExpenseManagement: React.FC = () => {
       case 'Approved':
         return <Badge variant="success">Approved</Badge>;
       case 'Rejected':
-        return <Badge variant="error">Rejected</Badge>;
+        return <Badge variant="danger">Rejected</Badge>;
       case 'Needs Info':
         return <Badge variant="default" className="bg-blue-100 text-blue-700 border-blue-200">Needs Info</Badge>;
     }
@@ -84,7 +84,7 @@ export const ExpenseManagement: React.FC = () => {
     
     const expense: Expense = {
       id: Math.random().toString(),
-      employeeName: profile?.employeeName || 'Akhil',
+      employeeName: profile?.employee_name || 'Akhil',
       category: newExpense.category,
       amount: parseFloat(newExpense.amount),
       date: newExpense.date,
@@ -93,7 +93,7 @@ export const ExpenseManagement: React.FC = () => {
     };
     
     const updated = [expense, ...expenses];
-    setExpenses(updated);
+    setExpenses(updated as any);
     globalExpenses = updated;
     
     setIsSubmitModalOpen(false);
@@ -118,8 +118,8 @@ export const ExpenseManagement: React.FC = () => {
       return e;
     });
     
-    setExpenses(updated);
-    globalExpenses = updated;
+    setExpenses(updated as any);
+    globalExpenses = updated as any;
     
     setIsActionModalOpen(false);
     toast.success(`Expense ${actionType.toLowerCase()} successfully`);

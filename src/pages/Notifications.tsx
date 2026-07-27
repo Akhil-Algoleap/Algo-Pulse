@@ -5,12 +5,9 @@ import {
   Clock, 
   AlertCircle, 
   Check, 
-  Trash2,
-  FileText,
-  CreditCard,
-  PieChart
+  Trash2
 } from 'lucide-react';
-import { Card, Button, Badge } from '../components/UI';
+import { Card, Button } from '../components/UI';
 import { useAuth } from '../contexts/AuthContext';
 
 type Notification = {

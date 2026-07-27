@@ -73,7 +73,7 @@ export const BudgetManagement: React.FC = () => {
         return { ...b, totalBudget: b.totalBudget + Number(increaseAmount) };
       }
       return b;
-    });
+    }));
     
     setIsIncreaseModalOpen(false);
     setIncreaseAmount('');
@@ -86,7 +86,7 @@ export const BudgetManagement: React.FC = () => {
         return { ...b, status: currentStatus === 'Active' ? 'Frozen' : 'Active' };
       }
       return b;
-    });
+    }));
     toast.success(`Budget ${currentStatus === 'Active' ? 'frozen' : 'unfrozen'} successfully`);
   };
 

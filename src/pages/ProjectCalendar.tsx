@@ -10,7 +10,7 @@ import {
   Clock,
   Briefcase
 } from 'lucide-react';
-import { Button, Card, Badge, cn } from '../components/UI';
+import { Button, Card, cn } from '../components/UI';
 
 interface Event {
   id: string;

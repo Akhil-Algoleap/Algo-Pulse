@@ -9,7 +9,7 @@ import {
   Edit2,
   CalendarDays
 } from 'lucide-react';
-import { Card, Button, Badge, cn } from '../components/UI';
+import { Card, Button, Badge } from '../components/UI';
 import { Modal } from '../components/Modal';
 import toast from 'react-hot-toast';
 
@@ -161,7 +161,7 @@ export const PayrollBonuses: React.FC = () => {
                   <td className="p-4 text-center">
                     <Badge variant={
                       b.status === 'Approved' ? 'success' : 
-                      b.status === 'Scheduled' ? 'primary' : 'warning'
+                      b.status === 'Scheduled' ? 'default' : 'warning'
                     } className="text-xs">
                       {b.status}
                     </Badge>
