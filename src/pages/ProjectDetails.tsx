@@ -5,12 +5,13 @@ import { Project } from '../types';
 import { Card, Badge, cn, Button } from '../components/UI';
 import { 
   ArrowLeft, Users, Flag, FileText, AlertTriangle, 
-  IndianRupee, Calendar, CheckCircle, Clock3, AlertCircle 
+  IndianRupee, Calendar, CheckCircle, Clock3, AlertCircle,
+  Edit, XCircle, Archive, History, BarChart2, CheckSquare
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-type Tab = 'Overview' | 'Team' | 'Sprints' | 'Milestones' | 'Documents' | 'Timesheets' | 'Risks';
-const TABS: Tab[] = ['Overview', 'Team', 'Sprints', 'Milestones', 'Documents', 'Timesheets', 'Risks'];
+type Tab = 'Overview' | 'Team Members' | 'Tasks' | 'Milestones' | 'Documents' | 'Risks' | 'Budget' | 'Timeline' | 'Activity Log';
+const TABS: Tab[] = ['Overview', 'Team Members', 'Tasks', 'Milestones', 'Documents', 'Risks', 'Budget', 'Timeline', 'Activity Log'];
 
 export const ProjectDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -45,21 +46,28 @@ export const ProjectDetails = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4 border-b border-slate-200 pb-4">
-        <button 
-          onClick={() => navigate('/projects')}
-          className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </button>
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-slate-900">{project.name}</h1>
-            <Badge variant={project.status === 'Active' ? 'success' : 'default'}>
-              {project.status}
-            </Badge>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => navigate('/projects')}
+            className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-slate-900">{project.name}</h1>
+              <Badge variant={project.status === 'Active' ? 'success' : 'default'}>
+                {project.status}
+              </Badge>
+            </div>
+            <p className="text-slate-500 text-sm mt-1">Project ID: {project.id}</p>
           </div>
-          <p className="text-slate-500 text-sm mt-1">Project ID: {project.id}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" className="gap-2"><Edit className="w-4 h-4"/> Edit Project</Button>
+          <Button size="sm" variant="outline" className="gap-2 text-amber-600 border-amber-200 hover:bg-amber-50"><XCircle className="w-4 h-4"/> Close Project</Button>
+          <Button size="sm" variant="outline" className="gap-2 text-rose-600 border-rose-200 hover:bg-rose-50"><Archive className="w-4 h-4"/> Archive Project</Button>
         </div>
       </div>
 
@@ -116,7 +124,7 @@ export const ProjectDetails = () => {
           </div>
         )}
 
-        {activeTab === 'Team' && (
+        {activeTab === 'Team Members' && (
           <Card className="p-0 overflow-hidden">
             <table className="w-full text-sm text-left">
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
@@ -147,27 +155,12 @@ export const ProjectDetails = () => {
           </Card>
         )}
 
-        {activeTab === 'Sprints' && (
-          <div className="space-y-4">
-            {project.sprints?.map(sprint => (
-              <Card key={sprint.id} className="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-l-4 border-l-primary-500">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                    {sprint.name}
-                    <Badge variant={sprint.status === 'Completed' ? 'success' : sprint.status === 'Active' ? 'warning' : 'default'}>
-                      {sprint.status}
-                    </Badge>
-                  </h3>
-                  <div className="flex items-center gap-4 mt-2 text-sm text-slate-500">
-                    <span className="flex items-center gap-1"><Calendar className="w-4 h-4"/> {sprint.start_date} to {sprint.end_date}</span>
-                    <span className="flex items-center gap-1"><CheckCircle className="w-4 h-4"/> {sprint.tasks_count} Tasks</span>
-                  </div>
-                </div>
-                <Button variant="outline" size="sm">View Board</Button>
-              </Card>
-            ))}
-            {!project.sprints?.length && <div className="p-8 text-center text-slate-500 bg-white rounded-xl border border-dashed">No sprints planned</div>}
-          </div>
+        {activeTab === 'Tasks' && (
+          <Card className="p-8 text-center text-slate-500 flex flex-col items-center justify-center min-h-[200px]">
+            <CheckSquare className="w-12 h-12 text-slate-300 mb-4" />
+            <h3 className="text-lg font-bold text-slate-700">Tasks</h3>
+            <p className="mt-2">View and manage tasks for this project.</p>
+          </Card>
         )}
 
         {activeTab === 'Milestones' && (
@@ -220,29 +213,11 @@ export const ProjectDetails = () => {
           </Card>
         )}
 
-        {activeTab === 'Timesheets' && (
-          <Card className="p-0 overflow-hidden">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
-                <tr>
-                  <th className="px-6 py-4 font-semibold">Date</th>
-                  <th className="px-6 py-4 font-semibold">Employee</th>
-                  <th className="px-6 py-4 font-semibold">Task/Description</th>
-                  <th className="px-6 py-4 font-semibold text-right">Hours Logged</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {project.timesheets?.map(ts => (
-                  <tr key={ts.id} className="hover:bg-slate-50/50">
-                    <td className="px-6 py-4 text-slate-500">{ts.date}</td>
-                    <td className="px-6 py-4 font-medium">{ts.employee_id}</td>
-                    <td className="px-6 py-4">{ts.task}</td>
-                    <td className="px-6 py-4 text-right font-bold text-slate-700">{ts.hours}h</td>
-                  </tr>
-                ))}
-                {!project.timesheets?.length && <tr><td colSpan={4} className="p-8 text-center text-slate-500">No timesheets logged</td></tr>}
-              </tbody>
-            </table>
+        {activeTab === 'Budget' && (
+          <Card className="p-8 text-center text-slate-500 flex flex-col items-center justify-center min-h-[200px]">
+            <IndianRupee className="w-12 h-12 text-slate-300 mb-4" />
+            <h3 className="text-lg font-bold text-slate-700">Budget Details</h3>
+            <p className="mt-2">Track expenses, budget allocation, and financial health.</p>
           </Card>
         )}
 
@@ -281,6 +256,21 @@ export const ProjectDetails = () => {
                 {!project.risks?.length && <tr><td colSpan={3} className="p-8 text-center text-slate-500">No active risks</td></tr>}
               </tbody>
             </table>
+          </Card>
+        )}
+        {activeTab === 'Timeline' && (
+          <Card className="p-8 text-center text-slate-500 flex flex-col items-center justify-center min-h-[200px]">
+            <Calendar className="w-12 h-12 text-slate-300 mb-4" />
+            <h3 className="text-lg font-bold text-slate-700">Project Timeline</h3>
+            <p className="mt-2">Gantt chart and schedule overview.</p>
+          </Card>
+        )}
+
+        {activeTab === 'Activity Log' && (
+          <Card className="p-8 text-center text-slate-500 flex flex-col items-center justify-center min-h-[200px]">
+            <History className="w-12 h-12 text-slate-300 mb-4" />
+            <h3 className="text-lg font-bold text-slate-700">Activity Log</h3>
+            <p className="mt-2">Audit trail and recent project activities.</p>
           </Card>
         )}
       </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   ArrowLeft,
   User,
@@ -21,18 +22,7 @@ import { Card, Badge, Button, cn } from '../components/UI';
 import { apiService } from '../services/api';
 import { Employee } from '../types';
 
-type TabId = 
-  | 'overview' 
-  | 'personal' 
-  | 'employment' 
-  | 'attendance' 
-  | 'leave' 
-  | 'payroll' 
-  | 'performance' 
-  | 'assets' 
-  | 'documents' 
-  | 'training' 
-  | 'timeline';
+type TabId = string;
 
 interface TabConfig {
   id: TabId;
@@ -54,12 +44,25 @@ const TABS: TabConfig[] = [
   { id: 'timeline', label: 'Timeline', icon: History },
 ];
 
+const PM_TABS: TabConfig[] = [
+  { id: 'assigned_projects', label: 'Assigned Projects', icon: Briefcase },
+  { id: 'current_sprint', label: 'Current Sprint', icon: History },
+  { id: 'task_progress', label: 'Task Progress', icon: TrendingUp },
+  { id: 'timesheets', label: 'Timesheets', icon: Clock },
+  { id: 'attendance', label: 'Attendance (View)', icon: Clock },
+  { id: 'leave', label: 'Leave Calendar', icon: Calendar },
+  { id: 'skills', label: 'Skills', icon: GraduationCap },
+  { id: 'performance_summary', label: 'Performance Summary', icon: TrendingUp },
+];
+
 export const EmployeeProfile: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<TabId>('overview');
+  const { profile } = useAuth();
+  const [activeTab, setActiveTab] = useState<TabId>(profile?.role === 'Project Manager' ? 'assigned_projects' : 'overview');
+  const currentTabs = profile?.role === 'Project Manager' ? PM_TABS : TABS;
 
   useEffect(() => {
     const fetchEmployee = async () => {
@@ -500,6 +503,54 @@ export const EmployeeProfile: React.FC = () => {
           </Card>
         );
 
+      case 'assigned_projects':
+        return (
+          <Card className="border-none shadow-sm p-8 text-center text-slate-500">
+             <Briefcase className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+             <h3 className="text-lg font-bold text-slate-700">Assigned Projects</h3>
+             <p className="mt-2">Projects this employee is actively allocated to.</p>
+          </Card>
+        );
+      case 'current_sprint':
+        return (
+          <Card className="border-none shadow-sm p-8 text-center text-slate-500">
+             <History className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+             <h3 className="text-lg font-bold text-slate-700">Current Sprint</h3>
+             <p className="mt-2">Active tasks and sprint commitments.</p>
+          </Card>
+        );
+      case 'task_progress':
+        return (
+          <Card className="border-none shadow-sm p-8 text-center text-slate-500">
+             <TrendingUp className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+             <h3 className="text-lg font-bold text-slate-700">Task Progress</h3>
+             <p className="mt-2">Velocity and completion metrics.</p>
+          </Card>
+        );
+      case 'timesheets':
+        return (
+          <Card className="border-none shadow-sm p-8 text-center text-slate-500">
+             <Clock className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+             <h3 className="text-lg font-bold text-slate-700">Timesheets</h3>
+             <p className="mt-2">Logged hours against project budgets.</p>
+          </Card>
+        );
+      case 'skills':
+        return (
+          <Card className="border-none shadow-sm p-8 text-center text-slate-500">
+             <GraduationCap className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+             <h3 className="text-lg font-bold text-slate-700">Skills Profile</h3>
+             <p className="mt-2">Technical proficiencies and competencies.</p>
+          </Card>
+        );
+      case 'performance_summary':
+        return (
+          <Card className="border-none shadow-sm p-8 text-center text-slate-500">
+             <TrendingUp className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+             <h3 className="text-lg font-bold text-slate-700">Performance Summary</h3>
+             <p className="mt-2">Manager reviews and project impact.</p>
+          </Card>
+        );
       default:
         return <div>Select a tab</div>;
     }
@@ -551,7 +602,7 @@ export const EmployeeProfile: React.FC = () => {
         {/* Sidebar Nav */}
         <div className="w-full lg:w-64 shrink-0">
           <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-2 flex lg:flex-col gap-1 overflow-x-auto lg:overflow-visible">
-            {TABS.map(tab => (
+            {currentTabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}

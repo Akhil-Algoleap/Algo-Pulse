@@ -11,6 +11,8 @@ import { Attendance } from './pages/Attendance';
 import { Performance } from './pages/Performance';
 import { Documents } from './pages/Documents';
 import { Settings } from './pages/Settings';
+import { PlaceholderPage } from './pages/PlaceholderPage';
+import { SprintBoard } from './pages/SprintBoard';
 import { Login } from './pages/Login';
 import { Projects } from './pages/Projects';
 import { ProjectDetails } from './pages/ProjectDetails';
@@ -138,6 +140,14 @@ function App() {
             <Route path="training" element={<PlaceholderPage title="Training" />} />
             <Route path="offboarding" element={<PlaceholderPage title="Offboarding" />} />
             <Route path="payroll" element={<PlaceholderPage title="Payroll Dashboard" />} />
+            
+            {/* Project Manager Routes */}
+            <Route path="sprint-board" element={<SprintBoard />} />
+            <Route path="tasks" element={<PlaceholderPage title="Tasks" />} />
+            <Route path="resource-allocation" element={<PlaceholderPage title="Resource Allocation" />} />
+            <Route path="timesheets" element={<PlaceholderPage title="Timesheets" />} />
+            <Route path="project-calendar" element={<PlaceholderPage title="Project Calendar" />} />
+            <Route path="project-risks" element={<PlaceholderPage title="Project Risks" />} />
             
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

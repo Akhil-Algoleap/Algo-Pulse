@@ -244,6 +244,24 @@ export const Layout: React.FC = () => {
       ];
     }
 
+    if (role === 'Project Manager') {
+      return [
+        { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+        { to: '/projects', icon: Briefcase, label: 'Projects' },
+        { to: '/employees', icon: Users, label: 'My Team' },
+        { to: '/sprint-board', icon: Grid, label: 'Sprint Board' },
+        { to: '/tasks', icon: CheckSquare, label: 'Tasks' },
+        { to: '/resource-allocation', icon: PieChart, label: 'Resource Allocation' },
+        { to: '/timesheets', icon: Clock, label: 'Timesheets' },
+        { to: '/project-calendar', icon: Calendar, label: 'Project Calendar' },
+        { to: '/documents', icon: FileText, label: 'Documents' },
+        { to: '/project-risks', icon: Shield, label: 'Project Risks' },
+        { to: '/reports', icon: BarChart, label: 'Reports' },
+        { to: '/notifications', icon: Bell, label: 'Notifications' },
+        { to: '/settings', icon: Settings, label: 'Settings' },
+      ];
+    }
+
     // Employee
     return [
       { to: '/', icon: LayoutDashboard, label: 'Home' },

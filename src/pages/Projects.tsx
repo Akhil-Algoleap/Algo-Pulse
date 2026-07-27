@@ -10,7 +10,7 @@ import toast from 'react-hot-toast';
 export const Projects = () => {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
-  const [activeTab, setActiveTab] = useState<'Active' | 'Completed'>('Active');
+  const [activeTab, setActiveTab] = useState<'Active' | 'Completed' | 'Archived' | 'Templates'>('Active');
   const [loading, setLoading] = useState(true);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -82,25 +82,19 @@ export const Projects = () => {
         </Button>
       </div>
 
-      <div className="flex items-center gap-2 border-b border-slate-200">
-        <button
-          onClick={() => setActiveTab('Active')}
-          className={cn(
-            "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
-            activeTab === 'Active' ? "border-primary-600 text-primary-600" : "border-transparent text-slate-500 hover:text-slate-700"
-          )}
-        >
-          Active Projects
-        </button>
-        <button
-          onClick={() => setActiveTab('Completed')}
-          className={cn(
-            "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
-            activeTab === 'Completed' ? "border-primary-600 text-primary-600" : "border-transparent text-slate-500 hover:text-slate-700"
-          )}
-        >
-          Completed Projects
-        </button>
+      <div className="flex items-center gap-2 border-b border-slate-200 overflow-x-auto hide-scrollbar">
+        {['Active', 'Completed', 'Archived', 'Templates'].map(tab => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab as any)}
+            className={cn(
+              "px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap",
+              activeTab === tab ? "border-primary-600 text-primary-600" : "border-transparent text-slate-500 hover:text-slate-700"
+            )}
+          >
+            {tab === 'Templates' ? 'Project Templates' : `${tab} Projects`}
+          </button>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

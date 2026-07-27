@@ -11,7 +11,12 @@ import {
   Banknote,
   Clock,
   Plus,
-  Megaphone
+  Megaphone,
+  CheckCircle2,
+  AlertTriangle,
+  Percent,
+  Rocket,
+  ShieldAlert
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -136,6 +141,227 @@ export const Dashboard: React.FC = () => {
           <Card className="p-6 border-none shadow-sm text-center">
             <p className="text-sm text-slate-500 mb-2">Audit Events</p>
             <p className="text-2xl font-bold text-slate-800">42</p>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // --- PROJECT MANAGER DASHBOARD ---
+  if (profile?.role === 'Project Manager') {
+    const sprintBurndownData = [
+      { day: 'Day 1', expected: 100, actual: 100 },
+      { day: 'Day 2', expected: 80, actual: 85 },
+      { day: 'Day 3', expected: 60, actual: 65 },
+      { day: 'Day 4', expected: 40, actual: 50 },
+      { day: 'Day 5', expected: 20, actual: 25 },
+    ];
+    const projectProgressData = [
+      { name: 'Alpha', progress: 75 },
+      { name: 'Beta', progress: 40 },
+      { name: 'Gamma', progress: 90 },
+      { name: 'Delta', progress: 20 },
+    ];
+    const taskStatusData = [
+      { name: 'To Do', value: 20, color: '#94a3b8' },
+      { name: 'In Progress', value: 45, color: '#3b82f6' },
+      { name: 'Review', value: 15, color: '#f59e0b' },
+      { name: 'Done', value: 30, color: '#10b981' },
+    ];
+    const velocityData = [
+      { sprint: 'Sprint 1', planned: 40, completed: 35 },
+      { sprint: 'Sprint 2', planned: 45, completed: 45 },
+      { sprint: 'Sprint 3', planned: 50, completed: 42 },
+      { sprint: 'Sprint 4', planned: 45, completed: 50 },
+    ];
+    const resourceUtilizationData = [
+      { name: 'Frontend', allocated: 90, available: 10 },
+      { name: 'Backend', allocated: 100, available: 0 },
+      { name: 'Design', allocated: 70, available: 30 },
+      { name: 'QA', allocated: 60, available: 40 },
+    ];
+    const teamCapacityData = [
+      { name: 'Available', value: 30, color: '#10b981' },
+      { name: 'Allocated', value: 70, color: '#3b82f6' },
+    ];
+
+    return (
+      <div className="space-y-8">
+        <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Project Manager Dashboard</h1>
+            <p className="text-slate-500 text-lg">Project Health & Team Metrics</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button size="sm" className="bg-primary-600 hover:bg-primary-700 text-white gap-2"><Plus className="w-4 h-4" /> Create Project</Button>
+            <Button size="sm" variant="outline" className="gap-2"><UserPlus className="w-4 h-4" /> Assign Resource</Button>
+            <Button size="sm" variant="outline" className="gap-2"><Plus className="w-4 h-4" /> Create Sprint</Button>
+            <Button size="sm" variant="outline" className="gap-2"><Plus className="w-4 h-4" /> Create Task</Button>
+            <Button size="sm" variant="outline" className="gap-2"><CheckSquare className="w-4 h-4" /> Approve Timesheet</Button>
+          </div>
+        </div>
+
+        {/* KPI Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="flex flex-col p-6 border-none shadow-md bg-white">
+             <div className="flex justify-between items-center mb-4">
+               <p className="text-sm font-bold text-slate-400 uppercase">Projects Assigned</p>
+               <Briefcase className="w-6 h-6 text-blue-500" />
+             </div>
+             <p className="text-3xl font-black text-slate-900">6</p>
+          </Card>
+          <Card className="flex flex-col p-6 border-none shadow-md bg-white">
+             <div className="flex justify-between items-center mb-4">
+               <p className="text-sm font-bold text-slate-400 uppercase">Tasks Completed</p>
+               <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+             </div>
+             <p className="text-3xl font-black text-slate-900">142</p>
+          </Card>
+          <Card className="flex flex-col p-6 border-none shadow-md bg-white">
+             <div className="flex justify-between items-center mb-4">
+               <p className="text-sm font-bold text-slate-400 uppercase">Tasks Pending</p>
+               <Clock className="w-6 h-6 text-amber-500" />
+             </div>
+             <p className="text-3xl font-black text-slate-900">38</p>
+          </Card>
+          <Card className="flex flex-col p-6 border-none shadow-md bg-white">
+             <div className="flex justify-between items-center mb-4">
+               <p className="text-sm font-bold text-slate-400 uppercase">Team Utilization</p>
+               <Percent className="w-6 h-6 text-indigo-500" />
+             </div>
+             <p className="text-3xl font-black text-slate-900">85%</p>
+          </Card>
+          
+          <Card className="flex flex-col p-6 border-none shadow-md bg-white">
+             <div className="flex justify-between items-center mb-4">
+               <p className="text-sm font-bold text-slate-400 uppercase">Team Availability</p>
+               <UserCheck className="w-6 h-6 text-blue-500" />
+             </div>
+             <p className="text-3xl font-black text-slate-900">15%</p>
+          </Card>
+          <Card className="flex flex-col p-6 border-none shadow-md bg-white">
+             <div className="flex justify-between items-center mb-4">
+               <p className="text-sm font-bold text-slate-400 uppercase">Sprint Progress</p>
+               <Rocket className="w-6 h-6 text-purple-500" />
+             </div>
+             <p className="text-3xl font-black text-slate-900">72%</p>
+          </Card>
+          <Card className="flex flex-col p-6 border-none shadow-md bg-white">
+             <div className="flex justify-between items-center mb-4">
+               <p className="text-sm font-bold text-slate-400 uppercase">Pending Timesheets</p>
+               <FileText className="w-6 h-6 text-orange-500" />
+             </div>
+             <p className="text-3xl font-black text-slate-900">12</p>
+          </Card>
+          <Card className="flex flex-col p-6 border-none shadow-md bg-white">
+             <div className="flex justify-between items-center mb-4">
+               <p className="text-sm font-bold text-slate-400 uppercase">Open Risks</p>
+               <ShieldAlert className="w-6 h-6 text-rose-500" />
+             </div>
+             <p className="text-3xl font-black text-rose-600">3</p>
+          </Card>
+        </div>
+        
+        {/* Charts Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card className="p-6 border-none shadow-md bg-white">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">Sprint Burndown Chart</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={sprintBurndownData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Legend />
+                  <Line type="monotone" dataKey="expected" stroke="#94a3b8" strokeDasharray="5 5" name="Expected" />
+                  <Line type="monotone" dataKey="actual" stroke="#3b82f6" strokeWidth={3} name="Actual" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+          
+          <Card className="p-6 border-none shadow-md bg-white">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">Project Progress</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={projectProgressData} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                  <XAxis type="number" domain={[0, 100]} axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 'bold'}} width={60} />
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Bar dataKey="progress" fill="#10b981" radius={[0, 4, 4, 0]} barSize={24} name="Completion %" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+          
+          <Card className="p-6 border-none shadow-md bg-white">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">Team Capacity</h3>
+            <div className="h-64 flex flex-col items-center">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={teamCapacityData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                    {teamCapacityData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Legend verticalAlign="bottom" height={36} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+          
+          <Card className="p-6 border-none shadow-md bg-white">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">Task Status</h3>
+            <div className="h-64 flex flex-col items-center">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={taskStatusData} cx="50%" cy="50%" innerRadius={0} outerRadius={80} dataKey="value">
+                    {taskStatusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Legend verticalAlign="bottom" height={36} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+          
+          <Card className="p-6 border-none shadow-md bg-white">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">Resource Utilization</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={resourceUtilizationData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Legend />
+                  <Bar dataKey="allocated" stackId="a" fill="#6366f1" radius={[0, 0, 4, 4]} name="Allocated %" maxBarSize={40} />
+                  <Bar dataKey="available" stackId="a" fill="#e2e8f0" radius={[4, 4, 0, 0]} name="Available %" maxBarSize={40} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+          
+          <Card className="p-6 border-none shadow-md bg-white">
+            <h3 className="text-lg font-bold text-slate-800 mb-4">Velocity Chart</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={velocityData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="sprint" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Legend />
+                  <Bar dataKey="planned" fill="#cbd5e1" radius={[4, 4, 0, 0]} name="Planned" maxBarSize={30} />
+                  <Bar dataKey="completed" fill="#8b5cf6" radius={[4, 4, 0, 0]} name="Completed" maxBarSize={30} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </Card>
         </div>
       </div>

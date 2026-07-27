@@ -205,6 +205,62 @@ export const EmployeeList: React.FC = () => {
     }
   };
 
+  if (profile?.role === 'Project Manager') {
+    const pmTeam = [
+      { id: 'emp-1', name: 'Akhil', role: 'Software Engineer', project: 'HRMS', allocation: 100, status: 'Active' },
+      { id: 'emp-2', name: 'Rahul', role: 'QA Engineer', project: 'HRMS', allocation: 50, status: 'Active' },
+      { id: 'emp-3', name: 'Priya', role: 'UI Developer', project: 'CRM', allocation: 75, status: 'On Leave' },
+    ];
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">My Team</h1>
+          <p className="text-slate-500">Only employees assigned to your active projects</p>
+        </div>
+        <Card className="p-0 overflow-hidden border-none shadow-sm">
+          <table className="w-full text-sm text-left">
+            <thead className="bg-slate-50 border-b border-slate-200 text-slate-600">
+              <tr>
+                <th className="px-6 py-4 font-semibold">Employee</th>
+                <th className="px-6 py-4 font-semibold">Role</th>
+                <th className="px-6 py-4 font-semibold">Project</th>
+                <th className="px-6 py-4 font-semibold">Allocation</th>
+                <th className="px-6 py-4 font-semibold">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {pmTeam.map(emp => (
+                <tr key={emp.id} className="hover:bg-slate-50/50 cursor-pointer group" onClick={() => navigate(`/employees/${emp.id}`)}>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 font-black group-hover:bg-primary-50 group-hover:text-primary-600 transition-colors">
+                        {emp.name.charAt(0)}
+                      </div>
+                      <span className="font-bold text-slate-900">{emp.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 font-medium text-slate-600">{emp.role}</td>
+                  <td className="px-6 py-4 font-medium text-slate-600">{emp.project}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-full bg-slate-200 rounded-full h-2 max-w-[100px]">
+                        <div className="bg-primary-600 h-2 rounded-full" style={{ width: `${emp.allocation}%` }}></div>
+                      </div>
+                      <span className="text-xs font-medium">{emp.allocation}%</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <Badge variant={emp.status === 'Active' ? 'success' : 'warning'}>{emp.status}</Badge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
